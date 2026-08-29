@@ -1,67 +1,96 @@
 let allData = [];
 
+let statusChart = null;
+let projectChart = null;
 
-/* ================================
+
+/* =========================================
    START
-================================ */
+========================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
   loadData();
 
-  document
-    .getElementById("projectFilter")
-    .addEventListener("change", applyFilters);
+  [
+    "projectFilter",
+    "buildFilter",
+    "picFilter",
+    "stageFilter"
+  ].forEach(id => {
 
-  document
-    .getElementById("buildFilter")
-    .addEventListener("change", applyFilters);
+    document
+      .getElementById(id)
+      .addEventListener(
+        "change",
+        applyFilters
+      );
 
-  document
-    .getElementById("picFilter")
-    .addEventListener("change", applyFilters);
+  });
 
-  document
-    .getElementById("stageFilter")
-    .addEventListener("change", applyFilters);
 
   document
     .getElementById("searchInput")
-    .addEventListener("input", applyFilters);
+    .addEventListener(
+      "input",
+      applyFilters
+    );
+
 
   document
     .getElementById("resetButton")
-    .addEventListener("click", resetFilters);
+    .addEventListener(
+      "click",
+      resetFilters
+    );
 
 });
 
 
-/* ================================
-   LOAD JSON
-================================ */
+/* =========================================
+   LOAD DATA
+========================================= */
 
 async function loadData() {
 
   try {
 
-    const response = await fetch(
-      "sae_data.json?time=" + new Date().getTime()
-    );
+    const response =
+      await fetch(
+        "sae_data.json?v=" +
+        Date.now()
+      );
+
 
     if (!response.ok) {
-      throw new Error("Unable to load SAE data");
+      throw new Error(
+        "Cannot load sae_data.json"
+      );
     }
 
-    const data = await response.json();
 
-    allData = data.map(item => enrichData(item));
+    const raw =
+      await response.json();
+
+
+    allData =
+      raw.map(item =>
+        enrichData(item)
+      );
+
 
     populateFilters();
 
     renderDashboard(allData);
 
-    document.getElementById("lastUpdated").textContent =
-      new Date().toLocaleString();
+
+    document
+      .getElementById(
+        "lastUpdated"
+      )
+      .textContent =
+      new Date()
+        .toLocaleString();
 
   }
 
@@ -69,97 +98,147 @@ async function loadData() {
 
     console.error(error);
 
-    document.getElementById("dataBody").innerHTML = `
-      <tr>
-        <td colspan="15" style="text-align:center;color:red;">
-          Unable to load SAE data
-        </td>
-      </tr>
-    `;
+    document
+      .getElementById(
+        "pendingBody"
+      )
+      .innerHTML = `
+
+        <tr>
+          <td colspan="7"
+              style="
+                text-align:center;
+                color:red;
+                padding:30px;
+              ">
+            Unable to load SAE data
+          </td>
+        </tr>
+
+      `;
 
   }
 
 }
 
 
-/* ================================
-   CALCULATED DATA
-================================ */
+/* =========================================
+   ENRICH DATA
+========================================= */
 
 function enrichData(item) {
 
-  const cpGap = calculateCPGap(item["NBD"]);
+  const cpGap =
+    calculateCPGap(
+      item["NBD"]
+    );
 
-  const stageInfo = getPendingStage(item);
+
+  const stageInfo =
+    getPendingStage(item);
+
 
   return {
 
     ...item,
 
-    cpGap: cpGap,
+    cpGap,
 
-    priority: getPriority(
-      cpGap,
-      item["Dispatched date"]
-    ),
+    pendingStage:
+      stageInfo.stage,
 
-    pendingStage: stageInfo.stage,
+    nextAction:
+      stageInfo.action,
 
-    nextAction: stageInfo.action
+    priority:
+      getPriority(
+        cpGap,
+        item["Dispatched date"]
+      )
 
   };
 
 }
 
 
-/* ================================
+/* =========================================
    CP GAP
 
-   CP Gap = TODAY - CM NBD
-================================ */
+   TODAY - CM NBD
+========================================= */
 
 function calculateCPGap(nbd) {
 
   if (
-    !nbd ||
-    String(nbd).trim() === "" ||
-    String(nbd).toUpperCase() === "TBC"
+    !hasValue(nbd) ||
+    String(nbd)
+      .trim()
+      .toUpperCase() === "TBC"
   ) {
     return null;
   }
 
-  const nbdDate = parseDate(nbd);
 
-  if (!nbdDate) {
+  const date =
+    parseDate(nbd);
+
+
+  if (!date) {
     return null;
   }
 
-  const today = new Date();
 
-  today.setHours(0, 0, 0, 0);
+  const today =
+    new Date();
 
-  const diff =
-    today.getTime() -
-    nbdDate.getTime();
+
+  today.setHours(
+    0, 0, 0, 0
+  );
+
 
   return Math.floor(
-    diff / (1000 * 60 * 60 * 24)
+
+    (
+      today.getTime() -
+      date.getTime()
+    )
+
+    /
+
+    (
+      1000 *
+      60 *
+      60 *
+      24
+    )
+
   );
 
 }
 
 
-/* ================================
+/* =========================================
    PRIORITY
-================================ */
+========================================= */
 
-function getPriority(cpGap, dispatchedDate) {
+function getPriority(
+  cpGap,
+  dispatchedDate
+) {
 
-  if (dispatchedDate) {
+  if (
+    hasValue(
+      dispatchedDate
+    )
+  ) {
 
     return {
-      label: "✅ Dispatched",
-      className: "badge-green"
+      label:
+        "● Dispatched",
+
+      className:
+        "badge-green"
     };
 
   }
@@ -168,8 +247,11 @@ function getPriority(cpGap, dispatchedDate) {
   if (cpGap === null) {
 
     return {
-      label: "⚪ No NBD",
-      className: "badge-gray"
+      label:
+        "● No NBD",
+
+      className:
+        "badge-gray"
     };
 
   }
@@ -178,8 +260,11 @@ function getPriority(cpGap, dispatchedDate) {
   if (cpGap > 0) {
 
     return {
-      label: "🔴 Overdue",
-      className: "badge-red"
+      label:
+        "● Overdue",
+
+      className:
+        "badge-red"
     };
 
   }
@@ -188,8 +273,11 @@ function getPriority(cpGap, dispatchedDate) {
   if (cpGap >= -3) {
 
     return {
-      label: "🟠 Due ≤3d",
-      className: "badge-orange"
+      label:
+        "● Due ≤3d",
+
+      className:
+        "badge-orange"
     };
 
   }
@@ -198,69 +286,70 @@ function getPriority(cpGap, dispatchedDate) {
   if (cpGap >= -7) {
 
     return {
-      label: "🟡 Due ≤7d",
-      className: "badge-yellow"
+      label:
+        "● Due ≤7d",
+
+      className:
+        "badge-yellow"
     };
 
   }
 
 
   return {
-    label: "🟢 Upcoming",
-    className: "badge-green"
+    label:
+      "● Upcoming",
+
+    className:
+      "badge-green"
   };
 
 }
 
 
-/* ================================
-   CURRENT PENDING STAGE
-================================ */
+/* =========================================
+   PENDING STAGE
+========================================= */
 
 function getPendingStage(item) {
 
   const type =
-    String(item["Type"] || "")
-      .trim()
-      .toLowerCase();
+    String(
+      item["Type"] || ""
+    )
+    .trim()
+    .toLowerCase();
 
 
   if (type === "inhouse") {
 
     return {
+
       stage:
         "Project / Inhouse Follow-up",
 
       action:
         "Check execution progress vs NBD"
-    };
 
-  }
-
-
-  if (!hasValue(item["FIH PO Number"])) {
-
-    return {
-      stage: "FIH PO Pending",
-
-      action:
-        "Follow up FIH PO number"
     };
 
   }
 
 
   if (
-    hasValue(item["Target date"]) &&
-    !hasValue(item["Released"])
+    !hasValue(
+      item["FIH PO Number"]
+    )
   ) {
 
     return {
+
       stage:
-        "FIH PO Release Pending",
+        "FIH PO Pending",
 
       action:
-        "Follow up FIH PO release"
+        "Follow up FIH PO number"
+
     };
 
   }
@@ -268,256 +357,360 @@ function getPendingStage(item) {
 
   if (
     hasValue(
-      item["Official PO Target date"]
+      item["Target date"]
     ) &&
     !hasValue(
-      item["Official PO Released"]
+      item["Released"]
     )
   ) {
 
     return {
+
+      stage:
+        "FIH PO Release Pending",
+
+      action:
+        "Follow up FIH PO release"
+
+    };
+
+  }
+
+
+  if (
+    hasValue(
+      item[
+        "Official PO Target date"
+      ]
+    ) &&
+    !hasValue(
+      item[
+        "Official PO Released"
+      ]
+    )
+  ) {
+
+    return {
+
       stage:
         "Official PO Pending",
 
       action:
         "Follow up Official PO release"
+
     };
 
   }
 
 
-  if (!hasValue(item["Vendor ETD"])) {
+  if (
+    !hasValue(
+      item["Vendor ETD"]
+    )
+  ) {
 
     return {
+
       stage:
         "Vendor ETD Pending",
 
       action:
         "Confirm Vendor ETD"
+
     };
 
   }
 
 
-  if (!hasValue(item["AWB Bill"])) {
+  if (
+    !hasValue(
+      item["AWB Bill"]
+    )
+  ) {
 
     return {
+
       stage:
         "AWB Pending",
 
       action:
         "Get AWB / shipment confirmation"
+
     };
 
   }
 
 
-  if (!hasValue(item["BFIH Actual ETA"])) {
+  if (
+    !hasValue(
+      item["BFIH Actual ETA"]
+    )
+  ) {
 
     return {
+
       stage:
         "BFIH Arrival Pending",
 
       action:
         "Track shipment / confirm BFIH arrival"
+
     };
 
   }
 
 
-  if (!hasValue(item["CM PO Number"])) {
+  if (
+    !hasValue(
+      item["CM PO Number"]
+    )
+  ) {
 
     return {
+
       stage:
         "CM PO Pending",
 
       action:
         "Follow up CM PO"
+
     };
 
   }
 
 
-  if (!hasValue(item["CM Released date"])) {
+  if (
+    !hasValue(
+      item["CM Released date"]
+    )
+  ) {
 
     return {
+
       stage:
         "CM Release Pending",
 
       action:
         "Follow up CM release"
+
     };
 
   }
 
 
-  if (!hasValue(item["VMI ETA plan"])) {
+  if (
+    !hasValue(
+      item["VMI ETA plan"]
+    )
+  ) {
 
     return {
+
       stage:
         "VMI ETA Plan Pending",
 
       action:
         "Confirm VMI ETA plan"
+
     };
 
   }
 
 
-  if (!hasValue(item["VMI ETA"])) {
+  if (
+    !hasValue(
+      item["VMI ETA"]
+    )
+  ) {
 
     return {
+
       stage:
         "VMI Arrival Pending",
 
       action:
         "Confirm VMI ETA / arrival"
+
     };
 
   }
 
 
-  if (!hasValue(item["Dispatched date"])) {
+  if (
+    !hasValue(
+      item["Dispatched date"]
+    )
+  ) {
 
     return {
+
       stage:
         "Dispatch Pending",
 
       action:
         "Push dispatch to customer"
+
     };
 
   }
 
 
   return {
-    stage: "Completed",
-    action: "-"
+
+    stage:
+      "Completed",
+
+    action:
+      "-"
+
   };
 
 }
 
 
-/* ================================
-   VALUE CHECK
-================================ */
-
-function hasValue(value) {
-
-  if (
-    value === null ||
-    value === undefined
-  ) {
-    return false;
-  }
-
-  const text =
-    String(value).trim();
-
-  if (
-    text === "" ||
-    text === "-" ||
-    text.toLowerCase() === "null"
-  ) {
-    return false;
-  }
-
-  return true;
-
-}
-
-
-/* ================================
+/* =========================================
    FILTER OPTIONS
-================================ */
+========================================= */
 
 function populateFilters() {
 
   populateSelect(
     "projectFilter",
-    allData.map(x => x["Project"])
+    allData.map(
+      item =>
+        item["Project"]
+    )
   );
+
 
   populateSelect(
     "buildFilter",
-    allData.map(x => x["Build"])
+    allData.map(
+      item =>
+        item["Build"]
+    )
   );
+
 
   populateSelect(
     "picFilter",
-    allData.map(x => x["PIC"])
+    allData.map(
+      item =>
+        item["PIC"]
+    )
   );
+
 
   populateSelect(
     "stageFilter",
-    allData.map(x => x.pendingStage)
+    allData.map(
+      item =>
+        item.pendingStage
+    )
   );
 
 }
 
 
-function populateSelect(elementId, values) {
+function populateSelect(
+  elementId,
+  values
+) {
 
   const select =
-    document.getElementById(elementId);
+    document
+      .getElementById(
+        elementId
+      );
 
-  const uniqueValues =
-    [...new Set(
-      values
-        .filter(Boolean)
-        .map(v => String(v).trim())
-    )]
+
+  const unique =
+    [
+      ...new Set(
+        values
+          .filter(hasValue)
+          .map(
+            value =>
+              String(value)
+                .trim()
+          )
+      )
+    ]
     .sort();
 
 
-  uniqueValues.forEach(value => {
+  unique.forEach(value => {
 
     const option =
-      document.createElement("option");
+      document
+        .createElement(
+          "option"
+        );
 
-    option.value = value;
 
-    option.textContent = value;
+    option.value =
+      value;
 
-    select.appendChild(option);
+
+    option.textContent =
+      value;
+
+
+    select.appendChild(
+      option
+    );
 
   });
 
 }
 
 
-/* ================================
-   FILTERING
-================================ */
+/* =========================================
+   FILTER
+========================================= */
 
 function applyFilters() {
 
   const project =
-    document.getElementById(
-      "projectFilter"
-    ).value;
+    document
+      .getElementById(
+        "projectFilter"
+      )
+      .value;
+
 
   const build =
-    document.getElementById(
-      "buildFilter"
-    ).value;
+    document
+      .getElementById(
+        "buildFilter"
+      )
+      .value;
+
 
   const pic =
-    document.getElementById(
-      "picFilter"
-    ).value;
+    document
+      .getElementById(
+        "picFilter"
+      )
+      .value;
+
 
   const stage =
-    document.getElementById(
-      "stageFilter"
-    ).value;
+    document
+      .getElementById(
+        "stageFilter"
+      )
+      .value;
+
 
   const search =
-    document.getElementById(
-      "searchInput"
-    ).value
-    .toLowerCase()
-    .trim();
+    document
+      .getElementById(
+        "searchInput"
+      )
+      .value
+      .trim()
+      .toLowerCase();
 
 
   const filtered =
@@ -525,7 +718,8 @@ function applyFilters() {
 
       if (
         project &&
-        item["Project"] !== project
+        item["Project"] !==
+        project
       ) {
         return false;
       }
@@ -533,7 +727,8 @@ function applyFilters() {
 
       if (
         build &&
-        item["Build"] !== build
+        item["Build"] !==
+        build
       ) {
         return false;
       }
@@ -541,7 +736,8 @@ function applyFilters() {
 
       if (
         pic &&
-        item["PIC"] !== pic
+        item["PIC"] !==
+        pic
       ) {
         return false;
       }
@@ -549,7 +745,8 @@ function applyFilters() {
 
       if (
         stage &&
-        item.pendingStage !== stage
+        item.pendingStage !==
+        stage
       ) {
         return false;
       }
@@ -557,15 +754,26 @@ function applyFilters() {
 
       if (search) {
 
-        const searchText = [
+        const text = [
 
           item["Project"],
+
           item["Build"],
-          item["Machine/Equipment name"],
+
+          item[
+            "Machine/Equipment name"
+          ],
+
           item["Spec"],
+
           item["PIC"],
+
           item["Vendor"],
-          item["Overall status"],
+
+          item[
+            "Overall status"
+          ],
+
           item["Remark"]
 
         ]
@@ -574,7 +782,9 @@ function applyFilters() {
 
 
         if (
-          !searchText.includes(search)
+          !text.includes(
+            search
+          )
         ) {
           return false;
         }
@@ -587,63 +797,68 @@ function applyFilters() {
     });
 
 
-  renderDashboard(filtered);
+  renderDashboard(
+    filtered
+  );
 
 }
 
 
-/* ================================
+/* =========================================
    RESET
-================================ */
+========================================= */
 
 function resetFilters() {
 
-  document.getElementById(
-    "projectFilter"
-  ).value = "";
-
-  document.getElementById(
-    "buildFilter"
-  ).value = "";
-
-  document.getElementById(
-    "picFilter"
-  ).value = "";
-
-  document.getElementById(
+  [
+    "projectFilter",
+    "buildFilter",
+    "picFilter",
     "stageFilter"
-  ).value = "";
+  ]
+  .forEach(id => {
 
-  document.getElementById(
-    "searchInput"
-  ).value = "";
+    document
+      .getElementById(id)
+      .value = "";
 
-  renderDashboard(allData);
+  });
+
+
+  document
+    .getElementById(
+      "searchInput"
+    )
+    .value = "";
+
+
+  renderDashboard(
+    allData
+  );
 
 }
 
 
-/* ================================
-   RENDER
-================================ */
+/* =========================================
+   DASHBOARD
+========================================= */
 
 function renderDashboard(data) {
 
   updateKPI(data);
 
-  renderTable(data);
+  renderPending(data);
 
-  document.getElementById(
-    "resultCount"
-  ).textContent =
-    `${data.length} items`;
+  renderStatusChart(data);
+
+  renderProjectChart(data);
 
 }
 
 
-/* ================================
+/* =========================================
    KPI
-================================ */
+========================================= */
 
 function updateKPI(data) {
 
@@ -653,72 +868,203 @@ function updateKPI(data) {
 
   const overdue =
     data.filter(item =>
-      !item["Dispatched date"] &&
-      item.cpGap !== null &&
+
+      !hasValue(
+        item["Dispatched date"]
+      )
+
+      &&
+
+      item.cpGap !== null
+
+      &&
+
       item.cpGap > 0
+
     ).length;
 
 
-  const due =
+  const due3 =
     data.filter(item =>
-      !item["Dispatched date"] &&
-      item.cpGap !== null &&
-      item.cpGap <= 0 &&
+
+      !hasValue(
+        item["Dispatched date"]
+      )
+
+      &&
+
+      item.cpGap !== null
+
+      &&
+
+      item.cpGap <= 0
+
+      &&
+
+      item.cpGap >= -3
+
+    ).length;
+
+
+  const due7 =
+    data.filter(item =>
+
+      !hasValue(
+        item["Dispatched date"]
+      )
+
+      &&
+
+      item.cpGap <= -4
+
+      &&
+
       item.cpGap >= -7
+
     ).length;
 
 
   const dispatched =
     data.filter(item =>
+
       hasValue(
         item["Dispatched date"]
       )
+
     ).length;
 
 
-  document.getElementById(
-    "totalCount"
-  ).textContent = total;
+  setText(
+    "totalCount",
+    total
+  );
 
-  document.getElementById(
-    "overdueCount"
-  ).textContent = overdue;
+  setText(
+    "overdueCount",
+    overdue
+  );
 
-  document.getElementById(
-    "dueCount"
-  ).textContent = due;
+  setText(
+    "due3Count",
+    due3
+  );
 
-  document.getElementById(
-    "dispatchedCount"
-  ).textContent = dispatched;
+  setText(
+    "due7Count",
+    due7
+  );
+
+  setText(
+    "dispatchedCount",
+    dispatched
+  );
+
+
+  setText(
+    "totalPercent",
+    total
+      ? "100% of total"
+      : "0% of total"
+  );
+
+
+  setText(
+    "overduePercent",
+    percentage(
+      overdue,
+      total
+    )
+  );
+
+
+  setText(
+    "due3Percent",
+    percentage(
+      due3,
+      total
+    )
+  );
+
+
+  setText(
+    "due7Percent",
+    percentage(
+      due7,
+      total
+    )
+  );
+
+
+  setText(
+    "dispatchedPercent",
+    percentage(
+      dispatched,
+      total
+    )
+  );
 
 }
 
 
-/* ================================
-   TABLE
-================================ */
+/* =========================================
+   PENDING DETAILS
+========================================= */
 
-function renderTable(data) {
+function renderPending(data) {
 
   const tbody =
-    document.getElementById(
-      "dataBody"
-    );
+    document
+      .getElementById(
+        "pendingBody"
+      );
+
 
   tbody.innerHTML = "";
 
 
-  if (data.length === 0) {
+  const pending =
+    data
+
+      .filter(item =>
+
+        !hasValue(
+          item[
+            "Dispatched date"
+          ]
+        )
+
+      )
+
+      .sort(
+        (a, b) =>
+          getSortScore(a) -
+          getSortScore(b)
+      );
+
+
+  setText(
+    "pendingCount",
+    `${pending.length} items`
+  );
+
+
+  if (
+    pending.length === 0
+  ) {
 
     tbody.innerHTML = `
+
       <tr>
-        <td colspan="15"
-            style="text-align:center;
-                   padding:30px;">
-          No matching data
+        <td colspan="7"
+            style="
+              text-align:center;
+              padding:30px;
+              color:#64748b;
+            ">
+          No pending items
         </td>
       </tr>
+
     `;
 
     return;
@@ -726,31 +1072,19 @@ function renderTable(data) {
   }
 
 
-  const sorted =
-    [...data].sort(
-      (a, b) =>
-        getSortScore(a) -
-        getSortScore(b)
-    );
+  pending.forEach(item => {
+
+    const tr =
+      document
+        .createElement(
+          "tr"
+        );
 
 
-  sorted.forEach(item => {
-
-    const row =
-      document.createElement("tr");
-
-
-    const cpGapText =
-      formatCPGap(item.cpGap);
-
-
-    const cpClass =
-      getCPClass(item.cpGap);
-
-
-    row.innerHTML = `
+    tr.innerHTML = `
 
       <td>
+
         <span class="
           badge
           ${item.priority.className}
@@ -759,49 +1093,35 @@ function renderTable(data) {
             item.priority.label
           )}
         </span>
+
       </td>
 
+
       <td>
+
         ${escapeHTML(
           item["Project"]
         )}
+
+        <br>
+
+        <strong>
+          ${escapeHTML(
+            item["Build"]
+          )}
+        </strong>
+
       </td>
+
 
       <td>
         ${escapeHTML(
-          item["Build"]
+          item[
+            "Machine/Equipment name"
+          ]
         )}
       </td>
 
-      <td>
-        ${escapeHTML(
-          item["Machine/Equipment name"]
-        )}
-      </td>
-
-      <td>
-        ${escapeHTML(
-          item["Spec"]
-        )}
-      </td>
-
-      <td>
-        ${escapeHTML(
-          item["KO QTY"]
-        )}
-      </td>
-
-      <td>
-        ${escapeHTML(
-          item["PIC"]
-        )}
-      </td>
-
-      <td>
-        ${escapeHTML(
-          item["Vendor"]
-        )}
-      </td>
 
       <td>
         ${formatDisplayDate(
@@ -809,15 +1129,17 @@ function renderTable(data) {
         )}
       </td>
 
-      <td>
-        ${formatDisplayDate(
-          item["BFIH site arrive"]
+
+      <td class="
+        ${getCPClass(
+          item.cpGap
+        )}
+      ">
+        ${formatCPGap(
+          item.cpGap
         )}
       </td>
 
-      <td class="${cpClass}">
-        ${cpGapText}
-      </td>
 
       <td class="stage">
         ${escapeHTML(
@@ -825,113 +1147,440 @@ function renderTable(data) {
         )}
       </td>
 
+
       <td>
         ${escapeHTML(
           item.nextAction
         )}
       </td>
 
-      <td>
-        ${escapeHTML(
-          item["Overall status"]
-        )}
-      </td>
-
-      <td>
-        ${escapeHTML(
-          item["Remark"]
-        )}
-      </td>
-
     `;
 
 
-    tbody.appendChild(row);
+    tbody.appendChild(
+      tr
+    );
 
   });
 
 }
 
 
-/* ================================
-   URGENCY SORT
+/* =========================================
+   DONUT
+========================================= */
 
-   overdue first
-   then due soon
-================================ */
+function renderStatusChart(data) {
+
+  const counts = {};
+
+
+  data.forEach(item => {
+
+    const status =
+      hasValue(
+        item[
+          "Overall status"
+        ]
+      )
+
+      ? String(
+          item[
+            "Overall status"
+          ]
+        )
+
+      : "No Status";
+
+
+    counts[status] =
+      (
+        counts[status] || 0
+      ) + 1;
+
+  });
+
+
+  const labels =
+    Object.keys(counts);
+
+
+  const values =
+    Object.values(counts);
+
+
+  if (statusChart) {
+    statusChart.destroy();
+  }
+
+
+  statusChart =
+    new Chart(
+
+      document
+        .getElementById(
+          "statusChart"
+        ),
+
+      {
+
+        type:
+          "doughnut",
+
+        data: {
+
+          labels,
+
+          datasets: [{
+
+            data:
+              values,
+
+            backgroundColor: [
+              "#f58213",
+              "#2fa34a",
+              "#1261d6",
+              "#ef2b1f",
+              "#efb20b",
+              "#94a3b8"
+            ],
+
+            borderWidth:
+              1
+
+          }]
+
+        },
+
+
+        options: {
+
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false,
+
+          cutout:
+            "58%",
+
+          plugins: {
+
+            legend: {
+
+              position:
+                "right",
+
+              labels: {
+
+                boxWidth:
+                  10,
+
+                font: {
+                  size: 11
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    );
+
+}
+
+
+/* =========================================
+   BAR CHART
+========================================= */
+
+function renderProjectChart(
+  data
+) {
+
+  const groups = {};
+
+
+  data.forEach(item => {
+
+    const project =
+      item["Project"] || "-";
+
+
+    const build =
+      item["Build"] || "-";
+
+
+    const key =
+      `${project} ${build}`;
+
+
+    if (!groups[key]) {
+
+      groups[key] = {
+        total: 0,
+        overdue: 0
+      };
+
+    }
+
+
+    groups[key].total++;
+
+
+    if (
+      !hasValue(
+        item["Dispatched date"]
+      )
+
+      &&
+
+      item.cpGap !== null
+
+      &&
+
+      item.cpGap > 0
+    ) {
+
+      groups[key]
+        .overdue++;
+
+    }
+
+  });
+
+
+  const labels =
+    Object.keys(groups);
+
+
+  const totalValues =
+    labels.map(
+      label =>
+        groups[label].total
+    );
+
+
+  const overdueValues =
+    labels.map(
+      label =>
+        groups[label].overdue
+    );
+
+
+  if (projectChart) {
+    projectChart.destroy();
+  }
+
+
+  projectChart =
+    new Chart(
+
+      document
+        .getElementById(
+          "projectChart"
+        ),
+
+      {
+
+        type:
+          "bar",
+
+        data: {
+
+          labels,
+
+          datasets: [
+
+            {
+              label:
+                "Total Items",
+
+              data:
+                totalValues,
+
+              backgroundColor:
+                "#1261d6"
+            },
+
+            {
+              label:
+                "Overdue",
+
+              data:
+                overdueValues,
+
+              backgroundColor:
+                "#ef2b1f"
+            }
+
+          ]
+
+        },
+
+
+        options: {
+
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false,
+
+          indexAxis:
+            "y",
+
+          scales: {
+
+            x: {
+              beginAtZero:
+                true,
+
+              ticks: {
+                precision: 0
+              }
+            }
+
+          },
+
+          plugins: {
+
+            legend: {
+
+              position:
+                "top",
+
+              labels: {
+
+                boxWidth:
+                  10,
+
+                font: {
+                  size: 10
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    );
+
+}
+
+
+/* =========================================
+   SORT
+========================================= */
 
 function getSortScore(item) {
 
   if (
     hasValue(
-      item["Dispatched date"]
+      item[
+        "Dispatched date"
+      ]
     )
   ) {
     return 999999;
   }
 
 
-  if (item.cpGap === null) {
+  if (
+    item.cpGap === null
+  ) {
     return 500000;
   }
 
-
-  /*
-     CP Gap:
-     +30 = badly overdue
-     +1  = overdue
-     -1  = tomorrow
-     -30 = far away
-
-     We want highest CP Gap first.
-  */
 
   return -item.cpGap;
 
 }
 
 
-/* ================================
-   CP FORMAT
-================================ */
+/* =========================================
+   HELPERS
+========================================= */
 
-function formatCPGap(value) {
+function hasValue(value) {
 
-  if (value === null) {
-    return "";
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return false;
   }
 
-  if (value > 0) {
-    return `+${value}`;
-  }
 
-  return String(value);
+  const text =
+    String(value)
+      .trim();
+
+
+  return !(
+    text === "" ||
+    text === "-" ||
+    text.toLowerCase()
+      === "null"
+  );
 
 }
 
 
-function getCPClass(value) {
+function percentage(
+  value,
+  total
+) {
 
-  if (value === null) {
-    return "";
+  if (!total) {
+    return "0% of total";
   }
 
-  if (value > 0) {
-    return "cp-overdue";
-  }
 
-  if (value >= -7) {
-    return "cp-warning";
-  }
+  return (
+    (
+      value /
+      total *
+      100
+    )
+    .toFixed(1)
+    .replace(
+      ".0",
+      ""
+    )
 
-  return "cp-safe";
+    + "% of total"
+  );
 
 }
 
 
-/* ================================
+function setText(
+  id,
+  value
+) {
+
+  document
+    .getElementById(id)
+    .textContent =
+    value;
+
+}
+
+
+/* =========================================
    DATE
-================================ */
+========================================= */
 
 function parseDate(value) {
 
@@ -939,49 +1588,68 @@ function parseDate(value) {
     return null;
   }
 
+
   const text =
-    String(value).trim();
+    String(value)
+      .trim();
 
 
   if (
     text === "" ||
-    text.toUpperCase() === "TBC"
+    text.toUpperCase()
+      === "TBC"
   ) {
     return null;
   }
 
 
   // YYYY-MM-DD
+
   if (
     /^\d{4}-\d{2}-\d{2}$/
       .test(text)
   ) {
 
-    const parts =
-      text.split("-");
+    const [
+      year,
+      month,
+      day
+    ] =
+      text
+        .split("-")
+        .map(Number);
+
 
     return new Date(
-      Number(parts[0]),
-      Number(parts[1]) - 1,
-      Number(parts[2])
+      year,
+      month - 1,
+      day
     );
 
   }
 
 
   // M/D/YYYY
+
   if (
     /^\d{1,2}\/\d{1,2}\/\d{4}$/
       .test(text)
   ) {
 
-    const parts =
-      text.split("/");
+    const [
+      month,
+      day,
+      year
+    ] =
+      text
+        .split("/")
+        .map(Number);
+
 
     return new Date(
-      Number(parts[2]),
-      Number(parts[0]) - 1,
-      Number(parts[1])
+      year,
+      month - 1,
+      day
     );
 
   }
@@ -992,16 +1660,19 @@ function parseDate(value) {
 }
 
 
-function formatDisplayDate(value) {
+function formatDisplayDate(
+  value
+) {
 
-  if (!value) {
+  if (!hasValue(value)) {
     return "";
   }
 
 
   if (
     String(value)
-      .toUpperCase() === "TBC"
+      .toUpperCase()
+      === "TBC"
   ) {
     return "TBC";
   }
@@ -1019,13 +1690,21 @@ function formatDisplayDate(value) {
   const month =
     String(
       date.getMonth() + 1
-    ).padStart(2, "0");
+    )
+    .padStart(
+      2,
+      "0"
+    );
 
 
   const day =
     String(
       date.getDate()
-    ).padStart(2, "0");
+    )
+    .padStart(
+      2,
+      "0"
+    );
 
 
   return `${month}/${day}`;
@@ -1033,9 +1712,52 @@ function formatDisplayDate(value) {
 }
 
 
-/* ================================
-   SAFE HTML
-================================ */
+/* =========================================
+   CP GAP FORMAT
+========================================= */
+
+function formatCPGap(value) {
+
+  if (value === null) {
+    return "";
+  }
+
+
+  if (value > 0) {
+    return `+${value}`;
+  }
+
+
+  return String(value);
+
+}
+
+
+function getCPClass(value) {
+
+  if (value === null) {
+    return "";
+  }
+
+
+  if (value > 0) {
+    return "cp-overdue";
+  }
+
+
+  if (value >= -7) {
+    return "cp-warning";
+  }
+
+
+  return "cp-safe";
+
+}
+
+
+/* =========================================
+   HTML SAFETY
+========================================= */
 
 function escapeHTML(value) {
 
