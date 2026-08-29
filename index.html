@@ -1,1 +1,133 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SAE Progress</title><link rel="stylesheet" href="style.css"></head><body><aside class="side"><div class="brand"><div class="brand-logo">✦</div><div><div class="brand-name">SAE Progress</div><div class="brand-sub">Project Management<br>System</div></div></div><nav class="top-nav"><a class="sel">▦ <span>Dashboard</span></a></nav><div class="sep"></div><div class="cap">PROJECT</div><div class="proj"><div class="proj active"><i class="b"></i><span>NB</span></div><div class="proj"><i class="o"></i><span>RF</span></div><div class="proj"><i class="g"></i><span>Import</span></div></div><div class="sep"></div><nav><a>⌕ <span>Search</span></a><a>◷ <span>Timeline</span></a><a>▣ <span>Calendar</span></a><a>◒ <span>Performance</span></a><a>♧ <span>Notifications</span><b>3</b></a><a>▤ <span>Google Sheet</span></a><a>◫ <span>Audit Log</span></a><a>⚙ <span>Settings</span></a></nav><div class="bottom"><small>SOURCE</small><strong>SAE sheet only</strong><div class="logout">↪ Logout</div></div></aside><main><header><div><div class="crumb">WORKSPACE / SAE</div><h1>Dashboard</h1><p>Project tracking &amp; operational overview</p></div><div class="filters"><button>2026⌄</button><button>All months⌄</button><button>All weeks⌄</button><button>mm/dd/yyyy　▣</button><span>to</span><button>mm/dd/yyyy　▣</button><button>↥ Export</button><button>↧ Import</button><button>中</button></div></header><section class="overview"><div><h2>SAE Project Overview</h2><p>Live overview of NB, RF and Import activities</p></div><div class="online">● Online</div></section><div id="workspaces"></div></main><script src="app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>BFIH SAE Project Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div>
+      <h1>BFIH SAE Project Dashboard</h1>
+      <p>Project Progress Management</p>
+    </div>
+
+    <div class="update-info">
+      Last refreshed:
+      <span id="lastUpdated">--</span>
+    </div>
+  </header>
+
+
+  <main class="container">
+
+    <!-- KPI -->
+    <section class="kpi-grid">
+
+      <div class="kpi-card">
+        <div class="kpi-title">Total Items</div>
+        <div class="kpi-value" id="totalCount">0</div>
+      </div>
+
+      <div class="kpi-card danger">
+        <div class="kpi-title">Overdue</div>
+        <div class="kpi-value" id="overdueCount">0</div>
+      </div>
+
+      <div class="kpi-card warning">
+        <div class="kpi-title">Due ≤ 7 Days</div>
+        <div class="kpi-value" id="dueCount">0</div>
+      </div>
+
+      <div class="kpi-card success">
+        <div class="kpi-title">Dispatched</div>
+        <div class="kpi-value" id="dispatchedCount">0</div>
+      </div>
+
+    </section>
+
+
+    <!-- FILTER -->
+    <section class="filter-panel">
+
+      <select id="projectFilter">
+        <option value="">All Projects</option>
+      </select>
+
+      <select id="buildFilter">
+        <option value="">All Builds</option>
+      </select>
+
+      <select id="picFilter">
+        <option value="">All PIC</option>
+      </select>
+
+      <select id="stageFilter">
+        <option value="">All Pending Stages</option>
+      </select>
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search machine / spec / vendor..."
+      >
+
+      <button id="resetButton">Reset</button>
+
+    </section>
+
+
+    <!-- TABLE -->
+    <section class="table-section">
+
+      <div class="table-title">
+        <div>
+          <h2>SAE Progress Tracker</h2>
+          <span id="resultCount">0 items</span>
+        </div>
+      </div>
+
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Project</th>
+              <th>Build</th>
+              <th>Machine / Equipment</th>
+              <th>Spec</th>
+              <th>Qty</th>
+              <th>PIC</th>
+              <th>Vendor</th>
+              <th>CM NBD</th>
+              <th>BFIH Site Arrive</th>
+              <th>CP Gap</th>
+              <th>Current Pending Stage</th>
+              <th>Next Action / Chase</th>
+              <th>Overall Status</th>
+              <th>Remark</th>
+            </tr>
+          </thead>
+
+          <tbody id="dataBody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
