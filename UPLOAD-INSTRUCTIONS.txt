@@ -1,0 +1,10 @@
+BFIH SAE Dashboard - FULL RESET
+
+Upload ONLY these 4 files to the ROOT of the GitHub repository:
+1. index.html
+2. style.css
+3. app.js
+4. sae_data.json
+
+Delete old dashboard.css and dashboard.js first.
+GitHub Pages source: main / (root)

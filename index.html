@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BFIH SAE Project Dashboard</title>
+
+  <!-- ONE CSS FILE ONLY -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">BF</div>
+        <div>
+          <div class="brand-title">BFIH SAE</div>
+          <div class="brand-subtitle">Project Dashboard</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-link active" href="#"><span class="icon">▦</span>Dashboard</a>
+        <a class="nav-link" href="#"><span class="icon">▤</span>Projects</a>
+        <a class="nav-link" href="#"><span class="icon">⇩</span>Import</a>
+        <a class="nav-link" href="#"><span class="icon">N</span>NB</a>
+        <a class="nav-link" href="#"><span class="icon">R</span>RF</a>
+
+        <div class="nav-separator"></div>
+
+        <a class="nav-link" href="#"><span class="icon">◷</span>Timeline</a>
+        <a class="nav-link" href="#"><span class="icon">!</span>Alerts</a>
+
+        <div class="nav-heading">TOOLS</div>
+        <a class="nav-link" href="#"><span class="icon">⌕</span>Search</a>
+        <a class="nav-link" href="#"><span class="icon">▣</span>Calendar</a>
+        <a class="nav-link" href="#"><span class="icon">↗</span>Performance</a>
+        <a class="nav-link" href="#"><span class="icon">◉</span>Notifications <span class="badge">3</span></a>
+        <a class="nav-link" href="#"><span class="icon">G</span>Google Sheet</a>
+        <a class="nav-link" href="#"><span class="icon">≡</span>Audit Log</a>
+
+        <div class="nav-heading">SYSTEM</div>
+        <a class="nav-link" href="#"><span class="icon">⚙</span>Settings</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a class="logout" href="#"><span class="icon">↪</span>Logout</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <h1>BFIH SAE Project Dashboard</h1>
+          <p>Project Progress Management</p>
+        </div>
+        <div class="updated">Last refreshed: <span id="lastUpdated">--</span></div>
+      </header>
+
+      <main class="content">
+
+        <!-- FILTERS -->
+        <section class="filters card">
+          <div class="field">
+            <label>Project</label>
+            <select id="projectFilter"><option value="">All Projects</option></select>
+          </div>
+          <div class="field">
+            <label>Build</label>
+            <select id="buildFilter"><option value="">All Builds</option></select>
+          </div>
+          <div class="field">
+            <label>PIC</label>
+            <select id="picFilter"><option value="">All PIC</option></select>
+          </div>
+          <div class="field">
+            <label>Pending Stage</label>
+            <select id="stageFilter"><option value="">All Pending Stages</option></select>
+          </div>
+          <div class="field search-field">
+            <label>Search</label>
+            <input id="searchInput" type="search" placeholder="Machine / spec / vendor..." />
+          </div>
+          <button id="resetButton" class="reset-btn">↻ Reset</button>
+        </section>
+
+        <!-- KPI -->
+        <section class="kpis">
+          <article class="kpi blue">
+            <div class="kpi-no">KPI 1</div>
+            <div class="kpi-label">Total Items</div>
+            <div class="kpi-value" id="totalCount">0</div>
+            <div class="kpi-sub" id="totalPercent">0%</div>
+          </article>
+
+          <article class="kpi red">
+            <div class="kpi-no">KPI 2</div>
+            <div class="kpi-label">Overdue</div>
+            <div class="kpi-value" id="overdueCount">0</div>
+            <div class="kpi-sub" id="overduePercent">0%</div>
+          </article>
+
+          <article class="kpi orange">
+            <div class="kpi-no">KPI 3</div>
+            <div class="kpi-label">Due ≤ 3 Days</div>
+            <div class="kpi-value" id="due3Count">0</div>
+            <div class="kpi-sub" id="due3Percent">0%</div>
+          </article>
+
+          <article class="kpi yellow">
+            <div class="kpi-no">KPI 4</div>
+            <div class="kpi-label">Due ≤ 7 Days</div>
+            <div class="kpi-value" id="due7Count">0</div>
+            <div class="kpi-sub" id="due7Percent">0%</div>
+          </article>
+
+          <article class="kpi green">
+            <div class="kpi-no">KPI 5</div>
+            <div class="kpi-label">Dispatched</div>
+            <div class="kpi-value" id="dispatchedCount">0</div>
+            <div class="kpi-sub" id="dispatchedPercent">0%</div>
+          </article>
+        </section>
+
+        <!-- CHARTS + PENDING -->
+        <section class="workspace">
+          <article class="panel">
+            <h2><span></span>DONUT — Overall Status Distribution</h2>
+            <div class="chart-box"><canvas id="statusChart"></canvas></div>
+            <div class="note">Based on Overall Status</div>
+          </article>
+
+          <article class="panel">
+            <h2><span></span>BAR — Items by Project / Build</h2>
+            <div class="chart-box"><canvas id="projectChart"></canvas></div>
+          </article>
+
+          <article class="panel pending">
+            <div class="panel-title-row">
+              <h2><span></span>PENDING DETAILS — Items to Chase</h2>
+              <strong id="pendingCount">0 items</strong>
+            </div>
+
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Priority</th>
+                    <th>Project</th>
+                    <th>Machine / Equipment</th>
+                    <th>CM NBD</th>
+                    <th>BFIH Site Arrive</th>
+                    <th>CP Gap</th>
+                    <th>Current Pending Stage</th>
+                    <th>Next Action / Chase</th>
+                  </tr>
+                </thead>
+                <tbody id="pendingBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- LEGEND -->
+        <section class="legend">
+          <div><b>ⓘ CP Gap = TODAY - CM NBD</b><small>(+) Overdue | (-) Remaining days</small></div>
+          <div><b>🔴 Overdue</b><small>CP Gap &gt; 0</small></div>
+          <div><b>🟠 Due ≤ 3 Days</b><small>-3 to 0</small></div>
+          <div><b>🟡 Due ≤ 7 Days</b><small>-7 to -4</small></div>
+          <div><b>🟢 Upcoming</b><small>≤ -8</small></div>
+        </section>
+
+      </main>
+
+      <footer>© 2026 BFIH | SAE Project Dashboard</footer>
+    </div>
+  </div>
+
+  <!-- ONE JS FILE ONLY -->
+  <script src="app.js"></script>
+</body>
+</html>
