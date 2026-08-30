@@ -10,76 +10,59 @@
 <body>
 <div class="app-shell">
 <aside class="sidebar">
-<div class="brand"><div class="brand-mark">BF</div><div><div class="brand-title">BFIH SAE</div><div class="brand-subtitle">Project Dashboard</div></div></div>
-<nav class="nav">
-<a href="#" class="nav-link active"><span class="icon">▦</span><span>Dashboard</span></a>
-<a href="#" class="nav-link"><span class="icon">▤</span><span>Projects</span></a>
-<a href="#" class="nav-link"><span class="icon">⇩</span><span>Import</span></a>
-<a href="#" class="nav-link"><span class="icon">N</span><span>NB</span></a>
-<a href="#" class="nav-link"><span class="icon">R</span><span>RF</span></a>
-<div class="nav-separator"></div>
-<a href="#" class="nav-link"><span class="icon">◷</span><span>Timeline</span></a>
-<a href="#" class="nav-link"><span class="icon">!</span><span>Alerts</span></a>
-<div class="nav-heading">TOOLS</div>
-<a href="#" class="nav-link"><span class="icon">⌕</span><span>Search</span></a>
-<a href="#" class="nav-link"><span class="icon">▣</span><span>Calendar</span></a>
-<a href="#" class="nav-link"><span class="icon">↗</span><span>Performance</span></a>
-<a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
-<a href="#" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
-<a href="#" class="nav-link"><span class="icon">≡</span><span>Audit Log</span></a>
-<div class="nav-heading">SYSTEM</div>
-<a href="#" class="nav-link"><span class="icon">⚙</span><span>Settings</span></a>
-</nav>
-<div class="sidebar-footer"><a href="#" class="logout"><span class="icon">↪</span><span>Logout</span></a></div>
+  <div class="brand"><div class="brand-mark">BF</div><div><div class="brand-title">BFIH SAE</div><div class="brand-subtitle">Project Dashboard</div></div></div>
+  <nav class="nav">
+    <a href="#" class="nav-link active" data-page="dashboard"><span class="icon">▦</span><span>Dashboard</span></a>
+    <div class="nav-heading">PROJECT</div>
+    <a href="#" class="nav-link" data-page="import"><span class="icon">⇩</span><span>Import</span></a>
+    <a href="#" class="nav-link" data-page="manufacture"><span class="icon">⚙</span><span>Manufacture</span></a>
+    <div class="nav-separator"></div>
+    <a href="#" class="nav-link" data-page="timeline"><span class="icon">◷</span><span>Timeline</span></a>
+    <a href="#" class="nav-link" data-page="alerts"><span class="icon">!</span><span>Alerts</span></a>
+    <div class="nav-heading">TOOLS</div>
+    <a href="#" class="nav-link"><span class="icon">⌕</span><span>Search</span></a>
+    <a href="#" class="nav-link"><span class="icon">▣</span><span>Calendar</span></a>
+    <a href="#" class="nav-link"><span class="icon">↗</span><span>Performance</span></a>
+    <a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
+    <a href="#" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
+    <a href="#" class="nav-link"><span class="icon">≡</span><span>Audit Log</span></a>
+    <div class="nav-heading">SYSTEM</div>
+    <a href="#" class="nav-link"><span class="icon">⚙</span><span>Settings</span></a>
+  </nav>
+  <div class="sidebar-footer"><a href="#" class="logout"><span class="icon">↪</span><span>Logout</span></a></div>
 </aside>
 
 <header class="topbar">
-<div class="topbar-controls">
-<select id="yearFilter"><option value="">Year</option></select>
-<select id="monthFilter"><option value="">Month</option></select>
-<select id="weekFilter"><option value="">Week</option></select>
-<label class="date-group">From <input id="fromDate" type="date"></label>
-<label class="date-group">To <input id="toDate" type="date"></label>
-<button id="exportButton" class="btn secondary">Export</button>
-<button id="importButton" class="btn primary">Import</button>
-<div class="lang-switch"><button id="langEn" class="lang active">EN</button><span>/</span><button id="langZh" class="lang">中文</button></div>
-</div>
+  <div class="topbar-controls">
+    <select id="yearFilter"><option value="">Year</option></select>
+    <select id="monthFilter"><option value="">Month</option></select>
+    <select id="weekFilter"><option value="">Week</option></select>
+    <label class="date-group">From <input id="fromDate" type="date"></label>
+    <label class="date-group">To <input id="toDate" type="date"></label>
+    <button id="exportButton" class="btn secondary">Export</button>
+    <button id="importButton" class="btn primary">Import</button>
+    <div class="lang-switch"><button id="langEn" class="lang active">EN</button><span>/</span><button id="langZh" class="lang">中文</button></div>
+  </div>
 </header>
 
 <main class="main"><section class="content">
-<section class="filters card">
-<div class="field"><label>Project</label><select id="projectFilter"><option value="">All Projects</option></select></div>
-<div class="field"><label>Build</label><select id="buildFilter"><option value="">All Builds</option></select></div>
-<div class="field"><label>PIC</label><select id="picFilter"><option value="">All PIC</option></select></div>
-<div class="field"><label>Pending Stage</label><select id="stageFilter"><option value="">All Pending Stages</option></select></div>
-<div class="field"><label>Search</label><input id="searchInput" type="search" placeholder="Machine / spec / vendor..."></div>
-<button id="resetButton" class="reset-btn">↻ Reset</button>
-</section>
+  <section class="kpis">
+    <article class="kpi blue"><div class="kpi-label">Total Items</div><div class="kpi-value" id="totalCount">0</div><div class="kpi-sub" id="totalPercent">0%</div></article>
+    <article class="kpi red"><div class="kpi-label">Overdue</div><div class="kpi-value" id="overdueCount">0</div><div class="kpi-sub" id="overduePercent">0%</div></article>
+    <article class="kpi orange"><div class="kpi-label">Due ≤ 3 Days</div><div class="kpi-value" id="due3Count">0</div><div class="kpi-sub" id="due3Percent">0%</div></article>
+    <article class="kpi yellow"><div class="kpi-label">Due ≤ 7 Days</div><div class="kpi-value" id="due7Count">0</div><div class="kpi-sub" id="due7Percent">0%</div></article>
+    <article class="kpi green"><div class="kpi-label">Dispatched</div><div class="kpi-value" id="dispatchedCount">0</div><div class="kpi-sub" id="dispatchedPercent">0%</div></article>
+  </section>
 
-<section class="kpis">
-<article class="kpi blue"><div class="kpi-no">KPI 1</div><div class="kpi-label">Total Items</div><div class="kpi-value" id="totalCount">0</div><div class="kpi-sub" id="totalPercent">0%</div></article>
-<article class="kpi red"><div class="kpi-no">KPI 2</div><div class="kpi-label">Overdue</div><div class="kpi-value" id="overdueCount">0</div><div class="kpi-sub" id="overduePercent">0%</div></article>
-<article class="kpi orange"><div class="kpi-no">KPI 3</div><div class="kpi-label">Due ≤ 3 Days</div><div class="kpi-value" id="due3Count">0</div><div class="kpi-sub" id="due3Percent">0%</div></article>
-<article class="kpi yellow"><div class="kpi-no">KPI 4</div><div class="kpi-label">Due ≤ 7 Days</div><div class="kpi-value" id="due7Count">0</div><div class="kpi-sub" id="due7Percent">0%</div></article>
-<article class="kpi green"><div class="kpi-no">KPI 5</div><div class="kpi-label">Dispatched</div><div class="kpi-value" id="dispatchedCount">0</div><div class="kpi-sub" id="dispatchedPercent">0%</div></article>
-</section>
-
-<section class="workspace">
-<article class="panel"><h2><span></span>DONUT — Overall Status Distribution</h2><div class="chart-box"><canvas id="statusChart"></canvas></div></article>
-<article class="panel"><h2><span></span>BAR — Items by Project / Build</h2><div class="chart-box"><canvas id="projectChart"></canvas></div></article>
-<article class="panel pending">
-<div class="panel-title-row"><h2><span></span>PENDING DETAILS — Items to Chase</h2><strong id="pendingCount">0 items</strong></div>
-<div class="table-scroll"><table><thead><tr><th>Priority</th><th>Project</th><th>Machine / Equipment</th><th>CM NBD</th><th>BFIH Site Arrive</th><th>CP Gap</th><th>Current Pending Stage</th><th>Next Action / Chase</th></tr></thead><tbody id="pendingBody"></tbody></table></div>
-</article>
-</section>
-
-<section class="legend">
-<div><b>ⓘ CP Gap = TODAY - CM NBD</b><small>(+) Overdue | (-) Remaining days</small></div>
-<div><b>🔴 Overdue</b><small>CP Gap &gt; 0</small></div>
-<div><b>🟠 Due ≤ 3 Days</b><small>-3 to 0</small></div>
-<div><b>🟡 Due ≤ 7 Days</b><small>-7 to -4</small></div>
-<div><b>🟢 Upcoming</b><small>≤ -8</small></div>
-</section>
+  <section class="workspace">
+    <article class="panel status-panel"><h2><span></span>SAE Items by Status</h2><div class="chart-box"><canvas id="statusChart"></canvas></div></article>
+    <article class="panel pending">
+      <div class="panel-title-row"><h2><span></span>Pending Details</h2><strong id="pendingCount">0 items</strong></div>
+      <div class="table-scroll"><table><thead><tr>
+        <th>Priority</th><th>Project</th><th>Machine / Equipment</th><th>CM NBD</th><th>BFIH Site Arrive</th><th>CP Gap</th><th>Current Pending Stage</th><th>Next Action / Chase</th>
+      </tr></thead><tbody id="pendingBody"></tbody></table></div>
+    </article>
+  </section>
 </section></main>
 </div>
 <script src="app.js"></script>

@@ -1,0 +1,1 @@
+Upload index.html, style.css, app.js and sae_data.json to GitHub repo root. Replace old versions.
