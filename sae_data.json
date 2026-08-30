@@ -1,6 +1,5 @@
 [
   {
-    "S.No": 1,
     "Project": "Taycan",
     "Build": "EVT",
     "Machine/Equipment name": "Remove RX/TX foam liner",
@@ -13,21 +12,13 @@
     "FIH PO Number": "PO-SAMPLE-001",
     "Target date": "2026-07-20",
     "Released": "",
-    "Official PO Target date": "",
-    "Official PO Released": "",
     "Vendor ETD": "",
     "AWB Bill": "",
     "BFIH Actual ETA": "",
-    "CM PO Number": "",
-    "CM Released date": "",
-    "VMI ETA plan": "",
-    "VMI ETA": "",
     "Dispatched date": "",
-    "Overall status": "Pending",
-    "Remark": "Sample data"
+    "Overall status": "Pending"
   },
   {
-    "S.No": 2,
     "Project": "Taycan",
     "Build": "OVB",
     "Machine/Equipment name": "OCR for ET Button Binning",
@@ -40,21 +31,13 @@
     "FIH PO Number": "PO-SAMPLE-002",
     "Target date": "2026-08-25",
     "Released": "2026-08-26",
-    "Official PO Target date": "",
-    "Official PO Released": "",
     "Vendor ETD": "2026-09-10",
     "AWB Bill": "",
     "BFIH Actual ETA": "",
-    "CM PO Number": "",
-    "CM Released date": "",
-    "VMI ETA plan": "",
-    "VMI ETA": "",
     "Dispatched date": "",
-    "Overall status": "In Progress",
-    "Remark": "Sample shipment pending"
+    "Overall status": "In Progress"
   },
   {
-    "S.No": 3,
     "Project": "V62",
     "Build": "OVB",
     "Machine/Equipment name": "Paste and Press Mic1 seal to HSG fixture",
@@ -67,17 +50,10 @@
     "FIH PO Number": "",
     "Target date": "",
     "Released": "",
-    "Official PO Target date": "",
-    "Official PO Released": "",
     "Vendor ETD": "",
     "AWB Bill": "",
     "BFIH Actual ETA": "",
-    "CM PO Number": "",
-    "CM Released date": "",
-    "VMI ETA plan": "",
-    "VMI ETA": "",
     "Dispatched date": "",
-    "Overall status": "In Progress",
-    "Remark": "Sample in-house project"
+    "Overall status": "In Progress"
   }
 ]
