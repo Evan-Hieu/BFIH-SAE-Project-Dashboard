@@ -39,3 +39,32 @@ td{padding:8px 6px;font-size:9px}
 .topbar .lang{color:#c2d4e6}
 .topbar .lang.active{color:#fff;text-decoration:underline;text-underline-offset:5px}
 .topbar :is(select,input,button):focus-visible{outline:2px solid #93c5fd;outline-offset:3px}
+
+/* Fill the available desktop height; scroll rows inside each details panel. */
+@media(min-width:1000px) and (min-height:520px){
+  .main{height:100dvh;min-height:0}
+  .content{height:100%;display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:10px;padding:10px 16px}
+  .module-section{min-height:0;padding:0;display:grid;grid-template-rows:58px minmax(0,1fr);gap:8px}
+  .manufacture-section{border-top:0}
+  .workspace{min-height:0;margin-top:0;grid-template-columns:minmax(220px,28%) minmax(0,1fr)}
+  .workspace .panel{min-height:0;display:flex;flex-direction:column;padding:10px 12px 6px}
+  .panel h2,.panel-title-row{flex-shrink:0}
+  .chart-box{height:auto;min-height:0;flex:1}
+  .table-scroll{height:0;min-height:0;max-height:none;flex:1;overflow:auto}
+  .table-scroll th{z-index:1}
+}
+@media(min-width:1000px) and (min-height:520px) and (max-height:650px){
+  .content{padding:8px 12px;gap:8px}
+  .module-section{grid-template-rows:50px minmax(0,1fr);gap:6px}
+  .kpi{height:50px}
+  .workspace .panel{padding:8px 10px 4px}
+  .panel h2{margin-bottom:5px}
+  td{padding:5px 6px}
+  th{padding:5px 6px}
+}
+/* On narrow screens, retain normal page scrolling and stack the panels. */
+@media(max-width:999px){
+  .workspace{grid-template-columns:1fr}
+  .topbar{overflow-x:auto;justify-content:flex-start}
+  .topbar-controls{min-width:max-content}
+}
