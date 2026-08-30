@@ -24,27 +24,26 @@ const saeDonutLabels = {
     });
     groups.forEach((labels,side)=>{
       labels.sort((a,b)=>a.y-b.y);
-      const spacing=Math.min(48,(height-48)/Math.max(labels.length,1));
-      labels.forEach((label,i)=>{label.y=Math.max(32,label.y,i?labels[i-1].y+spacing:32)});
-      for(let i=labels.length-1;i>=0;i--)labels[i].y=Math.min(labels[i].y,height-22-(labels.length-1-i)*spacing);
+      labels.forEach((label,i)=>{label.y=32+(height-56)*(i+.5)/labels.length});
       labels.forEach(({arc,i,angle,y})=>{
         const edge=side?width-5:5;
-        const anchor=side?width-76:76;
-        ctx.strokeStyle='#7793ad';ctx.lineWidth=.8;ctx.beginPath();
-        ctx.moveTo(arc.x+Math.cos(angle)*arc.outerRadius,arc.y+Math.sin(angle)*arc.outerRadius);
-        // First travel radially out, then route only outside the circle's bounds.
-        const radialX=arc.x+Math.cos(angle)*(arc.outerRadius+7);
-        const radialY=arc.y+Math.sin(angle)*(arc.outerRadius+7);
-        const laneX=arc.x+(side?1:-1)*(arc.outerRadius+9);
-        ctx.lineTo(radialX,radialY);
-        ctx.lineTo(laneX,radialY);
-        ctx.lineTo(anchor,y);ctx.stroke();
+        const anchor=side?width-78:78;
+        const startX=arc.x+Math.cos(angle)*(arc.outerRadius+3);
+        const startY=arc.y+Math.sin(angle)*(arc.outerRadius+3);
+        const laneX=arc.x+(side?1:-1)*(arc.outerRadius+7);
+        const targetY=y-9;
+        ctx.strokeStyle='#91abc5';ctx.lineWidth=.9;ctx.beginPath();
+        ctx.moveTo(startX,startY);
+        ctx.bezierCurveTo(laneX,startY,laneX,targetY,anchor,targetY);
+        ctx.stroke();
+        ctx.fillStyle=dataset.backgroundColor[i];ctx.beginPath();
+        ctx.arc(startX,startY,2,0,Math.PI*2);ctx.fill();
         ctx.textAlign=side?'right':'left';ctx.fillStyle='#e7f0fa';ctx.font='10px Arial';
         const full=chart.data.labels[i];
         const words=full.split(/\s+/);let lines=[''];
-        words.forEach(word=>{const last=lines.length-1;const next=(lines[last]+' '+word).trim();if(ctx.measureText(next).width>72&&lines[last])lines.push(word);else lines[last]=next});
+        words.forEach(word=>{const last=lines.length-1;const next=(lines[last]+' '+word).trim();if(ctx.measureText(next).width>68&&lines[last])lines.push(word);else lines[last]=next});
         if(lines.length>2){lines=lines.slice(0,2);lines[1]+='…'}
-        lines=lines.map(line=>{while(ctx.measureText(line).width>74&&line.length>1)line=line.slice(0,-2)+'…';return line});
+        lines=lines.map(line=>{while(ctx.measureText(line).width>68&&line.length>1)line=line.slice(0,-2)+'…';return line});
         lines.forEach((line,j)=>ctx.fillText(line,edge,y-12+(j-(lines.length-1))*11));
         ctx.fillStyle='#fff';ctx.font='bold 10px Arial';
         ctx.fillText(`${dataset.data[i]} (${Math.round(dataset.data[i]/total*100)}%)`,edge,y+2);
