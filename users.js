@@ -41,13 +41,13 @@
       const row=document.createElement('tr');
       [user.id,user.name,user.email].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;row.append(cell);});
       const access=document.createElement('td');access.className='user-access-summary';
-      areas.filter(a=>user.permissions[a]!=='No access').forEach(area=>{const chip=document.createElement('span');chip.className='user-access-chip';chip.textContent=`${area}: ${user.permissions[area]}`;access.append(chip);});
+      areas.filter(a=>user.permissions[a]!=='No access').forEach(area=>{const chip=document.createElement('span');chip.className='user-access-chip';chip.textContent=`${UIText.t(area)}: ${UIText.t(user.permissions[area])}`;access.append(chip);});
       if(!access.childNodes.length)access.textContent='No access configured';
       const status=document.createElement('td'),badge=document.createElement('span');badge.className=user.status==='Active'?'priority p-green':'priority p-gray';badge.textContent=user.status;status.append(badge);
       const actions=document.createElement('td');actions.className='user-row-actions';
       const edit=document.createElement('button');edit.className='btn secondary';edit.textContent='Edit';edit.onclick=()=>openForm(user);
       const remove=document.createElement('button');remove.className='btn secondary user-delete';remove.textContent='Delete';remove.onclick=()=>{
-        if(confirm(`Delete the draft for ${user.name}?`) && persist(users.filter(u=>u.id!==user.id))){render();$('userMessage').textContent='User draft deleted. No account or external access was changed.';}
+        if(confirm(UIText.locale()==='zh-TW'?`確定刪除 ${user.name} 的草稿？`:`Delete the draft for ${user.name}?`) && persist(users.filter(u=>u.id!==user.id))){render();$('userMessage').textContent='User draft deleted. No account or external access was changed.';}
       };
       actions.append(edit,remove);row.append(access,status,actions);$('userRows').append(row);
     });
@@ -63,5 +63,6 @@
     if(persist(editing?users.map(u=>u.id===editing?user:u):[...users,user])){$('userDialog').close();render();$('userMessage').textContent='Draft saved in this browser. Access restrictions are not active yet.';}
     else $('userFormMessage').textContent='Could not save. Your entries are still here; check browser storage.';
   };
+  document.addEventListener('languagechange',render);
   render();
 })();

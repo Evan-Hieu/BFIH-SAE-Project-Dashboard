@@ -23,7 +23,7 @@
     editing = null; $('calendarForm').reset(); $('calendarFormTitle').textContent = 'Add note'; $('calendarCancel').hidden = true;
   }
   function render() {
-    $('calendarMonth').textContent = month.toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+    $('calendarMonth').textContent = month.toLocaleDateString(UIText.locale(), {month:'long', year:'numeric'});
     $('calendarDays').replaceChildren();
     const offset = (month.getDay()+6)%7;
     for (let i=0; i<42; i++) {
@@ -35,11 +35,11 @@
       button.setAttribute('aria-label', dateKey + (entries.length?`, ${entries.length} notes`:''));
       const number = document.createElement('span'); number.textContent = date.getDate(); button.append(number);
       entries.slice(0,2).forEach(n=>{const label=document.createElement('small'); label.textContent=(n.important?'★ ':'')+n.title; label.className=n.important?'important':''; button.append(label);});
-      if(entries.length>2){const more=document.createElement('small');more.textContent=`+${entries.length-2} more`;button.append(more);}
+      if(entries.length>2){const more=document.createElement('small');more.textContent=UIText.t(`+${entries.length-2} more`);button.append(more);}
       button.onclick=()=>{selected=dateKey;month=new Date(date.getFullYear(),date.getMonth(),1);resetForm();render();};
       $('calendarDays').append(button);
     }
-    $('calendarSelected').textContent = new Date(selected+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    $('calendarSelected').textContent = new Date(selected+'T12:00:00').toLocaleDateString(UIText.locale(),{weekday:'short',day:'numeric',month:'long',year:'numeric'});
     $('calendarNoteList').replaceChildren();
     const entries=notes.filter(n=>n.date===selected);
     if(!entries.length){const empty=document.createElement('p');empty.textContent='No notes yet. Add an important task below.';$('calendarNoteList').append(empty);}
@@ -50,7 +50,7 @@
       const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.className='btn secondary';
       edit.onclick=()=>{editing=note.id;$('calendarTitle').value=note.title;$('calendarDetails').value=note.details;$('calendarImportant').checked=!!note.important;$('calendarFormTitle').textContent='Edit note';$('calendarCancel').hidden=false;$('calendarTitle').focus();};
       const remove=document.createElement('button');remove.type='button';remove.textContent='Delete';remove.className='btn secondary';
-      remove.onclick=()=>{if(confirm('Delete this note?') && save(notes.filter(n=>n.id!==note.id))){resetForm();render();$('calendarMessage').textContent='Note deleted.';}};
+      remove.onclick=()=>{if(confirm(UIText.t('Delete this note?')) && save(notes.filter(n=>n.id!==note.id))){resetForm();render();$('calendarMessage').textContent='Note deleted.';}};
       item.append(title,details,edit,remove);$('calendarNoteList').append(item);
     });
   }
@@ -64,6 +64,7 @@
   $('calendarPrev').onclick=()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);render();};
   $('calendarNext').onclick=()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);render();};
   $('calendarToday').onclick=()=>{selected=key(new Date());month=new Date(new Date().getFullYear(),new Date().getMonth(),1);resetForm();render();};
+  document.addEventListener('languagechange',render);
   // Capture navigation before the dashboard's existing section-scroll handler.
   document.querySelector('.nav').addEventListener('click',event=>{
     const link=event.target.closest('[data-page]');if(!link)return;
