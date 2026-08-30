@@ -218,3 +218,9 @@ body.signed-in .login-view{display:none}
 #sheetCellDialog,#sheetReviewDialog{border:1px solid #dfe7f0;border-radius:12px;padding:22px;max-width:90vw;max-height:85dvh;color:#10243e}#sheetCellDialog{width:460px}#sheetReviewDialog{width:850px}
 #sheetCellDialog::backdrop,#sheetReviewDialog::backdrop{background:#10243e88}#sheetCellValue{width:100%;padding:10px;margin:8px 0 20px;border:1px solid #cbd5e1;border-radius:5px}.editor-review-scroll{max-height:50dvh;overflow:auto}.editor-review-scroll table{min-width:0;width:100%}.editor-review-scroll td{max-width:250px;overflow-wrap:anywhere}#sheetSaveMessage{color:#b45309;font-size:12px}
 @media(max-width:760px){.sheet-editor-view .users-toolbar{flex-wrap:wrap}.sheet-editor-view{padding:10px}}
+.sheet-status-filters{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+.sheet-status-filters button{display:flex;align-items:center;gap:12px;padding:9px 16px;border:1px solid #cad8e7;border-radius:8px;background:#fff;color:#123454;font:inherit;font-weight:600;cursor:pointer}
+.sheet-status-filters button[aria-pressed="true"]{background:#1769e0;border-color:#1769e0;color:#fff}
+.sheet-status-filters button:focus-visible{outline:3px solid #86b7ff;outline-offset:2px}
+.sheet-status-filters .filter-count{font-size:12px;background:rgba(127,157,190,.18);padding:2px 7px;border-radius:12px}
+.sheet-status-filters output{margin-left:auto;color:#637991;font-size:13px}

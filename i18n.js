@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'All data':'全部資料','Filter rows by status':'依狀態篩選資料列','No matching rows.':'沒有符合的資料列。',
     'Sheet changed while loading. Please load it again.':'載入時試算表已變更，請重新載入。','Enter a valid date in YYYY-MM-DD format.':'請輸入有效日期，格式為 YYYY-MM-DD。','Enter true or false.':'請輸入 true 或 false。',
     'Sheet editor':'試算表編輯器','Open Google Sheet':'開啟 Google 試算表','Edit existing cells only. Formula cells are read-only. Changes stay in this tab until you review and save to Google Sheet. Dates use YYYY-MM-DD.':'僅編輯現有儲存格，公式儲存格為唯讀。變更僅暫存在此分頁，確認後才儲存至 Google 試算表。日期格式為 YYYY-MM-DD。',
     'Search rows…':'搜尋資料列…','Search rows':'搜尋資料列','Load sheet':'載入試算表','Review changes':'檢查變更','Discard changes':'捨棄變更','Click Google Sheet to connect, then Load sheet.':'請先點選 Google 試算表連線，再載入試算表。','Edit cell':'編輯儲存格','Value':'值','Apply change':'套用變更','Cell':'儲存格','Field':'欄位','Before':'變更前','After':'變更後','Confirm save to Google Sheet':'確認儲存至 Google 試算表',

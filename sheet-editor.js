@@ -1,7 +1,7 @@
 (() => {
   const $=id=>document.getElementById(id);
   const configs={import:{id:SaeSource.SHEET_ID,tab:'SAE',end:'AZ',gid:378558776,parse:SaeSource.mapRows},manufacture:{id:ManufactureSource.SHEET_ID,tab:'SAE Summary Data',end:'CN',gid:2049248761,parse:ManufactureSource.mapRows}};
-  let active='import',snapshot=null,changes=new Map(),selection=null,working=false;
+  let active='import',snapshot=null,changes=new Map(),selection=null,working=false,statusFilter='all';
   const column=index=>{let name='';for(let n=index+1;n;n=Math.floor((n-1)/26))name=String.fromCharCode(65+(n-1)%26)+name;return name;};
   const value=v=>v==null?'':v;
   const formula=v=>typeof v==='string'&&v.startsWith('=');
@@ -29,13 +29,26 @@
     finally{working=false;controls();}
   }
   function render(){
-    const table=$('sheetEditorTable');table.tHead.replaceChildren();table.tBodies[0].replaceChildren();if(!snapshot)return;
+    const table=$('sheetEditorTable');table.tHead.replaceChildren();table.tBodies[0].replaceChildren();
+    const draft=snapshot?snapshot.values.map(row=>row.slice()):[];
+    changes.forEach(({row,c,after})=>{draft[row-2]??=[];draft[row-2][c]=after;});
+    const statuses=new Map(snapshot?configs[active].parse(draft).map(item=>[item._sourceRow,SaeSource.dispatched(item)]):[]);
+    const counts={all:snapshot?.rows.length||0,dispatched:0,pending:0};
+    snapshot?.rows.forEach(row=>counts[statuses.get(row)?'dispatched':'pending']++);
+    document.querySelectorAll('#sheetStatusFilters button').forEach(button=>{
+      button.setAttribute('aria-pressed',String(button.dataset.filter===statusFilter));
+      button.querySelector('.filter-count').textContent=counts[button.dataset.filter];
+    });
+    $('sheetFilterCount').textContent='';if(!snapshot)return;
     const header=document.createElement('tr');
     ['#',...snapshot.headers.map((h,c)=>`${column(c)} · ${h||'—'}`)].forEach(text=>{const th=document.createElement('th');th.textContent=text;header.append(th);});table.tHead.append(header);
     const query=$('sheetSearch').value.trim().toLowerCase();
+    let visible=0;
     snapshot.rows.forEach(row=>{
-      const data=snapshot.values[row-2]||[];
+      const data=draft[row-2]||[];
+      if(statusFilter!=='all'&&statuses.get(row)!==(statusFilter==='dispatched'))return;
       if(query&&!data.some(v=>String(v).toLowerCase().includes(query)))return;
+      visible++;
       const tr=document.createElement('tr'),number=document.createElement('th');number.textContent=row;tr.append(number);
       snapshot.headers.forEach((label,c)=>{
         const td=document.createElement('td'),original=value(snapshot.raw[row-2]?.[c]),id=`${row}:${c}`,change=changes.get(id);
@@ -44,7 +57,10 @@
         else {td.tabIndex=0;td.setAttribute('aria-label',`${column(c)}${row}: ${label}`);const edit=()=>{if(working)return;selection={row,c,id,original};$('sheetCellTitle').textContent=`${column(c)}${row} · ${label}`;$('sheetCellValue').type=isDate(c,original)?'date':'text';$('sheetCellValue').value=displayed(c,shown);$('sheetCellDialog').showModal();$('sheetCellValue').focus();};td.onclick=edit;td.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();edit();}};}
         if(change)td.classList.add('editor-changed');tr.append(td);
       });table.tBodies[0].append(tr);
-    });controls();
+    });
+    $('sheetFilterCount').textContent=`${visible} / ${snapshot.rows.length}`;
+    if(!visible){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=snapshot.headers.length+1;td.textContent=UIText.t('No matching rows.');tr.append(td);table.tBodies[0].append(tr);}
+    controls();
   }
   $('sheetCellForm').onsubmit=e=>{
     e.preventDefault();const {row,c,id,original}=selection;const input=$('sheetCellValue').value;let after=input;
@@ -58,6 +74,7 @@
   };
   $('sheetCellCancel').onclick=()=>$('sheetCellDialog').close();
   $('sheetSearch').oninput=render;$('sheetReload').onclick=load;
+  document.querySelectorAll('#sheetStatusFilters button').forEach(button=>button.onclick=()=>{statusFilter=button.dataset.filter;render();});
   $('sheetDiscard').onclick=()=>{if(confirm(UIText.t('Discard unsaved changes?'))){changes.clear();render();}};
   $('sheetReview').onclick=()=>{
     $('sheetReviewRows').replaceChildren();$('sheetReviewSource').textContent=configs[active].tab;
@@ -87,7 +104,7 @@
     }finally{working=false;$('sheetSave').disabled=false;$('sheetReviewCancel').disabled=false;controls();}
   };
   window.SheetEditor={canLeave(){if(working)return false;if(changes.size&&!confirm(UIText.t('Discard unsaved changes?')))return false;changes.clear();controls();return true;},open(page){
-    active=page;snapshot=null;changes.clear();$('sheetSearch').value='';$('sheetEditorTitle').textContent=page==='import'?'Import':'Manufacture';
+    active=page;statusFilter='all';snapshot=null;changes.clear();$('sheetSearch').value='';$('sheetEditorTitle').textContent=page==='import'?'Import':'Manufacture';
     const cfg=configs[page];$('sheetEditorSource').textContent=cfg.tab;$('sheetOriginalLink').href=`https://docs.google.com/spreadsheets/d/${cfg.id}/edit#gid=${cfg.gid}`;
     render();load();
   }};
