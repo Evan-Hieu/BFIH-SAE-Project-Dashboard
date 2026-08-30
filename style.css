@@ -18,3 +18,18 @@ th{padding:7px 6px;font-size:8px}
 td{padding:8px 6px;font-size:9px}
 .panel-title-row strong{font-size:10px}
 .empty{padding:38px 10px!important}
+
+/* Compact desktop navigation and highlighted leading KPI cards. */
+@media(min-width:1101px){
+  .sidebar{width:192px}
+  .topbar{left:192px}
+  .main{margin-left:192px}
+  .brand{padding:0 12px;gap:9px}
+  .brand-mark{flex-shrink:0}
+  .nav-link{padding:0 8px;gap:8px}
+}
+.kpi.blue{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe;color:#1d4ed8}
+.kpi.red{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border-color:#fecdd3;color:#be123c}
+.kpi.orange{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fed7aa;color:#c2410c}
+.kpi:is(.blue,.red,.orange) .kpi-label{color:#334155}
+.kpi:is(.blue,.red,.orange) .kpi-sub{font-weight:600}
