@@ -35,6 +35,7 @@
       if (token && Date.now() < expiresAt) { refresh(); return; }
       if (!client) client = google.accounts.oauth2.initTokenClient({
         client_id:window.SAE_GOOGLE_CLIENT_ID, scope, include_granted_scopes:false,
+        login_hint:window.SAE_GOOGLE_LOGIN_HINT, prompt:'',
         callback:response => {
           if (response.error || !response.access_token) { status('Google connection not authorized'); return; }
           if (!google.accounts.oauth2.hasGrantedAllScopes(response, scope)) { status('Read-only Sheets permission required'); return; }
