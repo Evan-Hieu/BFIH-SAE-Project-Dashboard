@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'Equipment':'設備',
     'Phase':'階段','CM Site':'客戶廠區','MFG status':'製造狀態','Material Status':'物料狀態','STD Status':'標準件狀態','RM Status':'原料狀態','CNC OS STATUS':'CNC 外包狀態','RD Drawing Status':'研發圖面狀態','ACT ETD':'實際出貨日期','Remark':'備註',
     'Project Management':'專案管理','Password':'密碼','Enter password':'請輸入密碼','Sign in':'登入','Signed in as Admin':'目前登入：Admin','Incorrect password. Please try again.':'密碼錯誤，請重試。','Demo sign-in only. This does not secure the website or enforce user permissions.':'僅供示範登入，尚未提供網站安全防護或使用者權限控管。',
     'Project Dashboard':'專案儀表板','Dashboard':'儀表板','PROJECT':'專案','Import':'進口','IMPORT':'進口','Manufacture':'製造','MANUFACTURE':'製造',
