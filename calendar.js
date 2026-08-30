@@ -70,11 +70,14 @@
     const link=event.target.closest('[data-page]');if(!link)return;
     const page=link.dataset.page;if(!['calendar','users','dashboard','import','manufacture'].includes(page))return;
     event.preventDefault();event.stopImmediatePropagation();
-    $('dashboardView').hidden=page==='calendar'||page==='users';
+    if(!window.SheetEditor.canLeave())return;
+    const sheetPage=page==='import'||page==='manufacture';
+    $('dashboardView').hidden=page!=='dashboard';
+    $('sheetEditorView').hidden=!sheetPage;
     $('calendarView').hidden=page!=='calendar';
     $('usersView').hidden=page!=='users';
     document.querySelectorAll('.nav-link').forEach(el=>el.classList.toggle('active',el===link));
     if(page==='calendar')render();
-    else if(page==='import'||page==='manufacture')$(page==='import'?'importSection':'manufactureSection').scrollIntoView({behavior:'smooth'});
+    else if(sheetPage)window.SheetEditor.open(page);
   },true);
 })();

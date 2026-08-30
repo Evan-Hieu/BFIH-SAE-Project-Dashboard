@@ -1,9 +1,32 @@
 (() => {
   let token = null, expiresAt = 0, client = null, timer = null, busy = false;
   const scope = 'https://www.googleapis.com/auth/spreadsheets.readonly';
+  const editScope='https://www.googleapis.com/auth/spreadsheets';
+  let editGranted=false;
+  async function api(path,options={}){
+    if(!token||Date.now()>=expiresAt)throw new Error('Session expired — reconnect Google Sheet');
+    const response=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+path,{...options,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},cache:'no-store',signal:AbortSignal.timeout(20000)});
+    if(!response.ok)throw new Error(response.status===403?'Google account does not have edit access or this range is protected.':`Google Sheets error (${response.status})`);
+    return response.json();
+  }
+  window.SheetConnection={
+    read:path=>api(path),
+    authorizeEdit:()=>new Promise((resolve,reject)=>{
+      if(editGranted&&token&&Date.now()<expiresAt){resolve();return;}
+      if(!window.google?.accounts?.oauth2){reject(new Error('Google sign-in unavailable — reload and retry'));return;}
+      const editorClient=google.accounts.oauth2.initTokenClient({client_id:window.SAE_GOOGLE_CLIENT_ID,scope:editScope,login_hint:window.SAE_GOOGLE_LOGIN_HINT,prompt:'',include_granted_scopes:false,
+        callback:response=>{
+          if(response.error||!response.access_token||!google.accounts.oauth2.hasGrantedAllScopes(response,editScope)){reject(new Error('Edit permission was not granted.'));return;}
+          token=response.access_token;expiresAt=Date.now()+Number(response.expires_in)*1000-60000;editGranted=true;resolve();
+        },error_callback:()=>reject(new Error('Google sign-in cancelled or popup blocked — retry Google Sheet'))});
+      editorClient.requestAccessToken();
+    }),
+    write:(id,data)=>{if(!editGranted)throw new Error('Edit permission was not granted.');return api(id+'/values:batchUpdate',{method:'POST',body:JSON.stringify({valueInputOption:'RAW',data})});},
+    refresh
+  };
   const status = message => { ['syncStatus','mfgSyncStatus'].forEach(id=>document.getElementById(id).textContent=message); };
   function clearSession() {
-    token = null; expiresAt = 0; clearInterval(timer); timer = null;
+    token = null; expiresAt = 0; editGranted=false;clearInterval(timer); timer = null;
   }
   async function refresh() {
     if (busy) return;
@@ -45,6 +68,7 @@
           if (response.error || !response.access_token) { status('Google connection not authorized'); return; }
           if (!google.accounts.oauth2.hasGrantedAllScopes(response, scope)) { status('Read-only Sheets permission required'); return; }
           token = response.access_token; expiresAt = Date.now() + Number(response.expires_in) * 1000 - 60000;
+          editGranted=false;
           clearInterval(timer); refresh(); timer = setInterval(() => { if (!document.hidden) refresh(); }, 60000);
         },
         error_callback:() => status('Google sign-in cancelled or popup blocked — retry Google Sheet')

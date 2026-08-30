@@ -1,6 +1,9 @@
 (() => {
   'use strict';
   const zh = {
+    'Sheet editor':'試算表編輯器','Open Google Sheet':'開啟 Google 試算表','Edit existing cells only. Formula cells are read-only. Changes stay in this tab until you review and save to Google Sheet. Dates use YYYY-MM-DD.':'僅編輯現有儲存格，公式儲存格為唯讀。變更僅暫存在此分頁，確認後才儲存至 Google 試算表。日期格式為 YYYY-MM-DD。',
+    'Search rows…':'搜尋資料列…','Search rows':'搜尋資料列','Load sheet':'載入試算表','Review changes':'檢查變更','Discard changes':'捨棄變更','Click Google Sheet to connect, then Load sheet.':'請先點選 Google 試算表連線，再載入試算表。','Edit cell':'編輯儲存格','Value':'值','Apply change':'套用變更','Cell':'儲存格','Field':'欄位','Before':'變更前','After':'變更後','Confirm save to Google Sheet':'確認儲存至 Google 試算表',
+    'Discard unsaved changes?':'捨棄尚未儲存的變更？','Loading sheet…':'正在載入試算表…','Enter a valid number.':'請輸入有效數字。','This identifying field cannot be empty.':'識別欄位不可留空。','Checking Google permissions and current data…':'正在檢查 Google 權限與最新資料…','Saved to Google Sheet.':'已儲存至 Google 試算表。','A source row changed. Reload and review your changes before saving.':'來源資料列已變更，請重新載入並檢查後再儲存。','Sheet columns changed. Reload before editing again.':'試算表欄位已變更，請重新載入後再編輯。','Edit permission was not granted.':'尚未取得編輯權限。','Google account does not have edit access or this range is protected.':'Google 帳號沒有編輯權限，或此範圍受到保護。','Saved, but refresh failed. Reload the sheet to verify.':'已儲存，但重新整理失敗。請重新載入試算表確認。','Save result uncertain. Check Google Sheet and reload before retrying.':'無法確認儲存結果。請檢查 Google 試算表並重新載入後再試。',
     'Summary':'彙總','KOed':'已啟動','Ongoing':'進行中','On-going':'進行中','Total':'合計','items':'項目','Manufacture summary':'製造彙總',
     'Equipment':'設備',
     'Phase':'階段','CM Site':'客戶廠區','MFG status':'製造狀態','Material Status':'物料狀態','STD Status':'標準件狀態','RM Status':'原料狀態','CNC OS STATUS':'CNC 外包狀態','RD Drawing Status':'研發圖面狀態','ACT ETD':'實際出貨日期','Remark':'備註',
@@ -44,7 +47,7 @@
     return text;
   }
   function protectedNode(el){
-    return el.closest('script,style,textarea,.calendar-note strong,.calendar-note p,.calendar-day small,#userRows td:nth-child(-n+3),#importPendingBody td:not(:first-child),#mfgPendingBody td:not(:first-child)') && !el.closest('.empty');
+    return el.closest('script,style,textarea,#sheetEditorTable,#sheetReviewRows,#sheetCellTitle,#sheetEditorSource,#sheetReviewSource,.calendar-note strong,.calendar-note p,.calendar-day small,#userRows td:nth-child(-n+3),#importPendingBody td:not(:first-child),#mfgPendingBody td:not(:first-child)') && !el.closest('.empty');
   }
   function apply(){
     observer.disconnect();

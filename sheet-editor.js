@@ -1,0 +1,92 @@
+(() => {
+  const $=id=>document.getElementById(id);
+  const configs={import:{id:SaeSource.SHEET_ID,tab:'SAE',end:'AZ',gid:378558776,parse:SaeSource.mapRows},manufacture:{id:ManufactureSource.SHEET_ID,tab:'SAE Summary Data',end:'CN',gid:2049248761,parse:ManufactureSource.mapRows}};
+  let active='import',snapshot=null,changes=new Map(),selection=null,working=false;
+  const column=index=>{let name='';for(let n=index+1;n;n=Math.floor((n-1)/26))name=String.fromCharCode(65+(n-1)%26)+name;return name;};
+  const value=v=>v==null?'':v;
+  const formula=v=>typeof v==='string'&&v.startsWith('=');
+  const isDate=(c,v)=>typeof v==='number'&&v>20000&&v<100000&&/date|nbd|eta|etd/i.test(snapshot.headers[c]);
+  function displayed(c,v){if(isDate(c,v))return new Date(Date.UTC(1899,11,30)+Math.floor(v)*86400000).toISOString().slice(0,10);return String(value(v));}
+  function controls(){const dirty=changes.size>0;$('sheetReview').disabled=!dirty||working;$('sheetDiscard').disabled=!dirty||working;$('sheetReload').disabled=working;}
+  async function readSource(config){
+    const base=config.id+'/values/'+encodeURIComponent(`'${config.tab}'!A2:${config.end}`);
+    const [raw,computed]=await Promise.all([SheetConnection.read(base+'?valueRenderOption=FORMULA&dateTimeRenderOption=SERIAL_NUMBER'),SheetConnection.read(base+'?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER')]);
+    return {raw:raw.values||[],values:computed.values||[]};
+  }
+  async function load(){
+    if(working)return;
+    if(changes.size&&!confirm(UIText.t('Discard unsaved changes?')))return;
+    working=true;controls();$('sheetEditorMessage').textContent='Loading sheet…';
+    try{
+      const data=await readSource(configs[active]);
+      if(!data.raw[0])throw new Error('Sheet headers are missing.');
+      snapshot={...data,headers:data.raw[0],rows:configs[active].parse(data.values).map(x=>x._sourceRow)};
+      changes.clear();render();$('sheetEditorMessage').textContent=`${snapshot.rows.length} items`;
+    }catch(e){$('sheetEditorMessage').textContent=e.message;}
+    finally{working=false;controls();}
+  }
+  function render(){
+    const table=$('sheetEditorTable');table.tHead.replaceChildren();table.tBodies[0].replaceChildren();if(!snapshot)return;
+    const header=document.createElement('tr');
+    ['#',...snapshot.headers.map((h,c)=>`${column(c)} · ${h||'—'}`)].forEach(text=>{const th=document.createElement('th');th.textContent=text;header.append(th);});table.tHead.append(header);
+    const query=$('sheetSearch').value.trim().toLowerCase();
+    snapshot.rows.forEach(row=>{
+      const data=snapshot.values[row-2]||[];
+      if(query&&!data.some(v=>String(v).toLowerCase().includes(query)))return;
+      const tr=document.createElement('tr'),number=document.createElement('th');number.textContent=row;tr.append(number);
+      snapshot.headers.forEach((label,c)=>{
+        const td=document.createElement('td'),original=value(snapshot.raw[row-2]?.[c]),id=`${row}:${c}`,change=changes.get(id);
+        const shown=change?change.after:value(data[c]);td.textContent=displayed(c,shown);td.title=td.textContent;
+        if(formula(original)||!label){td.className='editor-readonly';td.title=formula(original)?String(original):'Read only';}
+        else {td.tabIndex=0;td.setAttribute('aria-label',`${column(c)}${row}: ${label}`);const edit=()=>{if(working)return;selection={row,c,id,original};$('sheetCellTitle').textContent=`${column(c)}${row} · ${label}`;$('sheetCellValue').type=isDate(c,original)?'date':'text';$('sheetCellValue').value=displayed(c,shown);$('sheetCellDialog').showModal();$('sheetCellValue').focus();};td.onclick=edit;td.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();edit();}};}
+        if(change)td.classList.add('editor-changed');tr.append(td);
+      });table.tBodies[0].append(tr);
+    });controls();
+  }
+  $('sheetCellForm').onsubmit=e=>{
+    e.preventDefault();const {row,c,id,original}=selection;const input=$('sheetCellValue').value;let after=input;
+    if((isDate(c,original)||(/date|nbd|eta|etd/i.test(snapshot.headers[c])&&/^\d{4}-\d{2}-\d{2}$/.test(input)))&&input){after=(Date.parse(input+'T00:00:00Z')-Date.UTC(1899,11,30))/86400000;if(!Number.isFinite(after))return;}
+    else if(typeof original==='number'&&input.trim()){after=Number(input);if(!Number.isFinite(after)){alert(UIText.t('Enter a valid number.'));return;}}
+    else if(typeof original==='boolean'){if(!/^(true|false)$/i.test(input)){alert('Enter true or false.');return;}after=input.toLowerCase()==='true';}
+    else if(/qty|quantity/i.test(snapshot.headers[c])&&input.trim()&&Number.isFinite(Number(input)))after=Number(input);
+    if(/^(project|spec|s\.?no|machine\/equipment name)$/i.test(String(snapshot.headers[c]).trim())&&!String(after).trim()){alert(UIText.t('This identifying field cannot be empty.'));return;}
+    if(after===original)changes.delete(id);else changes.set(id,{row,c,before:original,after});
+    $('sheetCellDialog').close();render();
+  };
+  $('sheetCellCancel').onclick=()=>$('sheetCellDialog').close();
+  $('sheetSearch').oninput=render;$('sheetReload').onclick=load;
+  $('sheetDiscard').onclick=()=>{if(confirm(UIText.t('Discard unsaved changes?'))){changes.clear();render();}};
+  $('sheetReview').onclick=()=>{
+    $('sheetReviewRows').replaceChildren();$('sheetReviewSource').textContent=configs[active].tab;
+    changes.forEach(change=>{const tr=document.createElement('tr');[`${column(change.c)}${change.row}`,snapshot.headers[change.c],displayed(change.c,change.before),displayed(change.c,change.after)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});$('sheetReviewRows').append(tr);});
+    $('sheetSaveMessage').textContent='';$('sheetReviewDialog').showModal();
+  };
+  $('sheetReviewCancel').onclick=()=>$('sheetReviewDialog').close();
+  $('sheetReviewDialog').addEventListener('cancel',e=>{if(working)e.preventDefault();});
+  $('sheetSave').onclick=async()=>{
+    if(working||!changes.size)return;
+    working=true;controls();$('sheetSave').disabled=true;$('sheetReviewCancel').disabled=true;
+    let sent=false,committed=false;
+    try{
+      $('sheetSaveMessage').textContent='Checking Google permissions and current data…';
+      await SheetConnection.authorizeEdit();
+      const cfg=configs[active],latest=await readSource(cfg);
+      const normalized=row=>JSON.stringify(Array.from({length:snapshot.headers.length},(_,c)=>value(row?.[c])));
+      if(normalized(latest.raw[0])!==normalized(snapshot.headers))throw new Error('Sheet columns changed. Reload before editing again.');
+      for(const row of new Set([...changes.values()].map(x=>x.row)))if(normalized(latest.raw[row-2])!==normalized(snapshot.raw[row-2]))throw new Error('A source row changed. Reload and review your changes before saving.');
+      const data=[...changes.values()].map(x=>({range:`'${cfg.tab}'!${column(x.c)}${x.row}`,values:[[x.after]]}));
+      sent=true;await SheetConnection.write(cfg.id,data);committed=true;changes.clear();
+      const updated=await readSource(cfg);snapshot={...updated,headers:updated.raw[0],rows:cfg.parse(updated.values).map(x=>x._sourceRow)};
+      render();$('sheetReviewDialog').close();$('sheetEditorMessage').textContent='Saved to Google Sheet.';await SheetConnection.refresh();
+    }catch(e){
+      $('sheetSaveMessage').textContent=committed?'Saved, but refresh failed. Reload the sheet to verify.':sent?'Save result uncertain. Check Google Sheet and reload before retrying.':e.message;
+      if(sent){changes.clear();snapshot=null;render();}
+    }finally{working=false;$('sheetSave').disabled=false;$('sheetReviewCancel').disabled=false;controls();}
+  };
+  window.SheetEditor={canLeave(){if(working)return false;if(changes.size&&!confirm(UIText.t('Discard unsaved changes?')))return false;changes.clear();controls();return true;},open(page){
+    active=page;snapshot=null;changes.clear();$('sheetSearch').value='';$('sheetEditorTitle').textContent=page==='import'?'Import':'Manufacture';
+    const cfg=configs[page];$('sheetEditorSource').textContent=cfg.tab;$('sheetOriginalLink').href=`https://docs.google.com/spreadsheets/d/${cfg.id}/edit#gid=${cfg.gid}`;
+    render();load();
+  }};
+  window.addEventListener('beforeunload',e=>{if(changes.size||working){e.preventDefault();e.returnValue='';}});
+})();

@@ -208,3 +208,13 @@ body.signed-in .login-view{display:none}
 .mfg-summary th:first-child{text-align:left}
 .mfg-summary tbody tr:last-child{font-weight:bold;background:#f0f5fb}
 #manufactureSection .status-panel .chart-box{min-height:90px}
+.sheet-editor-view{padding:16px;height:calc(100dvh - 64px);display:flex;flex-direction:column;min-height:0}
+.sheet-editor-view h1{font-size:22px;margin:0}.sheet-editor-view .users-toolbar{margin:6px 0}.sheet-editor-view .users-notice{margin:8px 0;font-size:11px}.sheet-editor-view .users-heading p{font-size:12px;margin:5px 0;color:#64748b}
+#sheetEditorMessage{font-size:12px;margin:6px 0}.editor-scroll{overflow:auto;flex:1;min-height:120px;border:1px solid #dfe7f0;background:#fff;border-radius:6px}
+#sheetEditorTable{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}
+#sheetEditorTable th,#sheetEditorTable td{font-size:11px;padding:8px;min-width:85px;max-width:220px;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;white-space:pre-wrap;overflow-wrap:anywhere}
+#sheetEditorTable th{background:#edf3fa;z-index:2}#sheetEditorTable tr>th:first-child{position:sticky;left:0;min-width:40px;z-index:3}#sheetEditorTable td{cursor:pointer}#sheetEditorTable td:focus{outline:2px solid #1769e0;outline-offset:-2px}
+#sheetEditorTable .editor-readonly{background:#f1f5f9;color:#64748b;cursor:default}#sheetEditorTable .editor-changed{background:#fff3bf}
+#sheetCellDialog,#sheetReviewDialog{border:1px solid #dfe7f0;border-radius:12px;padding:22px;max-width:90vw;max-height:85dvh;color:#10243e}#sheetCellDialog{width:460px}#sheetReviewDialog{width:850px}
+#sheetCellDialog::backdrop,#sheetReviewDialog::backdrop{background:#10243e88}#sheetCellValue{width:100%;padding:10px;margin:8px 0 20px;border:1px solid #cbd5e1;border-radius:5px}.editor-review-scroll{max-height:50dvh;overflow:auto}.editor-review-scroll table{min-width:0;width:100%}.editor-review-scroll td{max-width:250px;overflow-wrap:anywhere}#sheetSaveMessage{color:#b45309;font-size:12px}
+@media(max-width:760px){.sheet-editor-view .users-toolbar{flex-wrap:wrap}.sheet-editor-view{padding:10px}}
