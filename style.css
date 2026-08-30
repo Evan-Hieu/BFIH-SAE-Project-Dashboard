@@ -69,14 +69,15 @@ td{padding:8px 6px;font-size:9px}
   .topbar-controls{min-width:max-content}
 }
 .sync-summary{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}.sync-summary #syncStatus{font-size:9px;color:#64748b;max-width:320px;text-align:right}.sync-summary strong{white-space:nowrap}@media(max-width:650px){.sync-summary{flex-direction:column;align-items:flex-end;gap:2px}.sync-summary #syncStatus{max-width:140px}}
-.import-pending-table{width:100%;min-width:0;table-layout:fixed}
-.import-pending-table th,.import-pending-table td{white-space:normal;overflow-wrap:anywhere;padding:6px 4px;line-height:1.35;vertical-align:middle}
-.import-pending-table th{font-size:8px}
-.import-pending-table td{font-size:8.5px}
-.import-pending-table .priority{font-size:7.5px;padding:4px 3px;line-height:1.3;max-width:100%;white-space:nowrap}
-.import-pending-table td:nth-child(4),.import-pending-table th:nth-child(4),.import-pending-table td:nth-child(5),.import-pending-table td:nth-child(6),.import-pending-table td:nth-child(12){text-align:center}
-@media(max-width:999px){.import-pending-table{min-width:720px}}
-
+/* Content-sized columns: compact facts, readable wrapping for long statuses. */
+.import-pending-table{width:100%;min-width:0;table-layout:auto}
+.import-pending-table th,.import-pending-table td{padding:7px 5px;line-height:1.4;vertical-align:middle;overflow-wrap:normal;word-break:normal}
+.import-pending-table th{font-size:8px;white-space:normal}
+.import-pending-table td{font-size:8.5px;white-space:nowrap}
+.import-pending-table td:nth-child(7),.import-pending-table td:nth-child(13),.import-pending-table td:nth-child(14){white-space:normal;min-width:75px;max-width:180px;overflow-wrap:anywhere}
+.import-pending-table .priority{font-size:8px;padding:4px 5px;line-height:1.3;white-space:nowrap}
+.import-pending-table :is(th,td):nth-child(3),.import-pending-table :is(th,td):nth-child(4),.import-pending-table :is(th,td):nth-child(5),.import-pending-table :is(th,td):nth-child(6),.import-pending-table :is(th,td):nth-child(8),.import-pending-table :is(th,td):nth-child(9),.import-pending-table :is(th,td):nth-child(10),.import-pending-table :is(th,td):nth-child(11),.import-pending-table :is(th,td):nth-child(12){width:1%;text-align:center}
+.import-pending-table tbody tr:hover{background:#f1f6fd}
 /* Chart spans both the KPI row and the details panel. */
 .status-panel{background:#fff;border-color:#dfe7f0;color:#10243e}
 .status-panel h2 span{background:#1769e0}
