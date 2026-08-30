@@ -24,15 +24,20 @@ const saeDonutLabels = {
     });
     groups.forEach((labels,side)=>{
       labels.sort((a,b)=>a.y-b.y);
-      const spacing=Math.min(46,(height-24)/Math.max(labels.length,1));
-      labels.forEach((label,i)=>{label.y=Math.max(20,label.y,i?labels[i-1].y+spacing:20)});
+      const spacing=Math.min(48,(height-48)/Math.max(labels.length,1));
+      labels.forEach((label,i)=>{label.y=Math.max(32,label.y,i?labels[i-1].y+spacing:32)});
       for(let i=labels.length-1;i>=0;i--)labels[i].y=Math.min(labels[i].y,height-22-(labels.length-1-i)*spacing);
       labels.forEach(({arc,i,angle,y})=>{
         const edge=side?width-5:5;
         const anchor=side?width-76:76;
         ctx.strokeStyle='#7793ad';ctx.lineWidth=.8;ctx.beginPath();
         ctx.moveTo(arc.x+Math.cos(angle)*arc.outerRadius,arc.y+Math.sin(angle)*arc.outerRadius);
-        ctx.lineTo(arc.x+Math.cos(angle)*(arc.outerRadius+7),y);
+        // First travel radially out, then route only outside the circle's bounds.
+        const radialX=arc.x+Math.cos(angle)*(arc.outerRadius+7);
+        const radialY=arc.y+Math.sin(angle)*(arc.outerRadius+7);
+        const laneX=arc.x+(side?1:-1)*(arc.outerRadius+9);
+        ctx.lineTo(radialX,radialY);
+        ctx.lineTo(laneX,radialY);
         ctx.lineTo(anchor,y);ctx.stroke();
         ctx.textAlign=side?'right':'left';ctx.fillStyle='#e7f0fa';ctx.font='10px Arial';
         const full=chart.data.labels[i];
