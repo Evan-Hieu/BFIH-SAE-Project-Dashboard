@@ -151,3 +151,20 @@ td{padding:8px 6px;font-size:9px}
 .nav-project-children{margin-left:17px;padding-left:7px;border-left:1px solid rgba(169,191,213,.28)}
 .nav-project-children .nav-link{font-size:12px;gap:6px;padding-left:6px}
 @media(max-width:1100px){.nav-project{text-align:center;padding:8px 0 4px;font-size:10px}.nav-project-children{margin-left:3px;padding-left:0}.nav-project-children .nav-link{padding:0}}
+
+/* Temporary demo sign-in, not an authorization boundary. */
+body:not(.signed-in) .app-shell{display:none}
+body.signed-in .login-view{display:none}
+.login-view{min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#e6effa,#f3f6fa 65%)}
+.login-card{width:min(440px,100%);background:#fff;border:1px solid #dfe7f0;border-radius:20px;padding:28px 32px;box-shadow:0 20px 60px rgba(15,39,66,.12)}
+.login-language{display:flex;justify-content:flex-end;gap:7px;margin-bottom:18px}.login-language .btn{height:30px;font-size:11px}
+.login-brand{display:flex;align-items:center;gap:16px}.login-brand img{object-fit:contain}.login-brand h1{font-size:28px;margin:0}
+.login-subtitle{color:#64748b;font-size:14px;margin:10px 0 24px}
+#loginForm label{display:block;font-size:13px;font-weight:600;margin:14px 0 7px}
+#loginForm input,#loginForm select{width:100%;height:44px;border:1px solid #cbd5e1;border-radius:7px;padding:0 12px;font:inherit;color:#10243e;background:white}
+#loginForm>.btn{width:100%;height:42px;background:#1769e0;border-color:#1769e0;font-size:14px}
+#loginError{font-size:12px;color:#b91c1c;min-height:15px;margin:10px 0}
+.login-disclaimer{font-size:11px;line-height:1.5;color:#64748b;margin:18px 0 0}
+.signed-user{display:inline-block;background:#1769e0;border-radius:12px;color:white;padding:2px 7px;font-size:9px;margin-top:4px}
+@media(max-width:1100px){.brand{position:relative}.brand .signed-user{display:block;position:absolute;bottom:0;left:20px;font-size:8px;margin:0;padding:1px 5px}.brand>div:last-child{display:block}.brand-title{display:none}.brand{gap:0}}
+@media(max-width:480px){.login-view{padding:14px}.login-card{padding:22px}.login-brand h1{font-size:24px}}

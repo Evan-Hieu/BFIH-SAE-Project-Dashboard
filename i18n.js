@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'Project Management':'專案管理','Password':'密碼','Enter password':'請輸入密碼','Sign in':'登入','Signed in as Admin':'目前登入：Admin','Incorrect password. Please try again.':'密碼錯誤，請重試。','Demo sign-in only. This does not secure the website or enforce user permissions.':'僅供示範登入，尚未提供網站安全防護或使用者權限控管。',
     'Project Dashboard':'專案儀表板','Dashboard':'儀表板','PROJECT':'專案','Import':'進口','IMPORT':'進口','Manufacture':'製造','MANUFACTURE':'製造',
     'Timeline':'時程','Alerts':'警示','TOOLS':'工具','Search':'搜尋','Calendar':'行事曆','Performance':'績效','Notifications':'通知','Google Sheet':'Google 試算表','Audit Log':'稽核紀錄','SYSTEM':'系統','Settings':'設定','User':'使用者','Logout':'登出',
     'Year':'年','Month':'月','Week':'週','From':'起始日期','To':'結束日期','Export':'匯出','Total Items':'總項目','Overdue':'已逾期','Due ≤ 3 Days':'三天內到期','Due ≤ 7 Days':'七天內到期','Dispatched':'已出貨',
