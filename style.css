@@ -19,7 +19,7 @@ td{padding:8px 6px;font-size:9px}
 .panel-title-row strong{font-size:10px}
 .empty{padding:38px 10px!important}
 
-/* Compact desktop navigation and highlighted leading KPI cards. */
+/* Compact desktop navigation. */
 @media(min-width:1101px){
   .sidebar{width:192px}
   .topbar{left:192px}
@@ -28,8 +28,14 @@ td{padding:8px 6px;font-size:9px}
   .brand-mark{flex-shrink:0}
   .nav-link{padding:0 8px;gap:8px}
 }
-.kpi.blue{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#bfdbfe;color:#1d4ed8}
-.kpi.red{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border-color:#fecdd3;color:#be123c}
-.kpi.orange{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fed7aa;color:#c2410c}
-.kpi:is(.blue,.red,.orange) .kpi-label{color:#334155}
-.kpi:is(.blue,.red,.orange) .kpi-sub{font-weight:600}
+/* Navy filter bar coordinated with the sidebar. */
+.topbar{background:linear-gradient(110deg,#0b2948,#123e68);border-bottom:1px solid #234d73;box-shadow:0 3px 12px rgba(7,31,60,.16);color:#e2e8f0}
+.date-group{color:#d7e5f3}
+.topbar select,.topbar input{background:#f8fafc;border-color:#b8cce0;color:#10243e;color-scheme:light}
+.topbar .secondary{background:transparent;border-color:#a9c5e2;color:#fff}
+.topbar .primary{background:#1769e0;border-color:#4388ec;color:#fff}
+.topbar .secondary:hover{background:rgba(255,255,255,.12)}
+.topbar .primary:hover{background:#125bc5}
+.topbar .lang{color:#c2d4e6}
+.topbar .lang.active{color:#fff;text-decoration:underline;text-underline-offset:5px}
+.topbar :is(select,input,button):focus-visible{outline:2px solid #93c5fd;outline-offset:3px}
