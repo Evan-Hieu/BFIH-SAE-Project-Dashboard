@@ -72,8 +72,8 @@ td{padding:8px 6px;font-size:9px}
 .import-pending-table{min-width:1180px}.import-pending-table th{white-space:nowrap}.import-pending-table td:nth-child(-n+9){white-space:nowrap}.import-pending-table td:nth-child(4){text-align:center}.import-pending-table td:nth-child(10),.import-pending-table td:nth-child(11){min-width:170px}
 
 /* Chart spans both the KPI row and the details panel. */
-.status-panel{background:linear-gradient(145deg,#0b2948,#10365c);border-color:#234d73;color:#fff}
-.status-panel h2 span{background:#ffbe36}
+.status-panel{background:#fff;border-color:#dfe7f0;color:#10243e}
+.status-panel h2 span{background:#1769e0}
 @media(min-width:1000px){
   .module-section{display:grid;grid-template-columns:minmax(290px,28%) minmax(0,1fr);grid-template-rows:58px minmax(0,1fr);gap:8px 10px}
   .module-section>.kpis{grid-column:2;grid-row:1;min-width:0;gap:6px}
