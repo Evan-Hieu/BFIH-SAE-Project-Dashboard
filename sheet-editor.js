@@ -10,7 +10,10 @@
   function controls(){const dirty=changes.size>0;$('sheetReview').disabled=!dirty||working;$('sheetDiscard').disabled=!dirty||working;$('sheetReload').disabled=working;}
   async function readSource(config){
     const base=config.id+'/values/'+encodeURIComponent(`'${config.tab}'!A2:${config.end}`);
-    const [raw,computed]=await Promise.all([SheetConnection.read(base+'?valueRenderOption=FORMULA&dateTimeRenderOption=SERIAL_NUMBER'),SheetConnection.read(base+'?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER')]);
+    const raw=await SheetConnection.read(base+'?valueRenderOption=FORMULA&dateTimeRenderOption=SERIAL_NUMBER');
+    const computed=await SheetConnection.read(base+'?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER');
+    const verified=await SheetConnection.read(base+'?valueRenderOption=FORMULA&dateTimeRenderOption=SERIAL_NUMBER');
+    if(JSON.stringify(raw.values)!==JSON.stringify(verified.values))throw new Error('Sheet changed while loading. Please load it again.');
     return {raw:raw.values||[],values:computed.values||[]};
   }
   async function load(){
@@ -45,10 +48,10 @@
   }
   $('sheetCellForm').onsubmit=e=>{
     e.preventDefault();const {row,c,id,original}=selection;const input=$('sheetCellValue').value;let after=input;
-    if((isDate(c,original)||(/date|nbd|eta|etd/i.test(snapshot.headers[c])&&/^\d{4}-\d{2}-\d{2}$/.test(input)))&&input){after=(Date.parse(input+'T00:00:00Z')-Date.UTC(1899,11,30))/86400000;if(!Number.isFinite(after))return;}
+    if((isDate(c,original)||(/date|nbd|eta|etd/i.test(snapshot.headers[c])&&/^\d{4}-\d{2}-\d{2}$/.test(input)))&&input){const parsed=Date.parse(input+'T00:00:00Z');if(!Number.isFinite(parsed)||new Date(parsed).toISOString().slice(0,10)!==input){alert(UIText.t('Enter a valid date in YYYY-MM-DD format.'));return;}after=(parsed-Date.UTC(1899,11,30))/86400000;}
     else if(typeof original==='number'&&input.trim()){after=Number(input);if(!Number.isFinite(after)){alert(UIText.t('Enter a valid number.'));return;}}
-    else if(typeof original==='boolean'){if(!/^(true|false)$/i.test(input)){alert('Enter true or false.');return;}after=input.toLowerCase()==='true';}
-    else if(/qty|quantity/i.test(snapshot.headers[c])&&input.trim()&&Number.isFinite(Number(input)))after=Number(input);
+    else if(typeof original==='boolean'&&input!==''){if(!/^(true|false)$/i.test(input)){alert(UIText.t('Enter true or false.'));return;}after=input.toLowerCase()==='true';}
+    else if(/qty|quantity/i.test(snapshot.headers[c])&&input.trim()){after=Number(input);if(!Number.isFinite(after)){alert(UIText.t('Enter a valid number.'));return;}}
     if(/^(project|spec|s\.?no|machine\/equipment name)$/i.test(String(snapshot.headers[c]).trim())&&!String(after).trim()){alert(UIText.t('This identifying field cannot be empty.'));return;}
     if(after===original)changes.delete(id);else changes.set(id,{row,c,before:original,after});
     $('sheetCellDialog').close();render();
@@ -72,7 +75,7 @@
       await SheetConnection.authorizeEdit();
       const cfg=configs[active],latest=await readSource(cfg);
       const normalized=row=>JSON.stringify(Array.from({length:snapshot.headers.length},(_,c)=>value(row?.[c])));
-      if(normalized(latest.raw[0])!==normalized(snapshot.headers))throw new Error('Sheet columns changed. Reload before editing again.');
+      if(JSON.stringify(latest.raw[0])!==JSON.stringify(snapshot.headers))throw new Error('Sheet columns changed. Reload before editing again.');
       for(const row of new Set([...changes.values()].map(x=>x.row)))if(normalized(latest.raw[row-2])!==normalized(snapshot.raw[row-2]))throw new Error('A source row changed. Reload and review your changes before saving.');
       const data=[...changes.values()].map(x=>({range:`'${cfg.tab}'!${column(x.c)}${x.row}`,values:[[x.after]]}));
       sent=true;await SheetConnection.write(cfg.id,data);committed=true;changes.clear();
