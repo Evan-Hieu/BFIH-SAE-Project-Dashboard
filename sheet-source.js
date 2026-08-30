@@ -1,21 +1,37 @@
 /* Private Sheets data stays in browser memory, never in the repository. */
 (function (root) {
   const SHEET_ID = '1KHBzyi9vcIiqwzKOGVtJNZXC6rqULJYyyhvO69XoDuE';
-  const dateColumns = new Set([10, 11, 19, 20, 21, 22, 23, 25, 26, 28, 29, 30, 31]);
+  const dateFields = new Set(['KO Date','NBD','Target date','Released','Official PO Target date','Official PO Released','Vendor ETD','Airport ETA','BFIH Actual ETA','CM Released date','VMI ETA plan','VMI ETA','Dispatched date']);
   const headers = ['S.No','Project','Build','Machine/Equipment name','Spec','Check Duplicate','Category','KO QTY','UOM','Type','KO Date','NBD','Fixture Manufacturer','PIC','Vendor','BFIH site arrive','Dispatch to Customer','PID','FIH PO Number','Target date','Released','Official PO Target date','Official PO Released','Vendor ETD','AWB Bill','Airport ETA','BFIH Actual ETA','CM PO Number','CM Released date','VMI ETA plan','VMI ETA','Dispatched date','Overall status','Remark'];
   const text = value => value == null ? '' : String(value).trim();
+  const key = value => text(value).toLowerCase().replace(/\s+/g,' ').trim();
+  const aliases = new Map([...headers,'Dispatched Qty','Pending qty'].map(name=>[key(name),name]));
+  aliases.set('fixture manufacturer 治具廠','Fixture Manufacturer');
+  aliases.set('po release taget date','Target date');
+  aliases.set('official po taget date','Official PO Target date');
   function dateValue(value) {
     if (typeof value !== 'number') return text(value);
     return new Date(Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000).toISOString().slice(0, 10);
   }
   function mapRows(values) {
-    if (!Array.isArray(values) || text(values[0]?.[0]) !== 'S.No' || text(values[0]?.[3]) !== 'Machine/Equipment name' || text(values[0]?.[11]) !== 'NBD' || text(values[0]?.[32]) !== 'Overall status') {
-      throw new Error('SAE columns have changed. Check the header row before syncing.');
-    }
+    if (!Array.isArray(values) || !Array.isArray(values[0])) throw new Error('SAE header row is missing');
+    const columns = new Map();
+    values[0].forEach((label,column)=>{
+      const name=aliases.get(key(label));
+      if (!name) return;
+      if (columns.has(name)) throw new Error(`Duplicate SAE column: ${name}`);
+      columns.set(name,column);
+    });
+    const required=['S.No','Machine/Equipment name','NBD','Overall status','Spec','KO QTY','Type','Fixture Manufacturer','FIH PO Number','Vendor ETD','AWB Bill','BFIH Actual ETA','CM PO Number','CM Released date','VMI ETA plan','VMI ETA','Dispatched date'];
+    const missing=required.filter(name=>!columns.has(name));
+    if(missing.length) throw new Error(`SAE columns missing: ${missing.join(', ')}`);
     return values.slice(1).flatMap((row, index) => {
-      if (!text(row[0]) || !text(row[3])) return [];
+      if (!text(row[columns.get('S.No')]) || !text(row[columns.get('Machine/Equipment name')])) return [];
       const item = {_sourceRow: index + 3};
-      headers.forEach((header, column) => { item[header] = dateColumns.has(column) ? dateValue(row[column]) : text(row[column]); });
+      [...headers,'Dispatched Qty','Pending qty'].forEach(header => {
+        const value=row[columns.get(header)];
+        item[header]=dateFields.has(header)?dateValue(value):text(value);
+      });
       return [item];
     });
   }

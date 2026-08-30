@@ -12,7 +12,7 @@
     }
     busy = true; status('Syncing SAE…');
     try {
-      const range = encodeURIComponent("'SAE'!A2:AH");
+      const range = encodeURIComponent("'SAE'!A2:AZ");
       const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SaeSource.SHEET_ID}/values/${range}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`, {
         headers: {Authorization:`Bearer ${token}`}, cache:'no-store', signal:AbortSignal.timeout(20000)
       });

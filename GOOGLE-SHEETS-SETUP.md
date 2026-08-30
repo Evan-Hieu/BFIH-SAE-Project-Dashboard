@@ -1,6 +1,6 @@
 # Private SAE sync
 
-The dashboard reads SAE A2:AH directly through Google Sheets API with the viewer's Google authorization. Tracker is a reference for stage/action rules only; it is never a runtime data source. All numbered equipment rows, including rows after blanks and every Type, belong to Import. Manufacture is unchanged. Pending excludes Overall status = Dispatched and Fixture Manufacturer = Cancelled. Dates use unformatted serial values; BFIH site arrive stays a location string.
+The dashboard reads SAE A2:AZ directly through Google Sheets API with the viewer's Google authorization. Tracker is a reference for stage/action rules only; it is never a runtime data source. All numbered equipment rows, including rows after blanks and every Type, belong to Import. Manufacture is unchanged. Pending excludes Overall status = Dispatched and Fixture Manufacturer = Cancelled. Dates use unformatted serial values; BFIH site arrive stays a location string.
 
 ## One-time Google setup
 
@@ -10,7 +10,7 @@ The dashboard reads SAE A2:AH directly through Google Sheets API with the viewer
 4. Put its public client ID (ending in `.apps.googleusercontent.com`) in `google-config.js`. Do not provide a client secret.
 5. Deploy, click Google Sheet in the sidebar, and sign in with an account that can read the source spreadsheet.
 
-The app requests spreadsheets.readonly. This scope is not limited to one spreadsheet by Google; the application only requests the configured SAE range. Review that scope before consenting. Sheet sharing permissions remain unchanged. No real rows or tokens are saved to Git, localStorage, or a server. The public sample JSON remains demo data until sign-in. Sync refreshes every minute while the page is visible, and on clicking Google Sheet. When the access token expires, user interaction is required to reconnect; this frontend has no persistent refresh token.
+The app requests spreadsheets.readonly. This scope is not limited to one spreadsheet by Google; the application only requests the configured SAE range. Review that scope before consenting. Sheet sharing permissions remain unchanged. No real rows or tokens are saved to Git, localStorage, or a server. Before sign-in, the dashboard shows an explicit not-connected state without loading sample data. Sync refreshes every minute while the page is visible, and on clicking Google Sheet. When the access token expires, user interaction is required to reconnect; this frontend has no persistent refresh token.
 
 ## Verification required before release
 
@@ -19,3 +19,5 @@ The app requests spreadsheets.readonly. This scope is not limited to one spreads
 - Ensure real rows never appear in committed files, logs, or unauthenticated responses.
 
 References: https://developers.google.com/identity/oauth2/web/guides/use-token-model and https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
+
+Columns are matched by normalized header names, including the inserted Dispatched Qty and Pending qty fields. Quantity values are displayed as supplied (including zero and negative values); no quantity formula is inferred.
