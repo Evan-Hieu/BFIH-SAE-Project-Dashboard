@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BFIH SAE Project Dashboard</title>
-<link rel="stylesheet" href="style.css?v=20260830-22">
+<link rel="stylesheet" href="style.css?v=20260830-23">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -25,7 +25,7 @@
 <a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
 <a href="#" id="googleSheetLink" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
 <a href="#" class="nav-link"><span class="icon">≡</span><span>Audit Log</span></a>
-<div class="nav-heading">SYSTEM</div>
+<div class="nav-heading">SYSTEM</div><a href="#users" class="nav-link" data-page="users" aria-label="User"><span class="icon">♙</span><span>User</span></a>
 <a href="#" class="nav-link"><span class="icon">⚙</span><span>Settings</span></a>
 </nav>
 <div class="sidebar-footer"><a href="#" class="logout"><span class="icon">↪</span><span>Logout</span></a></div>
@@ -94,6 +94,23 @@
       </form>
     </article>
   </div>
-</section></main></div>
-<script src="sheet-source.js?v=3"></script><script src="google-config.js?v=2"></script><script src="app.js?v=20260830-20"></script><script src="calendar.js?v=1"></script><script src="sheets-sync.js?v=3"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
+</section>
+<section id="usersView" class="users-view" hidden aria-label="User management">
+  <div class="users-heading"><div><h1>User</h1><p>Prepare user access by area.</p></div><span class="users-draft">Configuration draft</span></div>
+  <p class="users-notice">Draft only — saved in this browser. These settings do not restrict access yet, create login accounts, send invitations, or change Google Sheet sharing.</p>
+  <div class="users-toolbar"><input type="search" id="userSearch" aria-label="Search users" placeholder="Search name or email…"><button class="btn primary" id="userAdd">+ Add user</button></div>
+  <p id="userMessage" role="status"></p>
+  <article class="panel users-table-wrap"><table class="users-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Access by area (planned)</th><th>Status (planned)</th><th>Actions</th></tr></thead><tbody id="userRows"></tbody></table></article>
+  <p class="users-legend"><strong>View</strong>: read only · <strong>Comment</strong>: view and comment · <strong>Edit</strong>: view, comment and edit · <strong>No access</strong>: hidden when enforcement is implemented.</p>
+</section>
+<dialog id="userDialog" aria-labelledby="userDialogTitle">
+  <form id="userForm"><div class="users-heading"><h2 id="userDialogTitle">Add user</h2><button type="button" class="btn secondary" id="userClose" aria-label="Close user form">×</button></div>
+    <p class="users-notice">Prepare permissions only. Actual access control will be connected later.</p>
+    <div class="user-fields"><label>Name<input id="userName" required maxlength="100" autocomplete="off"></label><label>Email<input id="userEmail" type="email" required maxlength="254" autocomplete="off"></label><label>Status<select id="userStatus"><option>Active</option><option>Inactive</option></select></label></div>
+    <fieldset><legend>Access by area</legend><div id="userPermissions" class="user-permissions"></div></fieldset>
+    <p id="userFormMessage" role="alert"></p>
+    <div class="user-form-actions"><button class="btn secondary" type="button" id="userCancel">Cancel</button><button class="btn primary" type="submit" id="userSave">Save draft</button></div>
+  </form>
+</dialog></main></div>
+<script src="sheet-source.js?v=3"></script><script src="google-config.js?v=2"></script><script src="app.js?v=20260830-20"></script><script src="calendar.js?v=2"></script><script src="users.js?v=1"></script><script src="sheets-sync.js?v=3"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
 </body></html>
