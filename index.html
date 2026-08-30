@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BFIH SAE Project Dashboard</title>
-<link rel="stylesheet" href="style.css?v=20260830-21">
+<link rel="stylesheet" href="style.css?v=20260830-22">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -20,7 +20,7 @@
 <a href="#" class="nav-link"><span class="icon">!</span><span>Alerts</span></a>
 <div class="nav-heading">TOOLS</div>
 <a href="#" class="nav-link"><span class="icon">⌕</span><span>Search</span></a>
-<a href="#" class="nav-link"><span class="icon">▣</span><span>Calendar</span></a>
+<a href="#calendar" class="nav-link" data-page="calendar" aria-label="Calendar"><span class="icon">▣</span><span>Calendar</span></a>
 <a href="#" class="nav-link"><span class="icon">↗</span><span>Performance</span></a>
 <a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
 <a href="#" id="googleSheetLink" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
@@ -42,7 +42,7 @@
 <div class="lang-switch"><button id="langEn" class="lang active">EN</button><span>/</span><button id="langZh" class="lang">中文</button></div>
 </div></header>
 
-<main class="main"><section class="content">
+<main class="main"><section class="content" id="dashboardView">
 
 <section class="module-section" id="importSection">
 <section class="kpis">
@@ -74,6 +74,26 @@
 </section>
 </section>
 
+</section>
+<section id="calendarView" class="calendar-view" hidden aria-label="Calendar">
+  <div class="calendar-heading"><div><h1>Calendar</h1><p>Plan important work and keep daily notes.</p></div><button class="btn secondary" id="calendarToday">Today</button></div>
+  <p class="calendar-storage">Notes are saved only in this browser. No cloud sync or automatic reminders. Clearing browser data removes notes.</p>
+  <p id="calendarMessage" role="status"></p>
+  <div class="calendar-layout">
+    <article class="panel calendar-month">
+      <div class="calendar-toolbar"><button class="btn secondary" id="calendarPrev" aria-label="Previous month">‹</button><h2 id="calendarMonth" aria-live="polite"></h2><button class="btn secondary" id="calendarNext" aria-label="Next month">›</button></div>
+      <div class="calendar-weekdays" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <div id="calendarDays" class="calendar-days"></div>
+    </article>
+    <article class="panel calendar-notes"><h2 id="calendarSelected"></h2><div id="calendarNoteList"></div>
+      <form id="calendarForm"><h3 id="calendarFormTitle">Add note</h3>
+        <label>Title<input id="calendarTitle" required maxlength="120" placeholder="Meeting, delivery, follow-up…"></label>
+        <label>Details<textarea id="calendarDetails" rows="3" maxlength="2000" placeholder="What needs to be done?"></textarea></label>
+        <label class="calendar-check"><input id="calendarImportant" type="checkbox"> Important</label>
+        <div class="calendar-actions"><button class="btn primary" type="submit">Save note</button><button class="btn secondary" type="button" id="calendarCancel" hidden>Cancel edit</button></div>
+      </form>
+    </article>
+  </div>
 </section></main></div>
-<script src="sheet-source.js?v=3"></script><script src="google-config.js?v=2"></script><script src="app.js?v=20260830-20"></script><script src="sheets-sync.js?v=3"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="sheet-source.js?v=3"></script><script src="google-config.js?v=2"></script><script src="app.js?v=20260830-20"></script><script src="calendar.js?v=1"></script><script src="sheets-sync.js?v=3"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
 </body></html>

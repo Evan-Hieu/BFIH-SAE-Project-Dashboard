@@ -103,3 +103,28 @@ td{padding:8px 6px;font-size:9px}
   .module-section{grid-template-rows:44px minmax(0,1fr)}
 }
 @media(max-width:999px){.status-panel .chart-box{height:240px}}
+
+/* Calendar and browser-local notes. */
+[hidden]{display:none!important}
+.calendar-view{padding:18px;max-height:calc(100dvh - 64px);overflow:auto}
+.calendar-heading,.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.calendar-heading h1{font-size:22px;margin:0}
+.calendar-heading p,.calendar-storage{font-size:12px;color:#64748b}
+#calendarMessage{font-size:12px;color:#1769e0}
+.calendar-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:16px;align-items:start}
+.calendar-toolbar{margin-bottom:16px}.calendar-toolbar h2{margin:0;font-size:18px}
+.calendar-weekdays,.calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.calendar-weekdays span{text-align:center;padding:8px;font-size:11px;color:#64748b;font-weight:bold}
+.calendar-days{gap:4px}
+.calendar-day{min-width:0;min-height:65px;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:6px;padding:6px;color:#10243e;cursor:pointer}
+.calendar-day.outside{background:#f8fafc;color:#94a3b8}.calendar-day.today>span{background:#1769e0;color:white;border-radius:50%;padding:3px}
+.calendar-day[aria-pressed="true"]{border:2px solid #1769e0;background:#eff6ff}
+.calendar-day small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#e7effb;margin-top:4px;padding:2px;font-size:10px}
+.calendar-day small.important{background:#fff0c2;color:#925700}
+.calendar-notes h2{font-size:14px}.calendar-notes p{font-size:12px;color:#64748b;white-space:pre-wrap;overflow-wrap:anywhere}
+.calendar-notes label{display:block;font-size:12px;margin:10px 0}
+.calendar-notes input:not([type="checkbox"]),.calendar-notes textarea{display:block;width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;margin-top:5px;font:inherit}
+.calendar-notes textarea{resize:vertical}.calendar-check input{vertical-align:middle}.calendar-actions{display:flex;gap:6px}
+.calendar-note{padding:10px 0;border-bottom:1px solid #e2e8f0;overflow-wrap:anywhere}.calendar-note strong{font-size:13px}.calendar-note .btn{height:28px;font-size:11px;margin-right:6px}
+.calendar-view button:focus-visible{outline:2px solid #1769e0;outline-offset:2px}
+@media(max-width:1000px){.calendar-layout{grid-template-columns:1fr}.calendar-view{padding:12px}.calendar-day{min-height:58px}}
