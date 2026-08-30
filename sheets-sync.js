@@ -1,7 +1,7 @@
 (() => {
   let token = null, expiresAt = 0, client = null, timer = null, busy = false;
   const scope = 'https://www.googleapis.com/auth/spreadsheets.readonly';
-  const status = message => { document.getElementById('syncStatus').textContent = message; };
+  const status = message => { ['syncStatus','mfgSyncStatus'].forEach(id=>document.getElementById(id).textContent=message); };
   function clearSession() {
     token = null; expiresAt = 0; clearInterval(timer); timer = null;
   }
@@ -11,21 +11,26 @@
       clearSession(); status('Session expired · displayed data may be outdated — click Google Sheet'); return;
     }
     busy = true; status('Syncing SAE…');
+    const sources=[
+      {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'SAE'},
+      {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CN",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'SAE Summary Data'}
+    ];
     try {
-      const range = encodeURIComponent("'SAE'!A2:AZ");
-      const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SaeSource.SHEET_ID}/values/${range}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`, {
-        headers: {Authorization:`Bearer ${token}`}, cache:'no-store', signal:AbortSignal.timeout(20000)
-      });
-      if (response.status === 401) { clearSession(); throw new Error('Session expired — reconnect Google Sheet'); }
-      if (response.status === 403) throw new Error('Access denied — check Sheet access and Sheets API setup');
-      if (!response.ok) throw new Error(`Sync failed (${response.status})`);
-      const payload = await response.json();
-      const items = SaeSource.mapRows(payload.values);
-      window.loadSaeItems(items);
-      status(`SAE · ${items.length} items · Synced ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`);
-    } catch (error) {
-      status(`${error.name === 'TimeoutError' ? 'Sync timed out' : error.message} · data not refreshed`);
-    } finally { busy = false; }
+      await Promise.allSettled(sources.map(async source=>{
+        const show=message=>{document.getElementById(source.status).textContent=message;};
+        try {
+          const response=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${source.id}/values/${encodeURIComponent(source.range)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,{
+            headers:{Authorization:`Bearer ${token}`},cache:'no-store',signal:AbortSignal.timeout(20000)
+          });
+          if(response.status===401){clearSession();throw new Error('Session expired — reconnect Google Sheet');}
+          if(response.status===403)throw new Error('Access denied — check Sheet access and Sheets API setup');
+          if(!response.ok)throw new Error(`Sync failed (${response.status})`);
+          const payload=await response.json(),items=source.parse(payload.values);
+          source.load(items);
+          show(`${source.name} · ${items.length} items · Synced ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`);
+        } catch(error){show(`${error.name==='TimeoutError'?'Sync timed out':error.message} · data not refreshed`);}
+      }));
+    } finally { busy=false; }
   }
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('googleSheetLink').addEventListener('click', event => {

@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'Phase':'階段','CM Site':'客戶廠區','MFG status':'製造狀態','Material Status':'物料狀態','STD Status':'標準件狀態','RM Status':'原料狀態','CNC OS STATUS':'CNC 外包狀態','RD Drawing Status':'研發圖面狀態','ACT ETD':'實際出貨日期','Remark':'備註',
     'Project Management':'專案管理','Password':'密碼','Enter password':'請輸入密碼','Sign in':'登入','Signed in as Admin':'目前登入：Admin','Incorrect password. Please try again.':'密碼錯誤，請重試。','Demo sign-in only. This does not secure the website or enforce user permissions.':'僅供示範登入，尚未提供網站安全防護或使用者權限控管。',
     'Project Dashboard':'專案儀表板','Dashboard':'儀表板','PROJECT':'專案','Import':'進口','IMPORT':'進口','Manufacture':'製造','MANUFACTURE':'製造',
     'Timeline':'時程','Alerts':'警示','TOOLS':'工具','Search':'搜尋','Calendar':'行事曆','Performance':'績效','Notifications':'通知','Google Sheet':'Google 試算表','Audit Log':'稽核紀錄','SYSTEM':'系統','Settings':'設定','User':'使用者','Logout':'登出',
@@ -34,7 +35,7 @@
     if(/^W\d+$/.test(text))return `第 ${text.slice(1)} 週`;
     const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     if(months.includes(text))return `${months.indexOf(text)+1} 月`;
-    if(/^SAE · \d+ items · Synced /.test(text))return text.replace(' items · Synced ',' 筆 · 已同步 ');
+    if(/^SAE(?: Summary Data)? · \d+ items · Synced /.test(text))return text.replace(' items · Synced ',' 筆 · 已同步 ');
     if(text.endsWith(' · data not refreshed'))return translate(text.slice(0,-21))+' · 資料尚未更新';
     if(/^Sync failed \(\d+\)$/.test(text))return text.replace('Sync failed','同步失敗');
     if(/^\+\d+ more$/.test(text))return text.replace(' more',' 筆');

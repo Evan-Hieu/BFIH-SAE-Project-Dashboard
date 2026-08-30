@@ -168,3 +168,7 @@ body.signed-in .login-view{display:none}
 .signed-user{display:inline-block;background:#1769e0;border-radius:12px;color:white;padding:2px 7px;font-size:9px;margin-top:4px}
 @media(max-width:1100px){.brand{position:relative}.brand .signed-user{display:block;position:absolute;bottom:0;left:20px;font-size:8px;margin:0;padding:1px 5px}.brand>div:last-child{display:block}.brand-title{display:none}.brand{gap:0}}
 @media(max-width:480px){.login-view{padding:14px}.login-card{padding:22px}.login-brand h1{font-size:24px}}
+#manufactureSection table{width:max-content;min-width:100%;table-layout:auto}
+#manufactureSection td,#manufactureSection th{white-space:nowrap}
+#manufactureSection td:nth-child(n+10){white-space:normal;min-width:110px;max-width:200px;overflow-wrap:anywhere}
+.sync-summary #mfgSyncStatus{font-size:9px;color:#64748b;max-width:300px;text-align:right}
