@@ -69,3 +69,4 @@ td{padding:8px 6px;font-size:9px}
   .topbar-controls{min-width:max-content}
 }
 .sync-summary{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}.sync-summary #syncStatus{font-size:9px;color:#64748b;max-width:320px;text-align:right}.sync-summary strong{white-space:nowrap}@media(max-width:650px){.sync-summary{flex-direction:column;align-items:flex-end;gap:2px}.sync-summary #syncStatus{max-width:140px}}
+.import-pending-table{min-width:1080px}.import-pending-table th{white-space:nowrap}.import-pending-table td:nth-child(-n+8){white-space:nowrap}.import-pending-table td:nth-child(3){text-align:center}.import-pending-table td:nth-child(9),.import-pending-table td:nth-child(10){min-width:170px}
