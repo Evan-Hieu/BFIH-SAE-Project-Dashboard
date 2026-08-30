@@ -224,3 +224,12 @@ body.signed-in .login-view{display:none}
 .sheet-status-filters button:focus-visible{outline:3px solid #86b7ff;outline-offset:2px}
 .sheet-status-filters .filter-count{font-size:12px;background:rgba(127,157,190,.18);padding:2px 7px;border-radius:12px}
 .sheet-status-filters output{margin-left:auto;color:#637991;font-size:13px}
+.users-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0}
+.users-table-wrap{max-height:65vh}.users-table th{white-space:nowrap;position:sticky;top:0;background:#f4f7fc;z-index:3}
+.users-table td{padding:10px;white-space:nowrap}.users-table td:nth-child(2){min-width:150px}.users-table td:nth-child(3){min-width:230px}
+.users-table select{min-width:105px;padding:8px;border:1px solid #ccd9e9;border-radius:6px;background:#fff;color:#173754;font:inherit}
+.users-table select[data-level="Edit"]{background:#e0f6e9;color:#08793b}.users-table select[data-level="View"]{background:#e7f0ff;color:#175bc5}.users-table select[data-level="Comment"]{background:#fff5d8;color:#875d00}
+.users-table th:first-child,.users-table td:first-child{position:sticky;left:0;min-width:95px;background:#f4f7fc;z-index:2}.users-table th:first-child{z-index:4}
+.permission-matrix{width:100%;border-collapse:collapse}.permission-matrix th,.permission-matrix td{padding:8px 12px;border-bottom:1px solid #e2eaf3;text-align:center}.permission-matrix th:first-child{text-align:left;width:45%}.permission-matrix thead{background:#eff5fc}.permission-matrix input[type="radio"]{width:18px;height:18px;accent-color:#1769e0;cursor:pointer}.permission-matrix tbody tr:nth-child(even){background:#f8fafc}
+.user-notes{display:block;margin:14px 0;font-weight:600}.user-notes textarea{display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:10px;border:1px solid #cad7e8;border-radius:8px;font:inherit;resize:vertical}
+.permission-matrix{min-width:0!important;table-layout:fixed}.permission-matrix th,.permission-matrix td{min-width:0;white-space:normal;overflow-wrap:anywhere}.permission-matrix th:first-child{width:40%}#userDialog fieldset{min-width:0}.permission-matrix input[type="radio"]{padding:0;margin:0}

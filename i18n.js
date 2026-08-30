@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'No':'無權限','Tab':'分頁','User ID':'使用者編號','Department':'部門','Phone':'電話','Notes':'備註','Auto':'自動產生',
     'All data':'全部資料','Filter rows by status':'依狀態篩選資料列','No matching rows.':'沒有符合的資料列。',
     'Sheet changed while loading. Please load it again.':'載入時試算表已變更，請重新載入。','Enter a valid date in YYYY-MM-DD format.':'請輸入有效日期，格式為 YYYY-MM-DD。','Enter true or false.':'請輸入 true 或 false。',
     'Sheet editor':'試算表編輯器','Open Google Sheet':'開啟 Google 試算表','Edit existing cells only. Formula cells are read-only. Changes stay in this tab until you review and save to Google Sheet. Dates use YYYY-MM-DD.':'僅編輯現有儲存格，公式儲存格為唯讀。變更僅暫存在此分頁，確認後才儲存至 Google 試算表。日期格式為 YYYY-MM-DD。',
@@ -49,7 +50,7 @@
     return text;
   }
   function protectedNode(el){
-    return el.closest('script,style,textarea,#sheetEditorTable,#sheetReviewRows,#sheetCellTitle,#sheetEditorSource,#sheetReviewSource,.calendar-note strong,.calendar-note p,.calendar-day small,#userRows td:nth-child(-n+3),#importPendingBody td:not(:first-child),#mfgPendingBody td:not(:first-child)') && !el.closest('.empty');
+    return el.closest('script,style,textarea,#sheetEditorTable,#sheetReviewRows,#sheetCellTitle,#sheetEditorSource,#sheetReviewSource,.calendar-note strong,.calendar-note p,.calendar-day small,#userRows td:nth-child(-n+5),#importPendingBody td:not(:first-child),#mfgPendingBody td:not(:first-child)') && !el.closest('.empty');
   }
   function apply(){
     observer.disconnect();
