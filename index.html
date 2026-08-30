@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BFIH SAE Project Dashboard</title>
-<link rel="stylesheet" href="style.css?v=20260830-8">
+<link rel="stylesheet" href="style.css?v=20260830-9">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -23,7 +23,7 @@
 <a href="#" class="nav-link"><span class="icon">▣</span><span>Calendar</span></a>
 <a href="#" class="nav-link"><span class="icon">↗</span><span>Performance</span></a>
 <a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
-<a href="#" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
+<a href="#" id="googleSheetLink" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
 <a href="#" class="nav-link"><span class="icon">≡</span><span>Audit Log</span></a>
 <div class="nav-heading">SYSTEM</div>
 <a href="#" class="nav-link"><span class="icon">⚙</span><span>Settings</span></a>
@@ -54,7 +54,7 @@
 </section>
 <section class="workspace">
 <article class="panel status-panel"><h2><span></span>IMPORT</h2><div class="chart-box"><canvas id="importStatusChart"></canvas></div></article>
-<article class="panel pending"><div class="panel-title-row"><h2><span></span>Pending Details</h2><strong id="importPendingCount">0 items</strong></div>
+<article class="panel pending"><div class="panel-title-row"><h2><span></span>Pending Details</h2><div class="sync-summary"><span id="syncStatus" role="status" aria-live="polite">Demo data · Google Sheet to connect</span><strong id="importPendingCount">0 items</strong></div></div>
 <div class="table-scroll"><table><thead><tr><th>Priority</th><th>Project</th><th>Machine / Equipment</th><th>CM NBD</th><th>BFIH Site Arrive</th><th>CP Gap</th><th>Current Pending Stage</th><th>Next Action / Chase</th></tr></thead><tbody id="importPendingBody"></tbody></table></div></article>
 </section>
 </section>
@@ -75,5 +75,5 @@
 </section>
 
 </section></main></div>
-<script src="app.js?v=20260830-5"></script>
+<script src="sheet-source.js?v=1"></script><script src="google-config.js?v=1"></script><script src="app.js?v=20260830-9"></script><script src="sheets-sync.js?v=1"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
 </body></html>
