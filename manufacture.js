@@ -17,7 +17,7 @@ function pinManufactureColumns(){
   rail.className='mfg-horizontal-scroll';rail.tabIndex=0;
   rail.setAttribute('aria-label','Scroll Manufacture details horizontally');
   const track=document.createElement('div');rail.append(track);viewport.after(rail);
-  const headers=Array.from(table.tHead.rows[0].cells).slice(0,10);
+  const headers=Array.from(table.tHead.rows[0].cells).slice(0,9);
   const update=()=>{
     let left=0;
     headers.forEach((cell,index)=>{table.style.setProperty(`--mfg-pin-${index+1}`,`${left}px`);left+=cell.getBoundingClientRect().width;});
