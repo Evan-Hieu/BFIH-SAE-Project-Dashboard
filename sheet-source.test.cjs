@@ -52,3 +52,14 @@ test('missing optional quantity columns remain blank and duplicate known headers
   const [item]=source.mapRows([header,row(1)]);assert.equal(item['Pending qty'],'');
   assert.throws(()=>source.mapRows([[...header,'Overall status'],row(1)]),/Duplicate SAE column/);
 });
+test('supports renamed source quantities/status and two distinct Type columns',()=>{
+  const names=[...header];const data=row(1);
+  names[6]='Type';data[6]='RF Kit';data[9]='Import';data[25]=46233;
+  names[32]='Status';data[32]='Dispatched';
+  names.splice(31,0,'Delivered');data.splice(31,0,2);
+  names.splice(33,0,'Pending');data.splice(33,0,0);
+  const [item]=source.mapRows([names,data]);
+  assert.equal(item.Category,'RF Kit');assert.equal(item.Type,'Import');
+  assert.equal(item['Dispatched Qty'],'2');assert.equal(item['Pending qty'],'0');
+  assert.equal(item['Airport ETA'],'2026-07-30');assert.equal(source.dispatched(item),true);
+});

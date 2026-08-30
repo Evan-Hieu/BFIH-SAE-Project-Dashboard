@@ -8,7 +8,7 @@
   async function refresh() {
     if (busy) return;
     if (!token || Date.now() >= expiresAt) {
-      clearSession(); status('Session expired — click Google Sheet to reconnect'); return;
+      clearSession(); status('Session expired · displayed data may be outdated — click Google Sheet'); return;
     }
     busy = true; status('Syncing SAE…');
     try {

@@ -9,6 +9,9 @@
   aliases.set('fixture manufacturer 治具廠','Fixture Manufacturer');
   aliases.set('po release taget date','Target date');
   aliases.set('official po taget date','Official PO Target date');
+  aliases.set('delivered','Dispatched Qty');
+  aliases.set('pending','Pending qty');
+  aliases.set('status','Overall status');
   function dateValue(value) {
     if (typeof value !== 'number') return text(value);
     return new Date(Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000).toISOString().slice(0, 10);
@@ -17,7 +20,10 @@
     if (!Array.isArray(values) || !Array.isArray(values[0])) throw new Error('SAE header row is missing');
     const columns = new Map();
     values[0].forEach((label,column)=>{
-      const name=aliases.get(key(label));
+      // SAE renamed Category to Type; its other Type (Import/Inhouse) remains.
+      // The equipment Type is the column immediately before KO QTY.
+      const name=key(label)==='type' && key(values[0][column+1])==='ko qty'
+        ? 'Category' : aliases.get(key(label));
       if (!name) return;
       if (columns.has(name)) throw new Error(`Duplicate SAE column: ${name}`);
       columns.set(name,column);
