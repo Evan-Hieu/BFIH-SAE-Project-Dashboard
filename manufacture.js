@@ -12,8 +12,23 @@ function manufacturePendingRow(x){
 }
 function pinManufactureColumns(){
   const table=document.querySelector('#manufactureSection table');
+  const viewport=table.parentElement;
+  const rail=document.createElement('div');
+  rail.className='mfg-horizontal-scroll';rail.tabIndex=0;
+  rail.setAttribute('aria-label','Scroll Manufacture details horizontally');
+  const track=document.createElement('div');rail.append(track);viewport.after(rail);
   const headers=Array.from(table.tHead.rows[0].cells).slice(0,10);
-  const update=()=>{let left=0;headers.forEach((cell,index)=>{table.style.setProperty(`--mfg-pin-${index+1}`,`${left}px`);left+=cell.getBoundingClientRect().width;});};
+  const update=()=>{
+    let left=0;
+    headers.forEach((cell,index)=>{table.style.setProperty(`--mfg-pin-${index+1}`,`${left}px`);left+=cell.getBoundingClientRect().width;});
+    rail.style.marginLeft=`${left}px`;
+    rail.style.width=`${Math.max(0,viewport.clientWidth-left)}px`;
+    track.style.width=`${Math.max(0,viewport.clientWidth-left)+Math.max(0,viewport.scrollWidth-viewport.clientWidth)}px`;
+    rail.scrollLeft=viewport.scrollLeft;
+  };
+  rail.addEventListener('scroll',()=>{if(Math.abs(viewport.scrollLeft-rail.scrollLeft)>1)viewport.scrollLeft=rail.scrollLeft;});
+  viewport.addEventListener('scroll',()=>{if(Math.abs(rail.scrollLeft-viewport.scrollLeft)>1)rail.scrollLeft=viewport.scrollLeft;});
   const observer=new ResizeObserver(update);
-  headers.forEach(cell=>observer.observe(cell));update();
+  Array.from(table.tHead.rows[0].cells).forEach(cell=>observer.observe(cell));
+  observer.observe(viewport);update();
 }
