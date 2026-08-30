@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BFIH SAE Project Dashboard</title>
+<link rel="stylesheet" href="style.css?v=20260830-4">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+<div class="brand"><div class="brand-mark">BF</div><div><div class="brand-title">BFIH SAE</div><div class="brand-subtitle">Project Dashboard</div></div></div>
+<nav class="nav">
+<a href="#" class="nav-link active" data-page="dashboard"><span class="icon">▦</span><span>Dashboard</span></a>
+<div class="nav-heading">PROJECT</div>
+<a href="#importSection" class="nav-link" data-page="import"><span class="icon">⇩</span><span>Import</span></a>
+<a href="#manufactureSection" class="nav-link" data-page="manufacture"><span class="icon">⚙</span><span>Manufacture</span></a>
+<div class="nav-separator"></div>
+<a href="#" class="nav-link"><span class="icon">◷</span><span>Timeline</span></a>
+<a href="#" class="nav-link"><span class="icon">!</span><span>Alerts</span></a>
+<div class="nav-heading">TOOLS</div>
+<a href="#" class="nav-link"><span class="icon">⌕</span><span>Search</span></a>
+<a href="#" class="nav-link"><span class="icon">▣</span><span>Calendar</span></a>
+<a href="#" class="nav-link"><span class="icon">↗</span><span>Performance</span></a>
+<a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
+<a href="#" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
+<a href="#" class="nav-link"><span class="icon">≡</span><span>Audit Log</span></a>
+<div class="nav-heading">SYSTEM</div>
+<a href="#" class="nav-link"><span class="icon">⚙</span><span>Settings</span></a>
+</nav>
+<div class="sidebar-footer"><a href="#" class="logout"><span class="icon">↪</span><span>Logout</span></a></div>
+</aside>
+
+<header class="topbar"><div class="topbar-controls">
+<select id="yearFilter"><option value="">Year</option></select>
+<select id="monthFilter"><option value="">Month</option></select>
+<select id="weekFilter"><option value="">Week</option></select>
+<label class="date-group">From <input id="fromDate" type="date"></label>
+<label class="date-group">To <input id="toDate" type="date"></label>
+<button id="exportButton" class="btn secondary">Export</button>
+<button id="importButton" class="btn primary">Import</button>
+<div class="lang-switch"><button id="langEn" class="lang active">EN</button><span>/</span><button id="langZh" class="lang">中文</button></div>
+</div></header>
+
+<main class="main"><section class="content">
+
+<section class="module-section" id="importSection">
+<h2 class="module-title"><span></span>Import</h2>
+<section class="kpis">
+<article class="kpi blue"><div class="kpi-label">Total Items</div><div class="kpi-value" id="importTotal">0</div><div class="kpi-sub" id="importTotalPct">0%</div></article>
+<article class="kpi red"><div class="kpi-label">Overdue</div><div class="kpi-value" id="importOverdue">0</div><div class="kpi-sub" id="importOverduePct">0%</div></article>
+<article class="kpi orange"><div class="kpi-label">Due ≤ 3 Days</div><div class="kpi-value" id="importDue3">0</div><div class="kpi-sub" id="importDue3Pct">0%</div></article>
+<article class="kpi yellow"><div class="kpi-label">Due ≤ 7 Days</div><div class="kpi-value" id="importDue7">0</div><div class="kpi-sub" id="importDue7Pct">0%</div></article>
+<article class="kpi green"><div class="kpi-label">Dispatched</div><div class="kpi-value" id="importDispatched">0</div><div class="kpi-sub" id="importDispatchedPct">0%</div></article>
+</section>
+<section class="workspace">
+<article class="panel status-panel"><h2><span></span>SAE Items by Status</h2><div class="chart-box"><canvas id="importStatusChart"></canvas></div></article>
+<article class="panel pending"><div class="panel-title-row"><h2><span></span>Pending Details</h2><strong id="importPendingCount">0 items</strong></div>
+<div class="table-scroll"><table><thead><tr><th>Priority</th><th>Project</th><th>Machine / Equipment</th><th>CM NBD</th><th>BFIH Site Arrive</th><th>CP Gap</th><th>Current Pending Stage</th><th>Next Action / Chase</th></tr></thead><tbody id="importPendingBody"></tbody></table></div></article>
+</section>
+</section>
+
+<section class="module-section manufacture-section" id="manufactureSection">
+<h2 class="module-title"><span></span>Manufacture</h2>
+<section class="kpis">
+<article class="kpi blue"><div class="kpi-label">Total Items</div><div class="kpi-value" id="mfgTotal">0</div><div class="kpi-sub" id="mfgTotalPct">0%</div></article>
+<article class="kpi red"><div class="kpi-label">Overdue</div><div class="kpi-value" id="mfgOverdue">0</div><div class="kpi-sub" id="mfgOverduePct">0%</div></article>
+<article class="kpi orange"><div class="kpi-label">Due ≤ 3 Days</div><div class="kpi-value" id="mfgDue3">0</div><div class="kpi-sub" id="mfgDue3Pct">0%</div></article>
+<article class="kpi yellow"><div class="kpi-label">Due ≤ 7 Days</div><div class="kpi-value" id="mfgDue7">0</div><div class="kpi-sub" id="mfgDue7Pct">0%</div></article>
+<article class="kpi green"><div class="kpi-label">Dispatched</div><div class="kpi-value" id="mfgDispatched">0</div><div class="kpi-sub" id="mfgDispatchedPct">0%</div></article>
+</section>
+<section class="workspace">
+<article class="panel status-panel"><h2><span></span>SAE Items by Status</h2><div class="chart-box"><canvas id="mfgStatusChart"></canvas></div></article>
+<article class="panel pending"><div class="panel-title-row"><h2><span></span>Pending Details</h2><strong id="mfgPendingCount">0 items</strong></div>
+<div class="table-scroll"><table><thead><tr><th>Priority</th><th>Project</th><th>Machine / Equipment</th><th>CM NBD</th><th>BFIH Site Arrive</th><th>CP Gap</th><th>Current Pending Stage</th><th>Next Action / Chase</th></tr></thead><tbody id="mfgPendingBody"></tbody></table></div></article>
+</section>
+</section>
+
+</section></main></div>
+<script src="app.js?v=20260830-4"></script>
+</body></html>
