@@ -5,6 +5,21 @@ function init(){
   set('importPendingCount','Not connected');
   document.getElementById('importPendingBody').innerHTML='<tr><td colspan="15" class="empty">Click Google Sheet to load SAE data</td></tr>';
   exportButton.disabled=true;
+  pinImportColumns();
+}
+function pinImportColumns(){
+  const table=document.querySelector('.import-pending-table');
+  const headers=Array.from(table.tHead.rows[0].cells).slice(0,6);
+  const update=()=>{
+    let left=0;
+    headers.forEach((cell,index)=>{
+      table.style.setProperty(`--pin-${index+1}`,`${left}px`);
+      left+=cell.getBoundingClientRect().width;
+    });
+  };
+  const observer=new ResizeObserver(update);
+  headers.forEach(cell=>observer.observe(cell));
+  update();
 }
 function bind(){["yearFilter","monthFilter","weekFilter","fromDate","toDate"].forEach(id=>document.getElementById(id).addEventListener("change",apply));exportButton.onclick=exportCSV;importButton.onclick=()=>alert("Import module will use SAE sheet data after the web is completed.");langEn.onclick=()=>lang("en");langZh.onclick=()=>lang("zh");document.querySelectorAll(".nav-link").forEach(a=>a.onclick=e=>{if(a.dataset.page==="import"||a.dataset.page==="manufacture"){e.preventDefault();document.querySelectorAll(".nav-link").forEach(x=>x.classList.remove("active"));a.classList.add("active");document.getElementById(a.dataset.page==="import"?"importSection":"manufactureSection").scrollIntoView({behavior:"smooth"})}})}
 function norm(x){const g=gap(x["NBD"]),p=SaeSource.stage(x);return{...x,_gap:g,_stage:p.stage,_action:p.action,_priority:priority(g,SaeSource.dispatched(x)?"Dispatched":"")}}function gap(v){const d=parse(v);if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.floor((t-d)/86400000)}

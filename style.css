@@ -70,7 +70,7 @@ td{padding:8px 6px;font-size:9px}
 }
 .sync-summary{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}.sync-summary #syncStatus{font-size:9px;color:#64748b;max-width:320px;text-align:right}.sync-summary strong{white-space:nowrap}@media(max-width:650px){.sync-summary{flex-direction:column;align-items:flex-end;gap:2px}.sync-summary #syncStatus{max-width:140px}}
 /* Content-sized columns with horizontal scrolling when the panel is narrower. */
-.import-pending-table{width:max-content;min-width:1050px;table-layout:auto}
+.import-pending-table{width:max-content;min-width:1050px;table-layout:auto;border-collapse:separate;border-spacing:0}
 .import-pending-table th,.import-pending-table td{padding:7px 7px;line-height:1.4;vertical-align:middle;white-space:nowrap}
 .import-pending-table th{font-size:8px}
 .import-pending-table td{font-size:8.5px}
@@ -78,6 +78,16 @@ td{padding:8px 6px;font-size:9px}
 .import-pending-table :is(th,td):nth-child(7),.import-pending-table :is(th,td):nth-child(14),.import-pending-table :is(th,td):nth-child(15){white-space:normal;min-width:110px;max-width:190px;overflow-wrap:anywhere}
 .import-pending-table :is(th,td):nth-child(3),.import-pending-table :is(th,td):nth-child(4),.import-pending-table :is(th,td):nth-child(5),.import-pending-table :is(th,td):nth-child(6),.import-pending-table :is(th,td):nth-child(8),.import-pending-table :is(th,td):nth-child(9),.import-pending-table :is(th,td):nth-child(10),.import-pending-table :is(th,td):nth-child(11),.import-pending-table :is(th,td):nth-child(12),.import-pending-table :is(th,td):nth-child(13){text-align:center}
 .import-pending-table tbody tr:hover{background:#f1f6fd}
+/* Keep identifiers and quantities visible while the remaining columns scroll. */
+.import-pending-table :is(th,td):nth-child(1){--pin-left:var(--pin-1,0px)}
+.import-pending-table :is(th,td):nth-child(2){--pin-left:var(--pin-2)}
+.import-pending-table :is(th,td):nth-child(3){--pin-left:var(--pin-3)}
+.import-pending-table :is(th,td):nth-child(4){--pin-left:var(--pin-4)}
+.import-pending-table :is(th,td):nth-child(5){--pin-left:var(--pin-5)}
+.import-pending-table :is(th,td):nth-child(6){--pin-left:var(--pin-6);box-shadow:3px 0 4px -3px #607d9f}
+.import-pending-table tbody td:nth-child(-n+6):not([colspan]){position:sticky;left:var(--pin-left);z-index:2;background:#fff}
+.table-scroll .import-pending-table thead th:nth-child(-n+6){left:var(--pin-left);z-index:3;background:#f8fafc}
+.import-pending-table tbody tr:hover td:nth-child(-n+6){background:#f1f6fd}
 /* Chart spans both the KPI row and the details panel. */
 .status-panel{background:#fff;border-color:#dfe7f0;color:#10243e}
 .status-panel h2 span{background:#1769e0}
