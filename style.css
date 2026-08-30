@@ -144,3 +144,10 @@ td{padding:8px 6px;font-size:9px}
 .user-fields,.user-permissions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.user-fields label,.user-permissions label{font-size:12px;font-weight:600}.user-fields input,.user-fields select,.user-permissions select{display:block;width:100%;margin-top:6px;padding:8px;border:1px solid #cbd5e1;border-radius:5px;background:white;color:#10243e}
 #userDialog fieldset{margin:18px 0;border:1px solid #dfe7f0;border-radius:6px;padding:14px}#userDialog legend{font-size:13px;font-weight:bold}.user-form-actions{display:flex;justify-content:flex-end;gap:8px}
 @media(max-width:650px){.users-view{padding:12px}.user-fields,.user-permissions{grid-template-columns:1fr}.users-heading{flex-wrap:wrap}}
+
+/* SAE branding and nested project navigation. */
+.brand img.brand-mark{width:44px;height:44px;object-fit:contain;background:transparent;border-radius:0;flex-shrink:0}
+.nav-project{padding:8px 12px 4px;color:#fff;font-size:13px;font-weight:700}
+.nav-project-children{margin-left:17px;padding-left:7px;border-left:1px solid rgba(169,191,213,.28)}
+.nav-project-children .nav-link{font-size:12px;gap:6px;padding-left:6px}
+@media(max-width:1100px){.nav-project{text-align:center;padding:8px 0 4px;font-size:10px}.nav-project-children{margin-left:3px;padding-left:0}.nav-project-children .nav-link{padding:0}}
