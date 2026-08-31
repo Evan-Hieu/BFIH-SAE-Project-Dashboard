@@ -2,7 +2,7 @@
  let enabled=false,user=null,sessionToken=null,googleToken=null;
  const appsScript=!!(window.google?.script?.run);
  const endpoint=window.SAE_AUTH_ENDPOINT||'';
- const accountPaths=new Set(['auth/config','auth/login','auth/me','auth/logout','users']);
+ const accountPaths=new Set(['auth/config','auth/login','auth/me','auth/logout','users','dashboard/read']);
  async function api(path,body,method=body===undefined?'GET':'POST'){
   if(endpoint&&!appsScript){
    if(!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(endpoint))throw new Error('Invalid account service URL.');

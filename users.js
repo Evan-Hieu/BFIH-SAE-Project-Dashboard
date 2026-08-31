@@ -91,8 +91,8 @@
     $('userSave').textContent='Save account';
     document.querySelector('#usersView .users-draft').textContent='Shared accounts';
     document.querySelector('#usersView .users-legend').textContent='View: read only · Comment: read only (comments not implemented) · Edit: edit supported data · No access: area hidden. Account management is administrator-only.';
-    document.querySelector('#usersView > .users-notice').textContent='Create an account here, then share the website link and login details. New users have view-only access. Share the source Google Sheets with their email as Viewer so they can load status.';
-    document.querySelector('#userDialog .users-notice').textContent='Create a website login. The Google email must match this email when connecting a sheet.';
+    document.querySelector('#usersView > .users-notice').textContent='Create an account here, then share the website link and login details. Status loads automatically after sign-in according to each user’s website permissions. Google connection is only needed for direct Sheet access or editing.';
+    document.querySelector('#userDialog .users-notice').textContent='Create a website login. Viewing status does not require Google sign-in. For editing, connect the Google email configured here.';
     if(actor?.role!=='admin'){users=[];loadState='denied';$('userMessage').textContent='Sign in as Admin to manage accounts.';render();return;}
     // The current account came from the authenticated login response, not local drafts.
     if(!users.length)users=[actor];

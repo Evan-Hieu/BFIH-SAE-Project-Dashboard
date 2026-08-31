@@ -4,6 +4,29 @@
   const metadataScope='https://www.googleapis.com/auth/drive.metadata.readonly';
   const identityScope='https://www.googleapis.com/auth/userinfo.email';
   let session=null,rights=new Map(),timer=null,epoch=0,authBusy=false,refreshBusy=false;
+  let sharedRefresh=null;
+  const sharedMode=()=>!!window.WebAuth?.accountOnly;
+  const sourceKey=id=>id===SaeSource.SHEET_ID?'import':id===ManufactureSource.SHEET_ID?'manufacture':null;
+  async function readShared(id){
+    const source=sourceKey(id),version=epoch,actor=WebAuth.user?.id;
+    if(!source||!actor)throw new Error('Sign in to view status.');
+    const result=await WebAuth.api('dashboard/read',{source},'GET');
+    if(epoch!==version||WebAuth.user?.id!==actor)throw new Error('Website session changed.');
+    if(!Array.isArray(result?.values))throw new Error('Status data could not be loaded.');
+    return result;
+  }
+  async function refreshShared(){
+    if(sharedRefresh||!WebAuth.user)return;
+    const marker={},version=epoch;sharedRefresh=marker;
+    try{for(const source of sources()){
+      if(version!==epoch)return;
+      try{
+        const data=await readShared(source.id);
+        source.load(source.parse(data.values));
+        document.getElementById(source.status).textContent=source.name+' · Synced '+new Date(data.syncedAt).toLocaleTimeString();
+      }catch(e){if(version!==epoch)return;source.load([]);document.getElementById(source.status).textContent=e.message;}
+    }}finally{if(sharedRefresh===marker)sharedRefresh=null;}
+  }
   const sources=()=>[
     {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'TNO'},
     {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CN",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
@@ -55,6 +78,7 @@
     }catch(e){if(s===session){rights.set(id,{level:e.status===404?'No access':'Unverified',canEdit:false});emit();}throw e;}
   }
   async function refresh(){
+    if(sharedMode())return refreshShared();
     if(refreshBusy===session)return;
     if(!valid()){rights.clear();emit();status('Session expired — reconnect Google Sheet');return;}
     const s=session;refreshBusy=s;
@@ -66,7 +90,7 @@
       }catch(e){if(s!==session)return;source.load([]);document.getElementById(source.status).textContent=e.message;}
     }));}finally{if(refreshBusy===s)refreshBusy=false;}
   }
-  function clear(){epoch++;session=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}
+  function clear(){epoch++;session=null;sharedRefresh=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}
   async function connect(choose=false){
     if(authBusy)return;
     if(!document.body.classList.contains('signed-in')){status('Sign in to the website first.');return;}
@@ -79,7 +103,7 @@
     }catch(e){status(e.message);const el=document.getElementById('googleLoginMessage');if(el)el.textContent=e.message;}
   }
   window.SheetConnection={
-    connect,refresh,checkAccess,disconnect:clear,
+    connect,refresh,checkAccess,disconnect:clear,readShared,sharedMode,
     identity:()=>session?{...session.user}:null,
     access:id=>valid()?{...(rights.get(id)||{level:'Unverified',canEdit:false})}:{level:'Not connected',canEdit:false},
     read:path=>request('https://sheets.googleapis.com/v4/spreadsheets/'+path,session),
@@ -99,11 +123,19 @@
   function renderAccess(){
     const user=window.SheetConnection.identity();
     // Google identity is separate from the username used to sign in to the website.
-    document.getElementById('googleAccountEmail').textContent=user?user.email:UIText.t('Not connected');
+    document.getElementById('googleAccountEmail').textContent=user?user.email:sharedMode()&&WebAuth.user?'Shared status loads automatically. Google connection is only needed for editing.':UIText.t('Not connected');
     document.getElementById('googleAccessRows').replaceChildren();
     sources().forEach(source=>{const tr=document.createElement('tr'),access=window.SheetConnection.access(source.id);[source.name,UIText.t(access.level)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});const td=document.createElement('td'),a=document.createElement('a');a.href='https://docs.google.com/spreadsheets/d/'+source.id+'/edit';a.target='_blank';a.rel='noopener';a.textContent=UIText.t('Open Google Sheet');td.append(a);tr.append(td);document.getElementById('googleAccessRows').append(tr);});
   }
   document.addEventListener('googleaccesschange',renderAccess);document.addEventListener('languagechange',renderAccess);
+  function autoLoad(){
+    if(!sharedMode())return;
+    clear();if(!WebAuth.user)return;
+    status('Loading shared status…');refreshShared();
+    timer=setInterval(()=>{if(!document.hidden)refreshShared();},60000);
+  }
+  document.addEventListener('webauthchange',autoLoad);
+  WebAuth.ready?.then(autoLoad);
   document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('googleSheetLink').onclick=e=>{e.preventDefault();connect();};
 
