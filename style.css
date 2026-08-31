@@ -279,7 +279,7 @@ body.signed-in .login-view{display:none}
 .users-table{width:100%;min-width:980px}.users-table .user-access-summary{white-space:normal;min-width:180px;max-width:260px;line-height:1.5}.users-table td:first-child{min-width:85px;max-width:110px;white-space:normal;overflow-wrap:anywhere}.users-toolbar{flex-wrap:wrap}.users-toolbar input{min-width:180px;flex:1}.users-table .user-row-actions{min-width:140px}
 /* Matching chart/summary blocks and aligned detail identifiers. */
 .status-panel{display:flex;flex-direction:column;min-height:0}
-.status-panel .chart-box,#manufactureSection .status-panel .chart-box{min-height:170px;flex:1}
+.status-panel .chart-box{min-height:90px;flex:1}
 .status-panel .mfg-summary{margin-top:8px}
 @media(min-width:1000px) and (min-height:520px){
   #dashboardView{grid-template-rows:repeat(2,minmax(0,1fr))}
