@@ -7,15 +7,7 @@
   const levelLabel=level=>level==='No access'?'No':level;
   const viewerAreas=['Dashboard','Import','Manufacture','Google Sheet'];
   let users=[], editing=null, writable=false, loaded=false;
-  try {
-    const data=JSON.parse(localStorage.getItem(key)||'[]');
-    if(!Array.isArray(data)||data.some(u=>!u||typeof u.id!=='string'||typeof u.name!=='string'||typeof u.email!=='string'||!['Active','Inactive'].includes(u.status)||!u.permissions||areas.some(a=>!levels.includes(u.permissions[a]))))throw new Error('Invalid saved configuration');
-    users=data;
-  } catch {
-    writable=false;
-    $('userMessage').textContent='Cannot read existing configuration. Saving is disabled to protect it. Check browser storage settings.';
-    $('userAdd').disabled=true;
-  }
+  let loadState='idle',loadSequence=0,listOwner=null;
   areas.forEach((area,index)=>{
     const label=document.createElement('tr');const heading=document.createElement('th');heading.scope='row';heading.textContent=area;label.append(heading);
     const select=document.createElement('select');select.id=`userAccess${index}`;
@@ -54,7 +46,7 @@
     const query=$('userSearch').value.trim().toLowerCase();
     const matching=users.filter(u=>`${u.id} ${u.username||''} ${u.name} ${u.email} ${u.department||''}`.toLowerCase().includes(query));
     $('userRows').replaceChildren();
-    if(!matching.length){const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=9;cell.className='empty';cell.textContent=users.length?'No matching users.':'No users yet. Add an account to let someone track status.';row.append(cell);$('userRows').append(row);}
+    if(!matching.length){const row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=9;cell.className='empty';cell.textContent=users.length?'No matching users.':loadState==='loading'?'Loading accounts…':loadState==='error'?'Could not load accounts. Click Refresh users to try again.':loadState==='denied'?'Sign in as Admin to manage accounts.':loadState==='unavailable'?'Shared account service is not connected.':'Checking account access…';row.append(cell);$('userRows').append(row);}
     matching.forEach(user=>{
       const row=document.createElement('tr');
       [user.id,user.username||'—',user.name,user.email,user.department||'—',user.phone||'—'].forEach(value=>{const cell=document.createElement('td');cell.textContent=value;row.append(cell);});
@@ -92,18 +84,27 @@
     $('userSave').disabled=false;$('userNewPassword').value='';
   };
   async function loadAccounts(){
-    loaded=false;writable=false;$('userAdd').disabled=true;
-    if(WebAuth.enabled){writable=WebAuth.user?.role==='admin';
-      users=[];if(writable){try{users=(await WebAuth.api('users')).users;loaded=true;}catch(e){writable=false;$('userAdd').disabled=true;$('userMessage').textContent=e.message;}}
-      $('userSave').textContent='Save account';
-      document.querySelector('#usersView .users-draft').textContent='Shared accounts';
-      document.querySelector('#usersView .users-legend').textContent='View: read only · Comment: read only (comments not implemented) · Edit: edit supported data · No access: area hidden. Account management is administrator-only.';
-      document.querySelector('#usersView > .users-notice').textContent='Create an account here, then share the website link and login details. New users have view-only access. Share the source Google Sheets with their email as Viewer so they can load status.';
-      document.querySelector('#userDialog .users-notice').textContent='Create a website login. The Google email must match this email when connecting a sheet.';
-    }
-    else {writable=false;loaded=true;users=[];$('userMessage').textContent='Shared account service is not connected. Accounts cannot be created for other devices yet.';}
-    $('userAdd').disabled=!writable||!loaded;
-    render();
+    const sequence=++loadSequence,actor=WebAuth.user;
+    loaded=false;writable=false;$('userAdd').disabled=true;$('userReload').disabled=false;
+    if(listOwner!==actor?.id){users=[];listOwner=actor?.id||null;}
+    if(!WebAuth.enabled){loadState='unavailable';$('userMessage').textContent='Shared account service is not connected. Accounts cannot be created for other devices yet.';render();return;}
+    $('userSave').textContent='Save account';
+    document.querySelector('#usersView .users-draft').textContent='Shared accounts';
+    document.querySelector('#usersView .users-legend').textContent='View: read only · Comment: read only (comments not implemented) · Edit: edit supported data · No access: area hidden. Account management is administrator-only.';
+    document.querySelector('#usersView > .users-notice').textContent='Create an account here, then share the website link and login details. New users have view-only access. Share the source Google Sheets with their email as Viewer so they can load status.';
+    document.querySelector('#userDialog .users-notice').textContent='Create a website login. The Google email must match this email when connecting a sheet.';
+    if(actor?.role!=='admin'){users=[];loadState='denied';$('userMessage').textContent='Sign in as Admin to manage accounts.';render();return;}
+    // The current account came from the authenticated login response, not local drafts.
+    if(!users.length)users=[actor];
+    loadState='loading';$('userMessage').textContent='Loading accounts…';$('userReload').disabled=true;render();
+    try{
+      const result=await WebAuth.api('users');
+      if(sequence!==loadSequence)return;
+      if(!Array.isArray(result?.users)||!result.users.some(u=>u.id===actor.id)||result.users.some(u=>!u||typeof u.id!=='string'||typeof u.name!=='string'||typeof u.email!=='string'||!u.permissions))throw new Error('Account list could not be verified. Please refresh users.');
+      users=result.users;loaded=true;writable=true;loadState='ready';$('userMessage').textContent='Accounts loaded.';
+    }catch(e){if(sequence!==loadSequence)return;loadState='error';$('userMessage').textContent=e.message+' Click Refresh users to try again. If your session expired, sign in again.';}
+    if(sequence!==loadSequence)return;
+    $('userAdd').disabled=!writable||!loaded;$('userReload').disabled=false;render();
   }
   WebAuth.ready.then(loadAccounts);document.addEventListener('webauthchange',loadAccounts);
   document.addEventListener('languagechange',render);

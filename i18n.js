@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'Loading accounts…':'正在載入帳號…','Accounts loaded.':'帳號已載入。','Checking account access…':'正在檢查帳號權限…','Sign in as Admin to manage accounts.':'請以管理員登入以管理帳號。','Could not load accounts. Click Refresh users to try again.':'無法載入帳號，請按重新整理帳號重試。',
     'Manage accounts for project status tracking.':'管理專案狀態追蹤帳號。',
     'Shared accounts':'共用帳號', 'Save account':'儲存帳號', 'Viewer preset':'套用唯讀權限',
     'Copy website link':'複製網站連結', 'Refresh users':'重新整理帳號', 'Access':'權限', 'Administrator':'管理員',
