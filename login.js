@@ -12,6 +12,7 @@
     window.dispatchEvent(new Event('resize'));
   }
   try{if(sessionStorage.getItem(key)==='Admin')showDashboard();}catch{}
+  document.addEventListener('googleconnected',()=>{try{sessionStorage.removeItem(key);}catch{}showDashboard();});
   form.addEventListener('submit',event=>{
     event.preventDefault();
     if(document.getElementById('loginUser').value!=='Admin'||password.value!=='admin'){
@@ -22,6 +23,7 @@
   });
   document.querySelector('.logout').addEventListener('click',event=>{
     event.preventDefault();
+    if(!window.SheetEditor.canLeave())return;
     try{sessionStorage.removeItem(key);}catch{}
     // Reload also discards in-memory Google OAuth tokens, sheet rows and sync timers.
     document.body.classList.remove('signed-in');

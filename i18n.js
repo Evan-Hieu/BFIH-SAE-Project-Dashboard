@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'Sign in with Google':'使用 Google 登入','Admin demo / local settings':'管理員示範／本機設定','Google Sheet access':'Google 試算表權限','Actual rights come from Google Sheet sharing. Local User drafts do not grant access.':'實際權限由 Google 試算表分享設定決定。本機使用者草稿不會授予權限。','Switch account':'切換帳號','Check access':'檢查權限','Source':'來源','Actual permission':'實際權限','Unverified':'尚未驗證','Connecting Google account…':'正在連接 Google 帳號…','Cannot verify edit rights. Enable Google Drive API and reconnect with metadata permission.':'無法驗證編輯權限。請啟用 Google Drive API，並重新連線授予中繼資料權限。','This Google account has no Editor permission for this sheet.':'此 Google 帳號沒有此試算表的編輯權限。','Required Google permissions were not granted.':'尚未授予必要的 Google 權限。','Cannot verify Google account.':'無法驗證 Google 帳號。','A different Google account was selected. Use Switch account first.':'選取了不同的 Google 帳號。請先使用「切換帳號」。','Google denied access. Check file sharing or protected ranges.':'Google 拒絕存取，請檢查檔案分享或保護範圍設定。',
     'TNO':'TNO','Inhouse':'廠內製造',
     'No':'無權限','Tab':'分頁','User ID':'使用者編號','Department':'部門','Phone':'電話','Notes':'備註','Auto':'自動產生',
     'All data':'全部資料','Filter rows by status':'依狀態篩選資料列','No matching rows.':'沒有符合的資料列。',

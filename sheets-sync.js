@@ -1,79 +1,108 @@
 (() => {
-  let token = null, expiresAt = 0, client = null, timer = null, busy = false;
-  const scope = 'https://www.googleapis.com/auth/spreadsheets.readonly';
+  const readScope='https://www.googleapis.com/auth/spreadsheets.readonly';
   const editScope='https://www.googleapis.com/auth/spreadsheets';
-  let editGranted=false;
-  async function api(path,options={}){
-    if(!token||Date.now()>=expiresAt)throw new Error('Session expired — reconnect Google Sheet');
-    const response=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+path,{...options,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},cache:'no-store',signal:AbortSignal.timeout(20000)});
-    if(!response.ok)throw new Error(response.status===403?'Google account does not have edit access or this range is protected.':`Google Sheets error (${response.status})`);
+  const metadataScope='https://www.googleapis.com/auth/drive.metadata.readonly';
+  const identityScope='https://www.googleapis.com/auth/userinfo.email';
+  let session=null,rights=new Map(),timer=null,epoch=0,authBusy=false,refreshBusy=false;
+  const sources=()=>[
+    {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'TNO'},
+    {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CN",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
+  ];
+  const valid=()=>session&&Date.now()<session.expiresAt;
+  const status=message=>['syncStatus','mfgSyncStatus','googleAccessMessage'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=message;});
+  const emit=()=>document.dispatchEvent(new Event('googleaccesschange'));
+  function assertSession(s){if(!s||s!==session||Date.now()>=s.expiresAt)throw new Error('Session expired — reconnect Google Sheet');}
+  async function request(url,s,options={}){
+    assertSession(s);
+    const response=await fetch(url,{...options,headers:{Authorization:`Bearer ${s.token}`,'Content-Type':'application/json'},cache:'no-store',signal:AbortSignal.timeout(20000)});
+    assertSession(s);
+    if(!response.ok){const error=new Error(response.status===403?'Google denied access. Check file sharing or protected ranges.':`Google API error (${response.status})`);error.status=response.status;throw error;}
     return response.json();
   }
-  window.SheetConnection={
-    read:path=>api(path),
-    authorizeEdit:()=>new Promise((resolve,reject)=>{
-      if(editGranted&&token&&Date.now()<expiresAt){resolve();return;}
-      if(!window.google?.accounts?.oauth2){reject(new Error('Google sign-in unavailable — reload and retry'));return;}
-      const editorClient=google.accounts.oauth2.initTokenClient({client_id:window.SAE_GOOGLE_CLIENT_ID,scope:editScope,login_hint:window.SAE_GOOGLE_LOGIN_HINT,prompt:'',include_granted_scopes:false,
-        callback:response=>{
-          if(response.error||!response.access_token||!google.accounts.oauth2.hasGrantedAllScopes(response,editScope)){reject(new Error('Edit permission was not granted.'));return;}
-          token=response.access_token;expiresAt=Date.now()+Number(response.expires_in)*1000-60000;editGranted=true;resolve();
-        },error_callback:()=>reject(new Error('Google sign-in cancelled or popup blocked — retry Google Sheet'))});
-      editorClient.requestAccessToken();
-    }),
-    write:(id,data)=>{if(!editGranted)throw new Error('Edit permission was not granted.');return api(id+'/values:batchUpdate',{method:'POST',body:JSON.stringify({valueInputOption:'RAW',data})});},
-    refresh
-  };
-  const status = message => { ['syncStatus','mfgSyncStatus'].forEach(id=>document.getElementById(id).textContent=message); };
-  function clearSession() {
-    token = null; expiresAt = 0; editGranted=false;clearInterval(timer); timer = null;
+  async function profile(token){
+    const response=await fetch('https://openidconnect.googleapis.com/v1/userinfo',{headers:{Authorization:`Bearer ${token}`},cache:'no-store',signal:AbortSignal.timeout(20000)});
+    if(!response.ok)throw new Error('Cannot verify Google account.');
+    const user=await response.json();if(!user.sub||!user.email||user.email_verified!==true)throw new Error('Cannot verify Google account.');return {sub:user.sub,email:user.email};
   }
-  async function refresh() {
-    if (busy) return;
-    if (!token || Date.now() >= expiresAt) {
-      clearSession(); status('Session expired · displayed data may be outdated — click Google Sheet'); return;
-    }
-    busy = true; status('Syncing SAE…');
-    const sources=[
-      {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'SAE'},
-      {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CN",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'SAE Summary Data'}
-    ];
-    try {
-      await Promise.allSettled(sources.map(async source=>{
-        const show=message=>{document.getElementById(source.status).textContent=message;};
-        try {
-          const response=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${source.id}/values/${encodeURIComponent(source.range)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,{
-            headers:{Authorization:`Bearer ${token}`},cache:'no-store',signal:AbortSignal.timeout(20000)
-          });
-          if(response.status===401){clearSession();throw new Error('Session expired — reconnect Google Sheet');}
-          if(response.status===403)throw new Error('Access denied — check Sheet access and Sheets API setup');
-          if(!response.ok)throw new Error(`Sync failed (${response.status})`);
-          const payload=await response.json(),items=source.parse(payload.values);
-          source.load(items);
-          show(`${source.name} · ${items.length} items · Synced ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`);
-        } catch(error){show(`${error.name==='TimeoutError'?'Sync timed out':error.message} · data not refreshed`);}
-      }));
-    } finally { busy=false; }
-  }
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('googleSheetLink').addEventListener('click', event => {
-      event.preventDefault();
-      if (!window.SAE_GOOGLE_CLIENT_ID) { status('Google Sheets setup required — OAuth client ID missing'); return; }
-      if (!window.google?.accounts?.oauth2) { status('Google sign-in unavailable — reload and retry'); return; }
-      if (token && Date.now() < expiresAt) { refresh(); return; }
-      if (!client) client = google.accounts.oauth2.initTokenClient({
-        client_id:window.SAE_GOOGLE_CLIENT_ID, scope, include_granted_scopes:false,
-        login_hint:window.SAE_GOOGLE_LOGIN_HINT, prompt:'',
-        callback:response => {
-          if (response.error || !response.access_token) { status('Google connection not authorized'); return; }
-          if (!google.accounts.oauth2.hasGrantedAllScopes(response, scope)) { status('Read-only Sheets permission required'); return; }
-          token = response.access_token; expiresAt = Date.now() + Number(response.expires_in) * 1000 - 60000;
-          editGranted=false;
-          clearInterval(timer); refresh(); timer = setInterval(() => { if (!document.hidden) refresh(); }, 60000);
-        },
-        error_callback:() => status('Google sign-in cancelled or popup blocked — retry Google Sheet')
-      });
-      client.requestAccessToken();
+  function authorize(edit=false,choose=false){
+    if(authBusy)return Promise.reject(new Error('Google sign-in is already in progress.'));
+    if(!window.google?.accounts?.oauth2)return Promise.reject(new Error('Google sign-in unavailable — reload and retry'));
+    if(!window.SAE_GOOGLE_CLIENT_ID)return Promise.reject(new Error('Google Sheets setup required — OAuth client ID missing'));
+    const old=session,version=epoch;authBusy=true;
+    return new Promise((resolve,reject)=>{
+      let settled=false;const finish=(error,user)=>{if(settled)return;settled=true;authBusy=false;error?reject(error):resolve(user);};
+      const scopes=[edit?editScope:readScope,metadataScope,identityScope];
+      const client=google.accounts.oauth2.initTokenClient({client_id:window.SAE_GOOGLE_CLIENT_ID,scope:scopes.join(' '),include_granted_scopes:false,prompt:choose?'select_account':'',...(old&&!choose?{login_hint:old.user.sub}:{}),
+        callback:async response=>{try{
+          if(response.error||!response.access_token||!google.accounts.oauth2.hasGrantedAllScopes(response,...scopes))throw new Error('Required Google permissions were not granted.');
+          const user=await profile(response.access_token);
+          if(version!==epoch)throw new Error('Google session changed. Reconnect before continuing.');
+          if(old&&user.sub!==old.user.sub)throw new Error('A different Google account was selected. Use Switch account first.');
+          session={token:response.access_token,user,edit,expiresAt:Date.now()+Number(response.expires_in)*1000-60000};
+          emit();finish(null,user);
+        }catch(e){finish(e);}},error_callback:()=>finish(new Error('Google sign-in cancelled or popup blocked — retry Google Sheet'))});
+      try{client.requestAccessToken();}catch(e){finish(e);}
     });
+  }
+  async function checkAccess(id){
+    if(!sources().some(s=>s.id===id))throw new Error('Unknown sheet source.');
+    const s=session;
+    try{
+      const file=await request(`https://www.googleapis.com/drive/v3/files/${id}?fields=id,capabilities(canEdit,canComment)&supportsAllDrives=true`,s);
+      const caps=file.capabilities||{},access={level:caps.canEdit===true?'Edit':caps.canComment===true?'Comment':'View',canEdit:caps.canEdit===true};rights.set(id,access);emit();return access;
+    }catch(e){if(s===session){rights.set(id,{level:e.status===404?'No access':'Unverified',canEdit:false});emit();}throw e;}
+  }
+  async function refresh(){
+    if(refreshBusy===session)return;
+    if(!valid()){rights.clear();emit();status('Session expired — reconnect Google Sheet');return;}
+    const s=session;refreshBusy=s;
+    try{await Promise.allSettled(sources().map(async source=>{
+      try{await checkAccess(source.id);}catch(e){if(s!==session)return;document.getElementById('googleAccessMessage').textContent='Cannot verify edit rights. Enable Google Drive API and reconnect with metadata permission.';}
+      try{
+        const payload=await request(`https://sheets.googleapis.com/v4/spreadsheets/${source.id}/values/${encodeURIComponent(source.range)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,s);
+        source.load(source.parse(payload.values));document.getElementById(source.status).textContent=`${source.name} · Synced ${new Date().toLocaleTimeString()}`;
+      }catch(e){if(s!==session)return;source.load([]);document.getElementById(source.status).textContent=e.message;}
+    }));}finally{if(refreshBusy===s)refreshBusy=false;}
+  }
+  function clear(){epoch++;session=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}
+  async function connect(choose=false){
+    if(authBusy)return;
+    if(choose){if(!window.SheetEditor?.canLeave())return;clear();}
+    try{
+      status('Connecting Google account…');
+      if(!valid())await authorize(false,choose);
+      document.dispatchEvent(new Event('googleconnected'));
+      await refresh();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)refresh();},60000);
+    }catch(e){status(e.message);const el=document.getElementById('googleLoginMessage');if(el)el.textContent=e.message;}
+  }
+  window.SheetConnection={
+    connect,refresh,checkAccess,
+    identity:()=>session?{...session.user}:null,
+    access:id=>valid()?{...(rights.get(id)||{level:'Unverified',canEdit:false})}:{level:'Not connected',canEdit:false},
+    read:path=>request('https://sheets.googleapis.com/v4/spreadsheets/'+path,session),
+    authorizeEdit:async id=>{
+      if(!session)throw new Error('Session expired — reconnect Google Sheet');
+      if(!session.edit||!valid())await authorize(true);
+      const access=await checkAccess(id);if(!access.canEdit)throw new Error('This Google account has no Editor permission for this sheet.');
+    },
+    write:async(id,data)=>{
+      const s=session;assertSession(s);if(!s.edit)throw new Error('Edit permission was not granted.');
+      const access=await checkAccess(id);assertSession(s);if(!access.canEdit)throw new Error('This Google account has no Editor permission for this sheet.');
+      return request('https://sheets.googleapis.com/v4/spreadsheets/'+id+'/values:batchUpdate',s,{method:'POST',body:JSON.stringify({valueInputOption:'RAW',data})});
+    }
+  };
+  function renderAccess(){
+    const user=window.SheetConnection.identity();
+    const badge=document.querySelector('.signed-user');badge.textContent=user?user.email:'Admin (demo)';badge.title=badge.textContent;badge.setAttribute('aria-label',badge.textContent);
+    document.getElementById('googleAccountEmail').textContent=user?user.email:UIText.t('Not connected');
+    document.getElementById('googleAccessRows').replaceChildren();
+    sources().forEach(source=>{const tr=document.createElement('tr'),access=window.SheetConnection.access(source.id);[source.name,UIText.t(access.level)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});const td=document.createElement('td'),a=document.createElement('a');a.href=`https://docs.google.com/spreadsheets/d/${source.id}/edit`;a.target='_blank';a.rel='noopener';a.textContent=UIText.t('Open Google Sheet');td.append(a);tr.append(td);document.getElementById('googleAccessRows').append(tr);});
+  }
+  document.addEventListener('googleaccesschange',renderAccess);document.addEventListener('languagechange',renderAccess);
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('googleSheetLink').onclick=e=>{e.preventDefault();connect();};
+    document.getElementById('googleSignIn').onclick=()=>connect();
+    document.getElementById('googleSwitchAccount').onclick=()=>connect(true);
+    document.getElementById('googleRecheckAccess').onclick=()=>connect();renderAccess();
   });
 })();

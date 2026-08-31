@@ -271,3 +271,4 @@ body.signed-in .login-view{display:none}
 
 
 .nav-project{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;cursor:pointer;text-align:left}.sae-arrow{font-size:22px;transition:transform .18s}.nav-project[aria-expanded="true"] .sae-arrow{transform:rotate(90deg)}.nav-project-children[hidden]{display:none}
+#googleSignIn{width:100%;min-height:44px}.login-card details{margin:18px 0}.login-card summary{cursor:pointer;color:#526b89}.google-access-panel{background:#fff;border:1px solid #d5e1ef;border-radius:12px;padding:18px;margin-bottom:20px}.google-access-panel table{min-width:0;width:100%}.google-access-panel td,.google-access-panel th{padding:10px;text-align:left}.google-access-panel p{font-size:12px;color:#61738c}.signed-user{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}#googleLoginMessage,#googleAccessMessage{color:#b45309;font-size:12px}

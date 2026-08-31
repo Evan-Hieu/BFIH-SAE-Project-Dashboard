@@ -7,7 +7,8 @@
   const formula=v=>typeof v==='string'&&v.startsWith('=');
   const isDate=(c,v)=>typeof v==='number'&&v>20000&&v<100000&&/date|nbd|eta|etd/i.test(snapshot.headers[c]);
   function displayed(c,v){if(isDate(c,v))return new Date(Date.UTC(1899,11,30)+Math.floor(v)*86400000).toISOString().slice(0,10);return String(value(v));}
-  function controls(){const dirty=changes.size>0;$('sheetReview').disabled=!dirty||working;$('sheetDiscard').disabled=!dirty||working;$('sheetReload').disabled=working;}
+  const editable=()=>SheetConnection.access(configs[active].id).canEdit;
+  function controls(){const dirty=changes.size>0;$('sheetReview').disabled=!dirty||working||!editable();$('sheetDiscard').disabled=!dirty||working;$('sheetReload').disabled=working;$('sheetAccessLabel').textContent=UIText.t(SheetConnection.access(configs[active].id).level);}
   async function readSource(config){
     const base=config.id+'/values/'+encodeURIComponent(`'${config.tab}'!A2:${config.end}`);
     const raw=await SheetConnection.read(base+'?valueRenderOption=FORMULA&dateTimeRenderOption=SERIAL_NUMBER');
@@ -53,7 +54,7 @@
       snapshot.headers.forEach((label,c)=>{
         const td=document.createElement('td'),original=value(snapshot.raw[row-2]?.[c]),id=`${row}:${c}`,change=changes.get(id);
         const shown=change?change.after:value(data[c]);td.textContent=displayed(c,shown);td.title=td.textContent;
-        if(formula(original)||!label){td.className='editor-readonly';td.title=formula(original)?String(original):'Read only';}
+        if(formula(original)||!label||!editable()){td.className='editor-readonly';td.title=formula(original)?String(original):'Read only';}
         else {td.tabIndex=0;td.setAttribute('aria-label',`${column(c)}${row}: ${label}`);const edit=()=>{if(working)return;selection={row,c,id,original};$('sheetCellTitle').textContent=`${column(c)}${row} · ${label}`;$('sheetCellValue').type=isDate(c,original)?'date':'text';$('sheetCellValue').value=displayed(c,shown);$('sheetCellDialog').showModal();$('sheetCellValue').focus();};td.onclick=edit;td.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();edit();}};}
         if(change)td.classList.add('editor-changed');tr.append(td);
       });table.tBodies[0].append(tr);
@@ -63,7 +64,7 @@
     controls();
   }
   $('sheetCellForm').onsubmit=e=>{
-    e.preventDefault();const {row,c,id,original}=selection;const input=$('sheetCellValue').value;let after=input;
+    e.preventDefault();if(!editable()){$('sheetCellDialog').close();return;}const {row,c,id,original}=selection;const input=$('sheetCellValue').value;let after=input;
     if((isDate(c,original)||(/date|nbd|eta|etd/i.test(snapshot.headers[c])&&/^\d{4}-\d{2}-\d{2}$/.test(input)))&&input){const parsed=Date.parse(input+'T00:00:00Z');if(!Number.isFinite(parsed)||new Date(parsed).toISOString().slice(0,10)!==input){alert(UIText.t('Enter a valid date in YYYY-MM-DD format.'));return;}after=(parsed-Date.UTC(1899,11,30))/86400000;}
     else if(typeof original==='number'&&input.trim()){after=Number(input);if(!Number.isFinite(after)){alert(UIText.t('Enter a valid number.'));return;}}
     else if(typeof original==='boolean'&&input!==''){if(!/^(true|false)$/i.test(input)){alert(UIText.t('Enter true or false.'));return;}after=input.toLowerCase()==='true';}
@@ -89,7 +90,7 @@
     let sent=false,committed=false;
     try{
       $('sheetSaveMessage').textContent='Checking Google permissions and current data…';
-      await SheetConnection.authorizeEdit();
+      await SheetConnection.authorizeEdit(configs[active].id);
       const cfg=configs[active],latest=await readSource(cfg);
       const normalized=row=>JSON.stringify(Array.from({length:snapshot.headers.length},(_,c)=>value(row?.[c])));
       if(JSON.stringify(latest.raw[0])!==JSON.stringify(snapshot.headers))throw new Error('Sheet columns changed. Reload before editing again.');
@@ -103,10 +104,11 @@
       if(sent){changes.clear();snapshot=null;render();}
     }finally{working=false;$('sheetSave').disabled=false;$('sheetReviewCancel').disabled=false;controls();}
   };
-  window.SheetEditor={canLeave(){if(working)return false;if(changes.size&&!confirm(UIText.t('Discard unsaved changes?')))return false;changes.clear();controls();return true;},open(page){
+  window.SheetEditor={reset(){snapshot=null;changes.clear();$('sheetCellDialog').close();$('sheetReviewDialog').close();render();controls();},canLeave(){if(working)return false;if(changes.size&&!confirm(UIText.t('Discard unsaved changes?')))return false;changes.clear();controls();return true;},open(page){
     active=page;statusFilter='all';snapshot=null;changes.clear();$('sheetSearch').value='';$('sheetEditorTitle').textContent=page==='import'?'Import':'Manufacture';
     const cfg=configs[page];$('sheetEditorSource').textContent=cfg.tab;$('sheetOriginalLink').href=`https://docs.google.com/spreadsheets/d/${cfg.id}/edit#gid=${cfg.gid}`;
     render();load();
   }};
   window.addEventListener('beforeunload',e=>{if(changes.size||working){e.preventDefault();e.returnValue='';}});
+  document.addEventListener('googleaccesschange',()=>{if(!working)render();controls();});
 })();
