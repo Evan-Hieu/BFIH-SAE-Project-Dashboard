@@ -4,7 +4,7 @@ function harness(){
  const element=()=>({textContent:'',setAttribute(){},replaceChildren(){},append(){}});
  const doc={getElementById:id=>{if(!els.has(id))els.set(id,element());return els.get(id);},querySelector:()=>element(),createElement:element,addEventListener:(name,fn)=>(listeners[name]??=[]).push(fn),dispatchEvent:e=>(listeners[e.type]||[]).forEach(fn=>fn())};
  const context={document:doc,Event:class{constructor(type){this.type=type;}},Map,Date,Error,Number,Promise,AbortSignal,setInterval:()=>1,clearInterval(){},UIText:{t:x=>x},SAE_GOOGLE_CLIENT_ID:'test',SheetEditor:{canLeave:()=>true,reset(){}},SaeSource:{SHEET_ID:'tno',mapRows:x=>x},ManufactureSource:{SHEET_ID:'inhouse',mapRows:x=>x},loadSaeItems(){},loadManufactureItems(){}};
- context.window=context;
+ context.window=context;context.WebAuth={enabled:true,user:{email:'alice@example.com'},can:()=>true,api:async(path,b)=>{if(path==='google/connect')return {};const response=await context.fetch(b.url,{method:b.method,headers:{Authorization:'Bearer '+state.user},...(b.body?{body:JSON.stringify(b.body)}:{})});if(!response.ok){const e=new Error('Google denied access.');e.status=response.status;throw e;}return response.json();}};context.document.body={classList:{contains:()=>true}};
  context.google={accounts:{oauth2:{hasGrantedAllScopes:()=>!state.denyScopes,initTokenClient:config=>{state.configs.push(config);return {requestAccessToken(){config.callback({access_token:state.user,expires_in:3600});}};}}}};
  context.fetch=async(url,opt)=>{
   const token=opt.headers.Authorization.slice(7);
@@ -25,6 +25,6 @@ function harness(){
  await assert.rejects(()=>api.checkAccess('other-file'),/Unknown sheet/);
  const denied=harness();denied.state.denyScopes=true;await denied.api.connect();assert.equal(denied.api.identity(),null);assert.equal(denied.api.access('tno').canEdit,false);
  const b=harness();await b.api.connect();b.state.user='bob';await assert.rejects(()=>b.api.authorizeEdit('tno'),/different Google account/);assert.equal(b.api.identity().email,'alice@example.com');assert.equal(b.writes.length,0);
- await b.api.connect(true);assert.equal(b.api.identity().email,'bob@example.com');assert.equal(b.state.configs.at(-1).prompt,'select_account');
+ await b.api.connect(true);assert.equal(b.api.identity(),null);assert.equal(b.state.configs.at(-1).prompt,'select_account');
  console.log('Verified: per-file rights, Viewer denial, revoked rights, metadata failure, RAW write, account mismatch and explicit switching.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,6 +1,6 @@
 # Đăng nhập và quyền sửa TNO / Inhouse
 
-Quyền thật do Google kiểm soát trên từng file; dữ liệu User trong trình duyệt vẫn chỉ là bản nháp. Admin/admin không cấp quyền đọc hay sửa nguồn. Web không lưu mật khẩu, client secret hoặc access token xuống bộ nhớ lưu trữ; token chỉ ở bộ nhớ của tab.
+Đăng nhập web dùng User/Password và quyền web được lưu ở máy chủ (xem USER-AUTH-SETUP.md). Google kiểm soát quyền riêng trên từng file; cần đồng thời cả hai quyền để lưu. Bản User cũ trong trình duyệt chỉ là bản nháp. Admin/admin không cấp quyền đọc hay sửa nguồn. Web không lưu mật khẩu, client secret hoặc access token xuống bộ nhớ lưu trữ; token chỉ ở bộ nhớ của tab.
 
 ## Google Cloud cần cấu hình một lần
 
@@ -25,7 +25,7 @@ Ví dụ một người có thể là Editor ở TNO và Viewer ở Inhouse. Com
 
 ## Cộng tác viên sử dụng
 
-1. Chọn Sign in with Google bằng email đã được chia sẻ.
+1. Đăng nhập web bằng User/Password do Admin tạo; sau đó bấm Google Sheet để kết nối đúng email Admin đã khai báo.
 2. Mục User > Google Sheet access hiện email và quyền riêng từng nguồn.
 3. Ô thường chỉ sửa được khi đã xác minh Editor; ô công thức luôn chỉ đọc. Google vẫn kiểm tra các vùng được bảo vệ khi lưu.
 4. Review changes > Confirm save. Web kiểm tra lại quyền và dữ liệu nguồn trước khi ghi đúng các ô đã sửa.

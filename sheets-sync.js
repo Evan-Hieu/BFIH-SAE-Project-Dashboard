@@ -14,6 +14,7 @@
   function assertSession(s){if(!s||s!==session||Date.now()>=s.expiresAt)throw new Error('Session expired — reconnect Google Sheet');}
   async function request(url,s,options={}){
     assertSession(s);
+    if(window.WebAuth?.enabled)return WebAuth.api('google/request',{url,method:options.method||'GET',...(options.body?{body:JSON.parse(options.body)}:{})});
     const response=await fetch(url,{...options,headers:{Authorization:`Bearer ${s.token}`,'Content-Type':'application/json'},cache:'no-store',signal:AbortSignal.timeout(20000)});
     assertSession(s);
     if(!response.ok){const error=new Error(response.status===403?'Google denied access. Check file sharing or protected ranges.':`Google API error (${response.status})`);error.status=response.status;throw error;}
@@ -38,6 +39,7 @@
           const user=await profile(response.access_token);
           if(version!==epoch)throw new Error('Google session changed. Reconnect before continuing.');
           if(old&&user.sub!==old.user.sub)throw new Error('A different Google account was selected. Use Switch account first.');
+          if(WebAuth.enabled){if(user.email.toLowerCase()!==WebAuth.user?.email.toLowerCase())throw new Error('Google email must match the email configured for this website user.');await WebAuth.api('google/connect',{accessToken:response.access_token});}
           session={token:response.access_token,user,edit,expiresAt:Date.now()+Number(response.expires_in)*1000-60000};
           emit();finish(null,user);
         }catch(e){finish(e);}},error_callback:()=>finish(new Error('Google sign-in cancelled or popup blocked — retry Google Sheet'))});
@@ -67,6 +69,7 @@
   function clear(){epoch++;session=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}
   async function connect(choose=false){
     if(authBusy)return;
+    if(!document.body.classList.contains('signed-in')){status('Sign in to the website first.');return;}
     if(choose){if(!window.SheetEditor?.canLeave())return;clear();}
     try{
       status('Connecting Google account…');
@@ -81,11 +84,13 @@
     access:id=>valid()?{...(rights.get(id)||{level:'Unverified',canEdit:false})}:{level:'Not connected',canEdit:false},
     read:path=>request('https://sheets.googleapis.com/v4/spreadsheets/'+path,session),
     authorizeEdit:async id=>{
+      const area=id===SaeSource.SHEET_ID?'Import':'Manufacture';if(!WebAuth.enabled||!WebAuth.can(area,true))throw new Error('Website Edit permission is required.');
       if(!session)throw new Error('Session expired — reconnect Google Sheet');
       if(!session.edit||!valid())await authorize(true);
       const access=await checkAccess(id);if(!access.canEdit)throw new Error('This Google account has no Editor permission for this sheet.');
     },
     write:async(id,data)=>{
+      const area=id===SaeSource.SHEET_ID?'Import':'Manufacture';if(!WebAuth.enabled||!WebAuth.can(area,true))throw new Error('Website Edit permission is required.');
       const s=session;assertSession(s);if(!s.edit)throw new Error('Edit permission was not granted.');
       const access=await checkAccess(id);assertSession(s);if(!access.canEdit)throw new Error('This Google account has no Editor permission for this sheet.');
       return request('https://sheets.googleapis.com/v4/spreadsheets/'+id+'/values:batchUpdate',s,{method:'POST',body:JSON.stringify({valueInputOption:'RAW',data})});
@@ -93,7 +98,7 @@
   };
   function renderAccess(){
     const user=window.SheetConnection.identity();
-    const badge=document.querySelector('.signed-user');badge.textContent=user?user.email:'Admin (demo)';badge.title=badge.textContent;badge.setAttribute('aria-label',badge.textContent);
+    // Google identity is separate from the username used to sign in to the website.
     document.getElementById('googleAccountEmail').textContent=user?user.email:UIText.t('Not connected');
     document.getElementById('googleAccessRows').replaceChildren();
     sources().forEach(source=>{const tr=document.createElement('tr'),access=window.SheetConnection.access(source.id);[source.name,UIText.t(access.level)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});const td=document.createElement('td'),a=document.createElement('a');a.href=`https://docs.google.com/spreadsheets/d/${source.id}/edit`;a.target='_blank';a.rel='noopener';a.textContent=UIText.t('Open Google Sheet');td.append(a);tr.append(td);document.getElementById('googleAccessRows').append(tr);});
@@ -101,7 +106,7 @@
   document.addEventListener('googleaccesschange',renderAccess);document.addEventListener('languagechange',renderAccess);
   document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('googleSheetLink').onclick=e=>{e.preventDefault();connect();};
-    document.getElementById('googleSignIn').onclick=()=>connect();
+
     document.getElementById('googleSwitchAccount').onclick=()=>connect(true);
     document.getElementById('googleRecheckAccess').onclick=()=>connect();renderAccess();
   });

@@ -7,8 +7,8 @@
   const formula=v=>typeof v==='string'&&v.startsWith('=');
   const isDate=(c,v)=>typeof v==='number'&&v>20000&&v<100000&&/date|nbd|eta|etd/i.test(snapshot.headers[c]);
   function displayed(c,v){if(isDate(c,v))return new Date(Date.UTC(1899,11,30)+Math.floor(v)*86400000).toISOString().slice(0,10);return String(value(v));}
-  const editable=()=>SheetConnection.access(configs[active].id).canEdit;
-  function controls(){const dirty=changes.size>0;$('sheetReview').disabled=!dirty||working||!editable();$('sheetDiscard').disabled=!dirty||working;$('sheetReload').disabled=working;$('sheetAccessLabel').textContent=UIText.t(SheetConnection.access(configs[active].id).level);}
+  const editable=()=>!!window.WebAuth?.enabled&&WebAuth.can(active==='import'?'Import':'Manufacture',true)&&SheetConnection.access(configs[active].id).canEdit;
+  function controls(){const dirty=changes.size>0;$('sheetReview').disabled=!dirty||working||!editable();$('sheetDiscard').disabled=!dirty||working;$('sheetReload').disabled=working;$('sheetAccessLabel').textContent=UIText.t(editable()?'Edit':'Read only');}
   async function readSource(config){
     const base=config.id+'/values/'+encodeURIComponent(`'${config.tab}'!A2:${config.end}`);
     const raw=await SheetConnection.read(base+'?valueRenderOption=FORMULA&dateTimeRenderOption=SERIAL_NUMBER');

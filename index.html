@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BFIH SAE Project Dashboard</title>
-<link rel="stylesheet" href="style.css?v=20260831-2">
+<link rel="stylesheet" href="style.css?v=20260831-3">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -12,34 +12,34 @@
     <div class="login-language"><button type="button" class="btn secondary" id="loginEn">EN</button><button type="button" class="btn secondary" id="loginZh">中文</button></div>
     <div class="login-brand"><img src="assets/sae-icon.png" alt="SAE" width="72" height="72"><h1>BFIH SAE</h1></div>
     <p class="login-subtitle">Project Management</p>
-    <button type="button" id="googleSignIn" class="btn primary">Sign in with Google</button><p id="googleLoginMessage" role="alert"></p><details><summary>Admin demo / local settings</summary><form id="loginForm">
-      <label for="loginUser">User</label><select id="loginUser" name="username" autocomplete="username"><option value="Admin">Admin</option></select>
+    <form id="loginForm">
+      <label for="loginUser">User</label><input id="loginUser" name="username" autocomplete="username" required placeholder="Username">
       <label for="loginPassword">Password</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="Enter password">
       <p id="loginError" role="alert"></p><button type="submit" class="btn primary">Sign in</button>
-    </form></details>
-    <p class="login-disclaimer">Demo sign-in only. This does not secure the website or enforce user permissions.</p>
+    </form>
+    <p id="loginDisclaimer" class="login-disclaimer">Checking account service…</p>
   </article>
 </section>
 <div class="app-shell">
 <aside class="sidebar">
 <div class="brand"><img class="brand-mark" src="assets/sae-icon.png" alt="SAE" width="44" height="44"><div><div class="brand-title">BFIH SAE</div><span class="signed-user" aria-label="Signed in as Admin">Admin</span></div></div>
 <nav class="nav">
-<a href="#" class="nav-link active" data-page="dashboard"><span class="icon">▦</span><span>Dashboard</span></a>
+<a href="#" class="nav-link active" data-page="dashboard" data-access-area="Dashboard"><span class="icon">▦</span><span>Dashboard</span></a>
 <div class="nav-heading">PROJECT</div><button type="button" class="nav-project" id="saeNavTitle" aria-expanded="false" aria-controls="saeNavChildren">SAE <span class="sae-arrow" aria-hidden="true">›</span></button><div id="saeNavChildren" class="nav-project-children" role="group" aria-labelledby="saeNavTitle" hidden>
-<a href="#importSection" class="nav-link" data-page="import"><span class="icon">⇩</span><span>TNO</span></a>
-<a href="#manufactureSection" class="nav-link" data-page="manufacture"><span class="icon">⚙</span><span>Inhouse</span></a></div>
+<a href="#importSection" class="nav-link" data-page="import" data-access-area="Import"><span class="icon">⇩</span><span>TNO</span></a>
+<a href="#manufactureSection" class="nav-link" data-page="manufacture" data-access-area="Manufacture"><span class="icon">⚙</span><span>Inhouse</span></a></div>
 <div class="nav-separator"></div>
-<a href="#" class="nav-link"><span class="icon">◷</span><span>Timeline</span></a>
-<a href="#" class="nav-link"><span class="icon">!</span><span>Alerts</span></a>
+<a href="#" class="nav-link" data-access-area="Timeline"><span class="icon">◷</span><span>Timeline</span></a>
+<a href="#" class="nav-link" data-access-area="Alerts"><span class="icon">!</span><span>Alerts</span></a>
 <div class="nav-heading">TOOLS</div>
-<a href="#" class="nav-link"><span class="icon">⌕</span><span>Search</span></a>
-<a href="#calendar" class="nav-link" data-page="calendar" aria-label="Calendar"><span class="icon">▣</span><span>Calendar</span></a>
-<a href="#" class="nav-link"><span class="icon">↗</span><span>Performance</span></a>
-<a href="#" class="nav-link"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
-<a href="#" id="googleSheetLink" class="nav-link"><span class="icon">G</span><span>Google Sheet</span></a>
-<a href="#" class="nav-link"><span class="icon">≡</span><span>Audit Log</span></a>
-<div class="nav-heading">SYSTEM</div><a href="#users" class="nav-link" data-page="users" aria-label="User"><span class="icon">♙</span><span>User</span></a>
-<a href="#" class="nav-link"><span class="icon">⚙</span><span>Settings</span></a>
+<a href="#" class="nav-link" data-access-area="Search"><span class="icon">⌕</span><span>Search</span></a>
+<a href="#calendar" class="nav-link" data-page="calendar" aria-label="Calendar" data-access-area="Calendar"><span class="icon">▣</span><span>Calendar</span></a>
+<a href="#" class="nav-link" data-access-area="Performance"><span class="icon">↗</span><span>Performance</span></a>
+<a href="#" class="nav-link" data-access-area="Notifications"><span class="icon">◉</span><span>Notifications</span><span class="badge">3</span></a>
+<a href="#" id="googleSheetLink" class="nav-link" data-access-area="Google Sheet"><span class="icon">G</span><span>Google Sheet</span></a>
+<a href="#" class="nav-link" data-access-area="Audit Log"><span class="icon">≡</span><span>Audit Log</span></a>
+<div class="nav-heading">SYSTEM</div><a href="#users" class="nav-link" data-page="users" aria-label="User" data-access-area="User"><span class="icon">♙</span><span>User</span></a>
+<a href="#" class="nav-link" data-access-area="Settings"><span class="icon">⚙</span><span>Settings</span></a>
 </nav>
 <div class="sidebar-footer"><a href="#" class="logout"><span class="icon">↪</span><span>Logout</span></a></div>
 </aside>
@@ -109,7 +109,7 @@
   </div>
 </section>
 <section id="usersView" class="users-view" hidden aria-label="User management">
-  <article class="google-access-panel"><h2>Google Sheet access</h2><p id="googleAccountEmail"></p><p>Actual rights come from Google Sheet sharing. Local User drafts do not grant access.</p><div class="users-toolbar"><button id="googleSwitchAccount" class="btn secondary">Switch account</button><button id="googleRecheckAccess" class="btn secondary">Check access</button></div><p id="googleAccessMessage" role="status"></p><table><thead><tr><th>Source</th><th>Actual permission</th><th>Actions</th></tr></thead><tbody id="googleAccessRows"></tbody></table></article><div class="users-heading"><div><h1>User</h1><p>Prepare user access by area.</p></div><span class="users-draft">Configuration draft</span></div>
+  <article class="google-access-panel"><h2>Google Sheet access</h2><p id="googleAccountEmail"></p><p>Saving requires Website Edit and Google Editor. The connected Google email must match the website user.</p><div class="users-toolbar"><button id="googleSwitchAccount" class="btn secondary">Switch account</button><button id="googleRecheckAccess" class="btn secondary">Check access</button></div><p id="googleAccessMessage" role="status"></p><table><thead><tr><th>Source</th><th>Actual permission</th><th>Actions</th></tr></thead><tbody id="googleAccessRows"></tbody></table></article><div class="users-heading"><div><h1>User</h1><p>Prepare user access by area.</p></div><span class="users-draft">Configuration draft</span></div>
   <p class="users-notice">Draft only — saved in this browser. These settings do not restrict access yet, create login accounts, send invitations, or change Google Sheet sharing.</p>
   <div class="users-toolbar"><input type="search" id="userSearch" aria-label="Search users" placeholder="Search name or email…"><button class="btn primary" id="userAdd">+ Add user</button></div>
   <p id="userMessage" role="status"></p>
@@ -119,7 +119,7 @@
 <dialog id="userDialog" aria-labelledby="userDialogTitle">
   <form id="userForm"><div class="users-heading"><h2 id="userDialogTitle">Add user</h2><button type="button" class="btn secondary" id="userClose" aria-label="Close user form">×</button></div>
     <p class="users-notice">Prepare permissions only. Actual access control will be connected later.</p>
-    <div class="user-fields"><label>User ID<input id="userId" readonly></label><label>Name<input id="userName" required maxlength="100" autocomplete="off"></label><label>Email<input id="userEmail" type="email" required maxlength="254" autocomplete="off"></label><label>Department<input id="userDepartment" maxlength="100"></label><label>Phone<input id="userPhone" type="tel" maxlength="40"></label><label>Status<select id="userStatus"><option>Active</option><option>Inactive</option></select></label></div>
+    <div class="user-fields"><label>User ID<input id="userId" readonly></label><label>Name<input id="userName" required maxlength="100" autocomplete="off"></label><label>Login ID<input id="userLoginId" maxlength="64" autocomplete="off"></label><label>New password<input id="userNewPassword" type="password" minlength="12" maxlength="256" autocomplete="new-password" placeholder="Leave blank to keep current password"></label><label>Email<input id="userEmail" type="email" required maxlength="254" autocomplete="off"></label><label>Department<input id="userDepartment" maxlength="100"></label><label>Phone<input id="userPhone" type="tel" maxlength="40"></label><label>Status<select id="userStatus"><option>Active</option><option>Inactive</option></select></label></div>
     <label class="user-notes">Notes<textarea id="userNotes" rows="2" maxlength="2000"></textarea></label><fieldset><legend>Access by area</legend><table class="permission-matrix"><thead><tr><th>Tab</th><th>No</th><th>View</th><th>Comment</th><th>Edit</th></tr></thead><tbody id="userPermissions"></tbody></table></fieldset>
     <p id="userFormMessage" role="alert"></p>
     <div class="user-form-actions"><button class="btn secondary" type="button" id="userCancel">Cancel</button><button class="btn primary" type="submit" id="userSave">Save draft</button></div>
@@ -133,5 +133,5 @@
 </section>
 <dialog id="sheetCellDialog" aria-labelledby="sheetCellTitle"><form id="sheetCellForm"><h2 id="sheetCellTitle">Edit cell</h2><label>Value<input id="sheetCellValue" maxlength="10000"></label><div class="user-form-actions"><button type="button" id="sheetCellCancel" class="btn secondary">Cancel</button><button class="btn primary">Apply change</button></div></form></dialog>
 <dialog id="sheetReviewDialog" aria-labelledby="sheetReviewTitle"><h2 id="sheetReviewTitle">Review changes</h2><p id="sheetReviewSource"></p><div class="editor-review-scroll"><table><thead><tr><th>Cell</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody id="sheetReviewRows"></tbody></table></div><p id="sheetSaveMessage" role="status"></p><div class="user-form-actions"><button id="sheetReviewCancel" class="btn secondary">Cancel</button><button id="sheetSave" class="btn primary">Confirm save to Google Sheet</button></div></dialog></main></div>
-<script src="sheet-source.js?v=4"></script><script src="google-config.js?v=4"></script><script src="i18n.js?v=11"></script><script src="manufacture-source.js?v=2"></script><script src="manufacture.js?v=6"></script><script src="app.js?v=20260831-1"></script><script src="calendar.js?v=4"></script><script src="users.js?v=3"></script><script src="login.js?v=2"></script><script src="sheets-sync.js?v=7"></script><script src="sheet-editor.js?v=4"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="sheet-source.js?v=4"></script><script src="google-config.js?v=4"></script><script src="i18n.js?v=12"></script><script src="manufacture-source.js?v=2"></script><script src="manufacture.js?v=6"></script><script src="app.js?v=20260831-1"></script><script src="calendar.js?v=4"></script><script src="auth.js?v=1"></script><script src="users.js?v=4"></script><script src="login.js?v=3"></script><script src="sheets-sync.js?v=8"></script><script src="sheet-editor.js?v=5"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
 </body></html>
