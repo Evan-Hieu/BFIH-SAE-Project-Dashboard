@@ -78,7 +78,10 @@
     }catch(e){if(s===session){rights.set(id,{level:e.status===404?'No access':'Unverified',canEdit:false});emit();}throw e;}
   }
   async function refresh(){
-    if(sharedMode())return refreshShared();
+    if(sharedMode()){
+      if(valid())await Promise.allSettled(sources().map(source=>checkAccess(source.id)));
+      return refreshShared();
+    }
     if(refreshBusy===session)return;
     if(!valid()){rights.clear();emit();status('Session expired — reconnect Google Sheet');return;}
     const s=session;refreshBusy=s;
