@@ -9,6 +9,8 @@
   aliases.set('fixture manufacturer 治具廠','Fixture Manufacturer');
   aliases.set('po release taget date','Target date');
   aliases.set('official po taget date','Official PO Target date');
+  aliases.set('phase','Build');
+  aliases.set('equipment','Machine/Equipment name');
   aliases.set('delivered','Dispatched Qty');
   aliases.set('pending','Pending qty');
   aliases.set('status','Overall status');

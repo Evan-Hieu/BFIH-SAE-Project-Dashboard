@@ -10,12 +10,12 @@ function manufacturePendingRow(x){
   const fields=['Project','Phase','Equipment','Spec','Type','KO QTY','KO Date','CM NBD','CM Site','MFG status','Material Status','STD Status','RM Status','CNC OS STATUS','RD Drawing Status','ACT ETD','Remark'];
   return `<tr><td><span class="priority ${x._priority.cls}">${esc(x._priority.text)}</span></td>${fields.map(k=>`<td>${esc(['KO Date','CM NBD','ACT ETD'].includes(k)?date(x[k]):x[k])}</td>`).join('')}</tr>`;
 }
-function pinManufactureColumns(){
-  const table=document.querySelector('#manufactureSection .pending table');
+function pinManufactureColumns(section='manufactureSection'){
+  const table=document.querySelector('#'+section+' .pending table');
   const viewport=table.parentElement;
   const rail=document.createElement('div');
   rail.className='mfg-horizontal-scroll';rail.tabIndex=0;
-  rail.setAttribute('aria-label','Scroll Manufacture details horizontally');
+  rail.setAttribute('aria-label','Scroll details horizontally');
   const track=document.createElement('div');rail.append(track);viewport.after(rail);
   const headers=Array.from(table.tHead.rows[0].cells).slice(0,9);
   const update=()=>{
@@ -45,15 +45,9 @@ function renderManufactureDonut(items){
   const canvas=document.getElementById('mfgStatusChart');
   canvas.setAttribute('role','img');
   canvas.setAttribute('aria-label',`${items.length} items: Dispatched ${done}, On-going ${items.length-done}`);
-  const depth={id:'manufactureDepth',beforeDatasetsDraw(chart){
-    const ctx=chart.ctx;ctx.save();ctx.translate(0,5);ctx.filter='brightness(0.65)';
-    chart.getDatasetMeta(0).data.forEach(arc=>arc.draw(ctx));ctx.restore();
-  },afterDraw(chart){
-    const arc=chart.getDatasetMeta(0).data[0];if(!arc)return;
-    const ctx=chart.ctx;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#10243e';
-    ctx.font='800 23px Arial';ctx.fillText(String(items.length),arc.x,arc.y-5);
-    ctx.fillStyle='#64748b';ctx.font='10px Arial';ctx.fillText(UIText.t('items'),arc.x,arc.y+14);ctx.restore();
-  }};
+  const depth=statusDepth('Inhouse',items.length);
   mfgChart=new Chart(canvas,{type:'doughnut',plugins:[depth],data:{labels:['Dispatched','On-going'].map(UIText.t),datasets:[{data:[done,items.length-done],backgroundColor:['#1769e0','#26a34a'],borderColor:'#fff',borderWidth:2,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'64%',layout:{padding:{top:3,bottom:8}},plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:10}}},tooltip:{enabled:true}}}});
 }
 document.addEventListener('languagechange',()=>{if(mfgChart){mfgChart.data.labels=['Dispatched','On-going'].map(UIText.t);mfgChart.update();}});
+
+function statusDepth(label,total){return {id:'statusDepth',beforeDatasetsDraw(chart){const ctx=chart.ctx;ctx.save();ctx.translate(0,7);ctx.filter='brightness(0.62)';chart.getDatasetMeta(0).data.forEach(arc=>arc.draw(ctx));ctx.restore();},afterDraw(chart){const arc=chart.getDatasetMeta(0).data[0];if(!arc)return;const ctx=chart.ctx,r=arc.innerRadius;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#102e50';ctx.font='700 '+Math.min(23,r*.34)+'px Arial';ctx.fillText(label,arc.x,arc.y-17);ctx.font='800 '+Math.min(28,r*.4)+'px Arial';ctx.fillText(String(total),arc.x,arc.y+12);ctx.fillStyle='#64748b';ctx.font='11px Arial';ctx.fillText(UIText.t('items'),arc.x,arc.y+34);ctx.restore();}};}

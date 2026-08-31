@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const zh = {
+    'TNO':'TNO','Inhouse':'廠內製造',
     'No':'無權限','Tab':'分頁','User ID':'使用者編號','Department':'部門','Phone':'電話','Notes':'備註','Auto':'自動產生',
     'All data':'全部資料','Filter rows by status':'依狀態篩選資料列','No matching rows.':'沒有符合的資料列。',
     'Sheet changed while loading. Please load it again.':'載入時試算表已變更，請重新載入。','Enter a valid date in YYYY-MM-DD format.':'請輸入有效日期，格式為 YYYY-MM-DD。','Enter true or false.':'請輸入 true 或 false。',
@@ -37,6 +38,8 @@
   let language='en';try{language=localStorage.getItem('bfih-sae-language')==='zh-Hant'?'zh-Hant':'en';}catch{}
   const original=new WeakMap(), attrs=new WeakMap();
   function translate(text){
+    if(text==='Import' || text==='IMPORT')return 'TNO';
+    if(text==='Manufacture' || text==='MANUFACTURE')return language==='en'?'Inhouse':'廠內製造';
     if(language==='en')return text;
     if(zh[text])return zh[text];
     if(/^\d+ items$/.test(text))return text.replace(' items',' 筆');
@@ -61,7 +64,7 @@
       const node=walker.currentNode,el=node.parentElement;if(!el||protectedNode(el))continue;
       const prior=original.get(node),current=node.nodeValue;
       const source=prior&&current===prior.output?prior.source:current;
-      const output=source.replace(/\S[\s\S]*\S|\S/,value=>el.id==='importButton'&&language!=='en'?'匯入':translate(value));
+      const output=source.replace(/\S[\s\S]*\S|\S/,value=>el.id==='importButton'?(language==='en'?'Import':'匯入'):translate(value));
       if(output!==current)node.nodeValue=output;
       original.set(node,{source,output});
     }
