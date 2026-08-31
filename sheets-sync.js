@@ -14,7 +14,7 @@
   function assertSession(s){if(!s||s!==session||Date.now()>=s.expiresAt)throw new Error('Session expired — reconnect Google Sheet');}
   async function request(url,s,options={}){
     assertSession(s);
-    if(window.WebAuth?.enabled)return WebAuth.api('google/request',{url,method:options.method||'GET',...(options.body?{body:JSON.parse(options.body)}:{})});
+    if(window.WebAuth?.enabled&&!WebAuth.accountOnly)return WebAuth.api('google/request',{url,method:options.method||'GET',...(options.body?{body:JSON.parse(options.body)}:{})});
     const response=await fetch(url,{...options,headers:{Authorization:`Bearer ${s.token}`,'Content-Type':'application/json'},cache:'no-store',signal:AbortSignal.timeout(20000)});
     assertSession(s);
     if(!response.ok){const error=new Error(response.status===403?'Google denied access. Check file sharing or protected ranges.':`Google API error (${response.status})`);error.status=response.status;throw error;}
@@ -39,7 +39,7 @@
           const user=await profile(response.access_token);
           if(version!==epoch)throw new Error('Google session changed. Reconnect before continuing.');
           if(old&&user.sub!==old.user.sub)throw new Error('A different Google account was selected. Use Switch account first.');
-          if(WebAuth.enabled){if(user.email.toLowerCase()!==WebAuth.user?.email.toLowerCase())throw new Error('Google email must match the email configured for this website user.');await WebAuth.api('google/connect',{accessToken:response.access_token});}
+          if(WebAuth.enabled){if(user.email.toLowerCase()!==WebAuth.user?.email.toLowerCase())throw new Error('Google email must match the email configured for this website user.');if(!WebAuth.accountOnly)await WebAuth.api('google/connect',{accessToken:response.access_token});}
           session={token:response.access_token,user,edit,expiresAt:Date.now()+Number(response.expires_in)*1000-60000};
           emit();finish(null,user);
         }catch(e){finish(e);}},error_callback:()=>finish(new Error('Google sign-in cancelled or popup blocked — retry Google Sheet'))});
@@ -50,7 +50,7 @@
     if(!sources().some(s=>s.id===id))throw new Error('Unknown sheet source.');
     const s=session;
     try{
-      const file=await request(`https://www.googleapis.com/drive/v3/files/${id}?fields=id,capabilities(canEdit,canComment)&supportsAllDrives=true`,s);
+      const file=await request('https://www.googleapis.com/drive/v3/files/'+id+'?fields=id,capabilities(canEdit,canComment)&supportsAllDrives=true',s);
       const caps=file.capabilities||{},access={level:caps.canEdit===true?'Edit':caps.canComment===true?'Comment':'View',canEdit:caps.canEdit===true};rights.set(id,access);emit();return access;
     }catch(e){if(s===session){rights.set(id,{level:e.status===404?'No access':'Unverified',canEdit:false});emit();}throw e;}
   }
@@ -61,7 +61,7 @@
     try{await Promise.allSettled(sources().map(async source=>{
       try{await checkAccess(source.id);}catch(e){if(s!==session)return;document.getElementById('googleAccessMessage').textContent='Cannot verify edit rights. Enable Google Drive API and reconnect with metadata permission.';}
       try{
-        const payload=await request(`https://sheets.googleapis.com/v4/spreadsheets/${source.id}/values/${encodeURIComponent(source.range)}?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER`,s);
+        const payload=await request('https://sheets.googleapis.com/v4/spreadsheets/'+source.id+'/values/'+encodeURIComponent(source.range)+'?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER',s);
         source.load(source.parse(payload.values));document.getElementById(source.status).textContent=`${source.name} · Synced ${new Date().toLocaleTimeString()}`;
       }catch(e){if(s!==session)return;source.load([]);document.getElementById(source.status).textContent=e.message;}
     }));}finally{if(refreshBusy===s)refreshBusy=false;}
@@ -101,7 +101,7 @@
     // Google identity is separate from the username used to sign in to the website.
     document.getElementById('googleAccountEmail').textContent=user?user.email:UIText.t('Not connected');
     document.getElementById('googleAccessRows').replaceChildren();
-    sources().forEach(source=>{const tr=document.createElement('tr'),access=window.SheetConnection.access(source.id);[source.name,UIText.t(access.level)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});const td=document.createElement('td'),a=document.createElement('a');a.href=`https://docs.google.com/spreadsheets/d/${source.id}/edit`;a.target='_blank';a.rel='noopener';a.textContent=UIText.t('Open Google Sheet');td.append(a);tr.append(td);document.getElementById('googleAccessRows').append(tr);});
+    sources().forEach(source=>{const tr=document.createElement('tr'),access=window.SheetConnection.access(source.id);[source.name,UIText.t(access.level)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});const td=document.createElement('td'),a=document.createElement('a');a.href='https://docs.google.com/spreadsheets/d/'+source.id+'/edit';a.target='_blank';a.rel='noopener';a.textContent=UIText.t('Open Google Sheet');td.append(a);tr.append(td);document.getElementById('googleAccessRows').append(tr);});
   }
   document.addEventListener('googleaccesschange',renderAccess);document.addEventListener('languagechange',renderAccess);
   document.addEventListener('DOMContentLoaded',()=>{

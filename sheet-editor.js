@@ -106,7 +106,7 @@
   };
   window.SheetEditor={reset(){snapshot=null;changes.clear();$('sheetCellDialog').close();$('sheetReviewDialog').close();render();controls();},canLeave(){if(working)return false;if(changes.size&&!confirm(UIText.t('Discard unsaved changes?')))return false;changes.clear();controls();return true;},open(page){
     active=page;statusFilter='all';snapshot=null;changes.clear();$('sheetSearch').value='';$('sheetEditorTitle').textContent=page==='import'?'Import':'Manufacture';
-    const cfg=configs[page];$('sheetEditorSource').textContent=cfg.tab;$('sheetOriginalLink').href=`https://docs.google.com/spreadsheets/d/${cfg.id}/edit#gid=${cfg.gid}`;
+    const cfg=configs[page];$('sheetEditorSource').textContent=cfg.tab;$('sheetOriginalLink').href='https://docs.google.com/spreadsheets/d/'+cfg.id+'/edit#gid='+cfg.gid;
     render();load();
   }};
   window.addEventListener('beforeunload',e=>{if(changes.size||working){e.preventDefault();e.returnValue='';}});

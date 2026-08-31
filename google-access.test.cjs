@@ -14,7 +14,7 @@ function harness(){
   return {ok:true,json:async()=>({values:[]})};
  };
  vm.runInNewContext(fs.readFileSync('sheets-sync.js','utf8'),context);
- return{api:context.SheetConnection,state,writes};
+ return{api:context.SheetConnection,state,writes,context};
 }
 (async()=>{
  const {api,state,writes}=harness();await api.connect();assert.equal(api.identity().email,'alice@example.com');assert.equal(api.access('tno').canEdit,true);assert.equal(api.access('inhouse').canEdit,false);
@@ -26,5 +26,19 @@ function harness(){
  const denied=harness();denied.state.denyScopes=true;await denied.api.connect();assert.equal(denied.api.identity(),null);assert.equal(denied.api.access('tno').canEdit,false);
  const b=harness();await b.api.connect();b.state.user='bob';await assert.rejects(()=>b.api.authorizeEdit('tno'),/different Google account/);assert.equal(b.api.identity().email,'alice@example.com');assert.equal(b.writes.length,0);
  await b.api.connect(true);assert.equal(b.api.identity(),null);assert.equal(b.state.configs.at(-1).prompt,'select_account');
+ const direct=harness();direct.context.WebAuth.accountOnly=true;
+ direct.context.WebAuth.api=async()=>{throw Error('Google requests must not reach the account service');};
+ await direct.api.connect();assert.equal(direct.api.identity().email,'alice@example.com');
+ await direct.api.authorizeEdit('tno');await direct.api.write('tno',[{range:"'SAE'!D5",values:[[4]]}]);
+ assert.equal(direct.writes.length,1);assert.equal(direct.writes[0].token,'alice');
+ direct.state.cap.tno=false;await assert.rejects(()=>direct.api.write('tno',[]),/no Editor/);
+ assert.equal(direct.writes.length,1);
+ const viewer=harness();viewer.context.WebAuth.accountOnly=true;viewer.context.WebAuth.can=()=>false;
+ viewer.context.WebAuth.api=async()=>{throw Error('Viewer Google requests must stay direct');};
+ await viewer.api.connect();assert.equal(viewer.api.identity().email,'alice@example.com');
+ await viewer.api.read('tno/values/SAE');
+ await assert.rejects(()=>viewer.api.authorizeEdit('tno'),/Website Edit permission/);
+ await assert.rejects(()=>viewer.api.write('tno',[{range:"'SAE'!D5",values:[[9]]}]),/Website Edit permission/);
+ assert.equal(viewer.writes.length,0);
  console.log('Verified: per-file rights, Viewer denial, revoked rights, metadata failure, RAW write, account mismatch and explicit switching.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
