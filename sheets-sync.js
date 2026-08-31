@@ -79,7 +79,7 @@
     }catch(e){status(e.message);const el=document.getElementById('googleLoginMessage');if(el)el.textContent=e.message;}
   }
   window.SheetConnection={
-    connect,refresh,checkAccess,
+    connect,refresh,checkAccess,disconnect:clear,
     identity:()=>session?{...session.user}:null,
     access:id=>valid()?{...(rights.get(id)||{level:'Unverified',canEdit:false})}:{level:'Not connected',canEdit:false},
     read:path=>request('https://sheets.googleapis.com/v4/spreadsheets/'+path,session),

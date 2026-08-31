@@ -17,6 +17,12 @@ async function run(){
  await assert.rejects(()=>context.WebAuth.api('google/request',{}),/does not handle/);
  assert.equal(requests.length,2);
  await context.WebAuth.logout();assert.equal(context.WebAuth.user,null);
+ await context.WebAuth.login('test-user','synthetic-password');
+ context.fetch=async()=>{throw Error('Network failure');};
+ await assert.rejects(()=>context.WebAuth.logout(),/service unavailable/);
+ assert.equal(context.WebAuth.user,null);
+ context.fetch=async(url,options)=>{assert.equal(JSON.parse(options.body).sessionToken,null);return {ok:true,json:async()=>({ok:true,data:{}})};};
+ await context.WebAuth.api('auth/me');
  context.fetch=async()=>{throw Error('Network failure');};
  await assert.rejects(()=>context.WebAuth.login('admin','admin'),/service unavailable/);
  assert.equal(context.WebAuth.enabled,true);assert.equal(context.WebAuth.user,null);
