@@ -1,6 +1,10 @@
 let importLoaded=false,mfgLoaded=false;let IMPORT=[],MFG=[],importChart=null,mfgChart=null,currentImport=[];document.addEventListener("DOMContentLoaded",init);
 function init(){
-  document.getElementById("saeNavTitle").onclick=()=>{const button=document.getElementById("saeNavTitle"),open=button.getAttribute("aria-expanded")!=="true";button.setAttribute("aria-expanded",String(open));document.getElementById("saeNavChildren").hidden=!open;};
+  const saeButton=document.getElementById('saeNavTitle');
+  const setSaeOpen=open=>{saeButton.setAttribute('aria-expanded',String(open));document.getElementById('saeNavChildren').hidden=!open;};
+  setSaeOpen(false);
+  saeButton.onclick=()=>setSaeOpen(saeButton.getAttribute('aria-expanded')!=='true');
+  document.querySelector('.nav').addEventListener('click',event=>{if(event.target.closest('.nav-link'))setSaeOpen(false);});
   bind();times();renderImport([]);renderMfg([]);
   document.querySelectorAll('#importSection .kpi-value,#importSection .kpi-sub').forEach(el=>el.textContent='—');
   set('importPendingCount','Not connected');set('mfgPendingCount','Not connected');

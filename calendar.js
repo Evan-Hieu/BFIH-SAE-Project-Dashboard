@@ -71,6 +71,8 @@
     const page=link.dataset.page;if(!['calendar','users','dashboard','import','manufacture'].includes(page))return;
     event.preventDefault();event.stopImmediatePropagation();
     if(!window.SheetEditor.canLeave())return;
+    $('saeNavTitle').setAttribute('aria-expanded','false');
+    $('saeNavChildren').hidden=true;
     const sheetPage=page==='import'||page==='manufacture';
     $('dashboardView').hidden=page!=='dashboard';
     $('sheetEditorView').hidden=!sheetPage;

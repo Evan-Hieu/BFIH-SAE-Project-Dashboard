@@ -270,7 +270,8 @@ body.signed-in .login-view{display:none}
 #importSection .pending :is(th,td):nth-child(6),#importSection .pending :is(th,td):nth-child(7){text-align:center}
 
 
-.nav-project{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;cursor:pointer;text-align:left}.sae-arrow{font-size:22px;transition:transform .18s}.nav-project[aria-expanded="true"] .sae-arrow{transform:rotate(90deg)}.nav-project-children[hidden]{display:none}
+.nav-project{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;cursor:pointer;text-align:left}.sae-arrow{width:20px;height:20px;flex:none;transition:transform .18s ease}.nav-project[aria-expanded="true"] .sae-arrow{transform:rotate(180deg)}.nav-project:focus-visible{outline:2px solid #8cc3ff;outline-offset:2px;border-radius:6px}.nav-project-children[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.sae-arrow{transition:none}}
 #googleSignIn{width:100%;min-height:44px}.login-card details{margin:18px 0}.login-card summary{cursor:pointer;color:#526b89}.google-access-panel{background:#fff;border:1px solid #d5e1ef;border-radius:12px;padding:18px;margin-bottom:20px}.google-access-panel table{min-width:0;width:100%}.google-access-panel td,.google-access-panel th{padding:10px;text-align:left}.google-access-panel p{font-size:12px;color:#61738c}.signed-user{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}#googleLoginMessage,#googleAccessMessage{color:#b45309;font-size:12px}
 .nav-link[hidden]{display:none!important}
 
