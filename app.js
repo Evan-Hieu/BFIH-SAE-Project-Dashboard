@@ -29,7 +29,7 @@ function renderDonut(p,d){
   if(importChart)importChart.destroy();
   canvas.setAttribute('role','img');
   canvas.setAttribute('aria-label',`${d.length} items: Dispatched ${done}, On-going ${d.length-done}`);
-  importChart=new Chart(canvas,{type:'doughnut',plugins:[statusDepth('TNO',d.length)],data:{labels:['Dispatched','On-going'].map(UIText.t),datasets:[{data:[done,d.length-done],backgroundColor:['#1769e0','#26a34a'],borderWidth:2,borderColor:'#fff'}]},options:statusChartOptions()});
+  importChart=new Chart(canvas,{type:'doughnut',plugins:[statusDepth('TNO',d.length)],data:{labels:['Dispatched','On-going'].map(UIText.t),datasets:[{data:[done,d.length-done],backgroundColor:['#26a34a','#eeb308'],borderWidth:2,borderColor:'#fff'}]},options:statusChartOptions()});
 }
 function exportCSV(){const rows=currentImport.map(x=>[x["Project"],x["Build"],x["Machine/Equipment name"],x["NBD"],x["BFIH site arrive"],x._gap,x._stage,x._action]);const csv=[["Project","Build","Machine","NBD","BFIH Site Arrive","CP Gap","Stage","Action"],...rows].map(r=>r.map(v=>`"${txt(v).replaceAll('"','""')}"`).join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="SAE_import_export.csv";a.click()}
 function lang(l){UIText.set(l)}

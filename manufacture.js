@@ -51,7 +51,7 @@ function renderManufactureDonut(items){
   canvas.setAttribute('role','img');
   canvas.setAttribute('aria-label',`${items.length} items: Dispatched ${done}, On-going ${items.length-done}`);
   const depth=statusDepth('Inhouse',items.length);
-  mfgChart=new Chart(canvas,{type:'doughnut',plugins:[depth],data:{labels:['Dispatched','On-going'].map(UIText.t),datasets:[{data:[done,items.length-done],backgroundColor:['#1769e0','#26a34a'],borderColor:'#fff',borderWidth:2,hoverOffset:3}]},options:statusChartOptions()});
+  mfgChart=new Chart(canvas,{type:'doughnut',plugins:[depth],data:{labels:['Dispatched','On-going'].map(UIText.t),datasets:[{data:[done,items.length-done],backgroundColor:['#26a34a','#eeb308'],borderColor:'#fff',borderWidth:2,hoverOffset:3}]},options:statusChartOptions()});
 }
 document.addEventListener('languagechange',()=>{[importChart,mfgChart].filter(Boolean).forEach(chart=>{chart.data.labels=['Dispatched','On-going'].map(UIText.t);chart.update();});});
 
