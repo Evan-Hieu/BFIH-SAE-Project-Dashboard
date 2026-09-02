@@ -84,9 +84,9 @@ td{padding:8px 6px;font-size:9px}
 .import-pending-table :is(th,td):nth-child(3){--pin-left:var(--pin-3)}
 .import-pending-table :is(th,td):nth-child(4){--pin-left:var(--pin-4)}
 .import-pending-table :is(th,td):nth-child(5){--pin-left:var(--pin-5)}
-.import-pending-table tbody td:nth-child(-n+5):not([colspan]){position:sticky;left:var(--pin-left);z-index:2;background:#fff}
-.table-scroll .import-pending-table thead th:nth-child(-n+5){left:var(--pin-left);z-index:3;background:#f8fafc}
-.import-pending-table tbody tr:hover td:nth-child(-n+5){background:#f1f6fd}
+.import-pending-table tbody td:nth-child(-n+9):not([colspan]){position:sticky;left:var(--pin-left);z-index:2;background:#fff}
+.table-scroll .import-pending-table thead th:nth-child(-n+9){left:var(--pin-left);z-index:3;background:#f8fafc}
+.import-pending-table tbody tr:hover td:nth-child(-n+9){background:#f1f6fd}
 /* Chart spans both the KPI row and the details panel. */
 .status-panel{background:#fff;border-color:#dfe7f0;color:#10243e}
 .status-panel h2 span{background:#1769e0}
@@ -167,7 +167,7 @@ body.signed-in .login-view{display:none}
 .signed-user{display:inline-block;background:#1769e0;border-radius:12px;color:white;padding:2px 7px;font-size:9px;margin-top:4px}
 @media(max-width:1100px){.brand{position:relative}.brand .signed-user{display:block;position:absolute;bottom:0;left:20px;font-size:8px;margin:0;padding:1px 5px}.brand>div:last-child{display:block}.brand-title{display:none}.brand{gap:0}}
 @media(max-width:480px){.login-view{padding:14px}.login-card{padding:22px}.login-brand h1{font-size:24px}}
-#manufactureSection .pending table{width:max-content;min-width:0;table-layout:auto}
+#manufactureSection .pending table{width:1500px;min-width:1500px;table-layout:fixed}
 #manufactureSection .pending td,#manufactureSection .pending th{white-space:nowrap}
 #manufactureSection .pending td:nth-child(n+11){white-space:normal;min-width:110px;max-width:200px;overflow-wrap:anywhere}
 .sync-summary #mfgSyncStatus{font-size:9px;color:#64748b;max-width:300px;text-align:right}
@@ -175,9 +175,9 @@ body.signed-in .login-view{display:none}
 #manufactureSection .pending table{border-collapse:separate;border-spacing:0}
 #manufactureSection .pending :is(th,td){font-size:8.5px;padding:6px 5px;line-height:1.35}
 #manufactureSection .pending :is(th,td):nth-child(4){white-space:normal;min-width:0;max-width:100px;overflow-wrap:anywhere}
-#manufactureSection .pending td:nth-child(-n+5):not([colspan]){position:sticky;left:var(--mfg-left);z-index:2;background:#fff}
-#manufactureSection .pending th:nth-child(-n+5){left:var(--mfg-left);z-index:3;background:#f8fafc}
-#manufactureSection .pending :is(th,td):nth-child(5){box-shadow:3px 0 4px -3px #607d9f}
+#manufactureSection .pending td:nth-child(-n+9):not([colspan]){position:sticky;left:var(--mfg-left);z-index:2;background:#fff}
+#manufactureSection .pending th:nth-child(-n+9){left:var(--mfg-left);z-index:3;background:#f8fafc}
+#manufactureSection .pending :is(th,td):nth-child(9){box-shadow:3px 0 4px -3px #607d9f}
 #manufactureSection .pending tbody tr:hover td{background:#f1f6fd}
 #manufactureSection .pending :is(th,td):nth-child(1){--mfg-left:var(--mfg-pin-1,0px)}
 #manufactureSection .pending :is(th,td):nth-child(2){--mfg-left:var(--mfg-pin-2,0px)}
@@ -195,7 +195,7 @@ body.signed-in .login-view{display:none}
 #manufactureSection .table-scroll::-webkit-scrollbar-track{background:#f8fafc}
 .mfg-horizontal-scroll{height:16px;min-height:16px;flex:none;overflow-x:scroll;overflow-y:hidden;box-sizing:border-box}
 .mfg-horizontal-scroll>div{height:1px}
-#manufactureSection .pending :is(th,td):nth-child(5){border-right:1px solid #cbd5e1;box-shadow:4px 0 5px -3px #7891ae}
+#manufactureSection .pending :is(th,td):nth-child(9){border-right:1px solid #cbd5e1;box-shadow:4px 0 5px -3px #7891ae}
 .mfg-horizontal-scroll:focus-visible{outline:2px solid #1769e0;outline-offset:1px}
 
 #manufactureSection .priority{font-size:8px;padding:4px 5px;line-height:1.3}
@@ -234,7 +234,7 @@ body.signed-in .login-view{display:none}
 .permission-matrix{min-width:0!important;table-layout:fixed}.permission-matrix th,.permission-matrix td{min-width:0;white-space:normal;overflow-wrap:anywhere}.permission-matrix th:first-child{width:40%}#userDialog fieldset{min-width:0}.permission-matrix input[type="radio"]{padding:0;margin:0}
 
 #importSection .pending :is(th,td){min-width:0;max-width:none;text-align:left;box-shadow:none}
-#importSection .pending table{width:max-content;min-width:0;table-layout:auto}
+#importSection .pending table{width:1500px;min-width:1500px;table-layout:fixed}
 #importSection .pending td,#importSection .pending th{white-space:nowrap}
 #importSection .pending td:nth-child(n+11){white-space:normal;min-width:110px;max-width:200px;overflow-wrap:anywhere}
 .sync-summary #mfgSyncStatus{font-size:9px;color:#64748b;max-width:300px;text-align:right}
@@ -242,9 +242,9 @@ body.signed-in .login-view{display:none}
 #importSection .pending table{border-collapse:separate;border-spacing:0}
 #importSection .pending :is(th,td){font-size:8.5px;padding:6px 5px;line-height:1.35}
 #importSection .pending :is(th,td):nth-child(4){white-space:normal;min-width:0;max-width:100px;overflow-wrap:anywhere}
-#importSection .pending td:nth-child(-n+5):not([colspan]){position:sticky;left:var(--mfg-left);z-index:2;background:#fff}
-#importSection .pending th:nth-child(-n+5){left:var(--mfg-left);z-index:3;background:#f8fafc}
-#importSection .pending :is(th,td):nth-child(5){box-shadow:3px 0 4px -3px #607d9f}
+#importSection .pending td:nth-child(-n+9):not([colspan]){position:sticky;left:var(--mfg-left);z-index:2;background:#fff}
+#importSection .pending th:nth-child(-n+9){left:var(--mfg-left);z-index:3;background:#f8fafc}
+#importSection .pending :is(th,td):nth-child(9){box-shadow:3px 0 4px -3px #607d9f}
 #importSection .pending tbody tr:hover td{background:#f1f6fd}
 #importSection .pending :is(th,td):nth-child(1){--mfg-left:var(--mfg-pin-1,0px)}
 #importSection .pending :is(th,td):nth-child(2){--mfg-left:var(--mfg-pin-2,0px)}
@@ -262,7 +262,7 @@ body.signed-in .login-view{display:none}
 #importSection .table-scroll::-webkit-scrollbar-track{background:#f8fafc}
 .mfg-horizontal-scroll{height:16px;min-height:16px;flex:none;overflow-x:scroll;overflow-y:hidden;box-sizing:border-box}
 .mfg-horizontal-scroll>div{height:1px}
-#importSection .pending :is(th,td):nth-child(5){border-right:1px solid #cbd5e1;box-shadow:4px 0 5px -3px #7891ae}
+#importSection .pending :is(th,td):nth-child(9){border-right:1px solid #cbd5e1;box-shadow:4px 0 5px -3px #7891ae}
 .mfg-horizontal-scroll:focus-visible{outline:2px solid #1769e0;outline-offset:1px}
 
 #importSection .priority{font-size:8px;padding:4px 5px;line-height:1.3}
