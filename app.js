@@ -31,7 +31,7 @@ function renderDonut(p,d){
   canvas.setAttribute('aria-label',`${d.length} items: Dispatched ${done}, On-going ${d.length-done}`);
   importChart=new Chart(canvas,{type:'doughnut',plugins:[statusDepth('TNO',d.length)],data:{labels:['Dispatched','On-going'].map(UIText.t),datasets:[{data:[done,d.length-done],backgroundColor:['#26a34a','#eeb308'],borderWidth:2,borderColor:'#fff'}]},options:statusChartOptions()});
 }
-function exportCSV(){const rows=currentImport.map(x=>[x["Project"],x["Build"],x["Machine/Equipment name"],x["NBD"],x["BFIH site arrive"],x._gap,x._stage,x._action]);const csv=[["Project","Build","Machine","NBD","BFIH Site Arrive","CP Gap","Stage","Action"],...rows].map(r=>r.map(v=>`"${txt(v).replaceAll('"','""')}"`).join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="SAE_import_export.csv";a.click()}
+function exportCSV(){const rows=currentImport.map(x=>[x["Project"],x["Build"],equipment(x),x["NBD"],x["BFIH site arrive"],x._gap,x._stage,x._action]);const csv=[["Project","Build","Equipment","NBD","BFIH Site Arrive","CP Gap","Stage","Action"],...rows].map(r=>r.map(v=>`"${txt(v).replaceAll('"','""')}"`).join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="SAE_import_export.csv";a.click()}
 function lang(l){UIText.set(l)}
 function isoWeek(date){const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));const day=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-day);const y=new Date(Date.UTC(d.getUTCFullYear(),0,1));return Math.ceil((((d-y)/86400000)+1)/7)}function parse(v){const s=txt(v);if(/^\d{4}-\d{2}-\d{2}$/.test(s)){const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}return null}function date(v){const d=parse(v);return d?`${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`:txt(v)}function has(v){const s=txt(v);return !!s&&s!=="-"&&s.toUpperCase()!=="TBC"}function txt(v){return v==null?"":String(v).trim()}function set(id,v){document.getElementById(id).textContent=v}function pct(n,t){return t?Math.round(n/t*100)+"%":"0%"}function gapcls(v){return v===null?"":v>0?"gap-overdue":v>=-7?"gap-near":"gap-safe"}
 // Use source rows only in memory; preserve active filters during refresh.
@@ -45,9 +45,10 @@ window.loadSaeItems=function(items){
   apply();
 };
 function esc(value){return txt(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function equipment(item){return item.Equipment||item['Machine/Equipment name']}
 function importPendingRow(x){
   return `<tr><td><span class="priority ${x._priority.cls}">${esc(x._priority.text)}</span></td>
-    <td>${esc(x['Project'])}</td><td>${esc(x['Build'])}</td><td>${esc(x['Machine/Equipment name'])}</td>
+    <td>${esc(x['Project'])}</td><td>${esc(x['Build'])}</td><td>${esc(equipment(x))}</td>
     <td>${esc(x['Spec'])}</td>
     <td>${esc(x['Category'])}</td>
     <td>${esc(x['KO QTY'])}</td>

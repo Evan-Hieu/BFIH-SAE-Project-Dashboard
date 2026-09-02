@@ -9,6 +9,13 @@ test('imports all types and rows after blank separators without deduplicating re
   const items=source.mapRows(values);
   assert.equal(items.length,4);assert.deepEqual(items.map(x=>x._sourceRow),[3,5,6,7]);
 });
+test('uses the new column D Equipment short name without colliding with the legacy machine name',()=>{
+  const names=[...header],data=row(1);
+  names.splice(3,0,'Equipment');data.splice(3,0,'Short fixture');
+  const [item]=source.mapRows([names,data]);
+  assert.equal(item.Equipment,'Short fixture');
+  assert.equal(item['Machine/Equipment name'],'Test fixture');
+});
 test('preserves location text and converts numeric dates with their actual year',()=>{
   const r=row(1);r[11]=46233;r[15]='BLES';
   const [item]=source.mapRows([header,r]);

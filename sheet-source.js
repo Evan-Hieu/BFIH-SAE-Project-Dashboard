@@ -2,7 +2,7 @@
 (function (root) {
   const SHEET_ID = '1KHBzyi9vcIiqwzKOGVtJNZXC6rqULJYyyhvO69XoDuE';
   const dateFields = new Set(['KO Date','NBD','Target date','Released','Official PO Target date','Official PO Released','Vendor ETD','Airport ETA','BFIH Actual ETA','CM Released date','VMI ETA plan','VMI ETA','Dispatched date']);
-  const headers = ['S.No','Project','Build','Machine/Equipment name','Spec','Check Duplicate','Category','KO QTY','UOM','Type','KO Date','NBD','Fixture Manufacturer','PIC','Vendor','BFIH site arrive','Dispatch to Customer','PID','FIH PO Number','Target date','Released','Official PO Target date','Official PO Released','Vendor ETD','AWB Bill','Airport ETA','BFIH Actual ETA','CM PO Number','CM Released date','VMI ETA plan','VMI ETA','Dispatched date','Overall status','Remark'];
+  const headers = ['S.No','Project','Build','Equipment','Machine/Equipment name','Spec','Check Duplicate','Category','KO QTY','UOM','Type','KO Date','NBD','Fixture Manufacturer','PIC','Vendor','BFIH site arrive','Dispatch to Customer','PID','FIH PO Number','Target date','Released','Official PO Target date','Official PO Released','Vendor ETD','AWB Bill','Airport ETA','BFIH Actual ETA','CM PO Number','CM Released date','VMI ETA plan','VMI ETA','Dispatched date','Overall status','Remark'];
   const text = value => value == null ? '' : String(value).trim();
   const key = value => text(value).toLowerCase().replace(/\s+/g,' ').trim();
   const aliases = new Map([...headers,'Dispatched Qty','Pending qty'].map(name=>[key(name),name]));
@@ -10,7 +10,6 @@
   aliases.set('po release taget date','Target date');
   aliases.set('official po taget date','Official PO Target date');
   aliases.set('phase','Build');
-  aliases.set('equipment','Machine/Equipment name');
   aliases.set('delivered','Dispatched Qty');
   aliases.set('pending','Pending qty');
   aliases.set('status','Overall status');
@@ -40,6 +39,9 @@
         const value=row[columns.get(header)];
         item[header]=dateFields.has(header)?dateValue(value):text(value);
       });
+      // Prefer the short name in the new column D, with backward compatibility
+      // for older source layouts that only contain Machine/Equipment name.
+      item.Equipment=item.Equipment||item['Machine/Equipment name'];
       return [item];
     });
   }
