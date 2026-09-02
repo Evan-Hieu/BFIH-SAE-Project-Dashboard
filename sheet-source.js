@@ -39,9 +39,6 @@
         const value=row[columns.get(header)];
         item[header]=dateFields.has(header)?dateValue(value):text(value);
       });
-      // Prefer the short name in the new column D, with backward compatibility
-      // for older source layouts that only contain Machine/Equipment name.
-      item.Equipment=item.Equipment||item['Machine/Equipment name'];
       return [item];
     });
   }

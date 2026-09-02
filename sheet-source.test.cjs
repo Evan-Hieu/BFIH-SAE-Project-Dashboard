@@ -16,6 +16,13 @@ test('uses the new column D Equipment short name without colliding with the lega
   assert.equal(item.Equipment,'Short fixture');
   assert.equal(item['Machine/Equipment name'],'Test fixture');
 });
+test('does not substitute the legacy column E name when column D Equipment is blank',()=>{
+  const names=[...header],data=row(1);
+  names.splice(3,0,'Equipment');data.splice(3,0,'');
+  const [item]=source.mapRows([names,data]);
+  assert.equal(item.Equipment,'');
+  assert.equal(item['Machine/Equipment name'],'Test fixture');
+});
 test('preserves location text and converts numeric dates with their actual year',()=>{
   const r=row(1);r[11]=46233;r[15]='BLES';
   const [item]=source.mapRows([header,r]);

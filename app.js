@@ -45,7 +45,7 @@ window.loadSaeItems=function(items){
   apply();
 };
 function esc(value){return txt(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function equipment(item){return item.Equipment||item['Machine/Equipment name']}
+function equipment(item){return item.Equipment}
 function importPendingRow(x){
   return `<tr><td><span class="priority ${x._priority.cls}">${esc(x._priority.text)}</span></td>
     <td>${esc(x['Project'])}</td><td>${esc(x['Build'])}</td><td>${esc(equipment(x))}</td>
