@@ -11,7 +11,7 @@ function harness(){
  }};
  const context={WebAuth:auth,document:{getElementById:get,createElement:element,addEventListener:(n,f)=>(listeners[n]??=[]).push(f),dispatchEvent:e=>(listeners[e.type]||[]).forEach(f=>f()),body:{classList:{contains:()=>true}}},Event,
  SaeSource:{SHEET_ID:'tno',mapRows:x=>x},ManufactureSource:{SHEET_ID:'mfg',mapRows:x=>x},loadSaeItems:x=>loaded.tno=x,loadManufactureItems:x=>loaded.mfg=x,
- SheetEditor:{reset(){}},UIText:{t:x=>x},setInterval:(fn,ms)=>{assert.equal(ms,60000);poll=fn;return 1;},clearInterval(){},fetch(){throw Error('No Google OAuth or direct requests should be needed');}};
+ SheetEditor:{reset(){}},UIText:{t:x=>x},setInterval:(fn,ms)=>{assert.equal(ms,10000);poll=fn;return 1;},clearInterval(){},fetch(){throw Error('No Google OAuth or direct requests should be needed');}};
  context.window=context;vm.runInNewContext(fs.readFileSync('sheets-sync.js','utf8'),context);
  return {context,auth,loaded,calls,get,poll:()=>poll(),hold:()=>hold=true,release:()=>release()};
 }

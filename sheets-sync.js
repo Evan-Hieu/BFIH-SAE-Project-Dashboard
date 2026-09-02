@@ -3,6 +3,7 @@
   const editScope='https://www.googleapis.com/auth/spreadsheets';
   const metadataScope='https://www.googleapis.com/auth/drive.metadata.readonly';
   const identityScope='https://www.googleapis.com/auth/userinfo.email';
+  const refreshInterval=10000;
   let session=null,rights=new Map(),timer=null,epoch=0,authBusy=false,refreshBusy=false;
   let sharedRefresh=null;
   const sharedMode=()=>!!window.WebAuth?.accountOnly;
@@ -94,6 +95,12 @@
     }));}finally{if(refreshBusy===s)refreshBusy=false;}
   }
   function clear(){epoch++;session=null;sharedRefresh=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}
+  function startRefreshTimer(refreshNow){clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)refreshNow();},refreshInterval);}
+  function refreshWhenVisible(){
+    if(document.hidden)return;
+    if(sharedMode()){if(WebAuth.user)refreshShared();}
+    else if(valid())refresh();
+  }
   async function connect(choose=false){
     if(authBusy)return;
     if(!document.body.classList.contains('signed-in')){status('Sign in to the website first.');return;}
@@ -102,7 +109,7 @@
       status('Connecting Google account…');
       if(!valid())await authorize(false,choose);
       document.dispatchEvent(new Event('googleconnected'));
-      await refresh();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)refresh();},60000);
+      await refresh();startRefreshTimer(refresh);
     }catch(e){status(e.message);const el=document.getElementById('googleLoginMessage');if(el)el.textContent=e.message;}
   }
   window.SheetConnection={
@@ -135,9 +142,10 @@
     if(!sharedMode())return;
     clear();if(!WebAuth.user)return;
     status('Loading shared status…');refreshShared();
-    timer=setInterval(()=>{if(!document.hidden)refreshShared();},60000);
+    startRefreshTimer(refreshShared);
   }
   document.addEventListener('webauthchange',autoLoad);
+  document.addEventListener('visibilitychange',refreshWhenVisible);
   WebAuth.ready?.then(autoLoad);
   document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('googleSheetLink').onclick=e=>{e.preventDefault();connect();};
