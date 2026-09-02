@@ -168,7 +168,7 @@ body.signed-in .login-view{display:none}
 .signed-user{display:inline-block;background:#1769e0;border-radius:12px;color:white;padding:2px 7px;font-size:9px;margin-top:4px}
 @media(max-width:1100px){.brand{position:relative}.brand .signed-user{display:block;position:absolute;bottom:0;left:20px;font-size:8px;margin:0;padding:1px 5px}.brand>div:last-child{display:block}.brand-title{display:none}.brand{gap:0}}
 @media(max-width:480px){.login-view{padding:14px}.login-card{padding:22px}.login-brand h1{font-size:24px}}
-#manufactureSection .pending table{width:max-content;min-width:100%;table-layout:auto}
+#manufactureSection .pending table{width:max-content;min-width:0;table-layout:auto}
 #manufactureSection .pending td,#manufactureSection .pending th{white-space:nowrap}
 #manufactureSection .pending td:nth-child(n+11){white-space:normal;min-width:110px;max-width:200px;overflow-wrap:anywhere}
 .sync-summary #mfgSyncStatus{font-size:9px;color:#64748b;max-width:300px;text-align:right}
@@ -235,7 +235,7 @@ body.signed-in .login-view{display:none}
 .permission-matrix{min-width:0!important;table-layout:fixed}.permission-matrix th,.permission-matrix td{min-width:0;white-space:normal;overflow-wrap:anywhere}.permission-matrix th:first-child{width:40%}#userDialog fieldset{min-width:0}.permission-matrix input[type="radio"]{padding:0;margin:0}
 
 #importSection .pending :is(th,td){min-width:0;max-width:none;text-align:left;box-shadow:none}
-#importSection .pending table{width:max-content;min-width:100%;table-layout:auto}
+#importSection .pending table{width:max-content;min-width:0;table-layout:auto}
 #importSection .pending td,#importSection .pending th{white-space:nowrap}
 #importSection .pending td:nth-child(n+11){white-space:normal;min-width:110px;max-width:200px;overflow-wrap:anywhere}
 .sync-summary #mfgSyncStatus{font-size:9px;color:#64748b;max-width:300px;text-align:right}
@@ -290,7 +290,7 @@ body.signed-in .login-view{display:none}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(1){--detail-width:72px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(2){--detail-width:58px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(3){--detail-width:42px}
-:is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(4){--detail-width:94px}
+:is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(4){--detail-width:72px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(5){--detail-width:114px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(6){--detail-width:40px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(7){--detail-width:32px}
