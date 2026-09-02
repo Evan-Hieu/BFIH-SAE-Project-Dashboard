@@ -3,7 +3,7 @@
   const editScope='https://www.googleapis.com/auth/spreadsheets';
   const metadataScope='https://www.googleapis.com/auth/drive.metadata.readonly';
   const identityScope='https://www.googleapis.com/auth/userinfo.email';
-  const refreshInterval=10000;
+  const refreshInterval=60000;
   let session=null,rights=new Map(),timer=null,epoch=0,authBusy=false,refreshBusy=false;
   let sharedRefresh=null;
   const sharedMode=()=>!!window.WebAuth?.accountOnly;
@@ -25,7 +25,7 @@
         const data=await readShared(source.id);
         source.load(source.parse(data.values));
         document.getElementById(source.status).textContent=source.name+' · Synced '+new Date(data.syncedAt).toLocaleTimeString();
-      }catch(e){if(version!==epoch)return;source.load([]);document.getElementById(source.status).textContent=e.message;}
+      }catch(e){if(version!==epoch)return;document.getElementById(source.status).textContent=e.message+' · retrying automatically';}
     }}finally{if(sharedRefresh===marker)sharedRefresh=null;}
   }
   const sources=()=>[
@@ -91,7 +91,7 @@
       try{
         const payload=await request('https://sheets.googleapis.com/v4/spreadsheets/'+source.id+'/values/'+encodeURIComponent(source.range)+'?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER',s);
         source.load(source.parse(payload.values));document.getElementById(source.status).textContent=`${source.name} · Synced ${new Date().toLocaleTimeString()}`;
-      }catch(e){if(s!==session)return;source.load([]);document.getElementById(source.status).textContent=e.message;}
+      }catch(e){if(s!==session)return;document.getElementById(source.status).textContent=e.message+' · retrying automatically';}
     }));}finally{if(refreshBusy===s)refreshBusy=false;}
   }
   function clear(){epoch++;session=null;sharedRefresh=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}

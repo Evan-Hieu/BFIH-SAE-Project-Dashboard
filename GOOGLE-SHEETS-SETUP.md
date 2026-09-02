@@ -10,7 +10,7 @@ The dashboard reads SAE A2:AZ directly through Google Sheets API with the viewer
 4. Put its public client ID (ending in `.apps.googleusercontent.com`) in `google-config.js`. Do not provide a client secret.
 5. Deploy, click Google Sheet in the sidebar, and sign in with an account that can read the source spreadsheet.
 
-The app requests spreadsheets.readonly. This scope is not limited to one spreadsheet by Google; the application only requests the configured SAE range. Review that scope before consenting. Sheet sharing permissions remain unchanged. No real rows or tokens are saved to Git, localStorage, or a server. Before sign-in, the dashboard shows an explicit not-connected state without loading sample data. Sync refreshes every 10 seconds while the page is visible, immediately when the page becomes visible again, and on clicking Google Sheet. When the access token expires, user interaction is required to reconnect; this frontend has no persistent refresh token.
+The app requests spreadsheets.readonly. This scope is not limited to one spreadsheet by Google; the application only requests the configured SAE range. Review that scope before consenting. Sheet sharing permissions remain unchanged. No real rows or tokens are saved to Git, localStorage, or a server. Before sign-in, the dashboard shows an explicit not-connected state without loading sample data. Sync refreshes every minute while the page is visible, immediately when the page becomes visible again, and on clicking Google Sheet. A transient refresh failure preserves the last verified data and retries automatically. When the access token expires, user interaction is required to reconnect; this frontend has no persistent refresh token.
 
 ## Verification required before release
 
