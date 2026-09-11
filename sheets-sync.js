@@ -30,7 +30,7 @@
   }
   const sources=()=>[
     {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'TNO'},
-    {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CN",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
+    {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CP",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
   ];
   const valid=()=>session&&Date.now()<session.expiresAt;
   const status=message=>['syncStatus','mfgSyncStatus','googleAccessMessage'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=message;});

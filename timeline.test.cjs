@@ -25,3 +25,40 @@ progress=matrix({'MFG status':'Not dispatched','ETD TN (Plan) site 2 Status':'20
 progress=matrix({'Health Check up':'Not Started','Mechanical assembly':'Completed','Electrical assembly':'Delayed','SOP prepare':'N/A'});assert.equal(progress[0].state,'not-started');assert.equal(progress[13].state,'done');assert.equal(progress[14].state,'delayed');assert.equal(progress[4].state,'na');
 progress=matrix({'Electrical assembly':'Delayed 50%'});assert.equal(progress[14].state,'delayed');assert.equal(progress[14].text,'! 50%');
 console.log('PASS 18-stage matrix, percentages, composite stages, missing data, and dispatch isolation.');
+
+const {timelineStages,timeline}=require('./manufacture-source.js');
+const expectedColumns=['X','Z','AB','AE','AH','AJ','AQ','AT','AW','AX','AZ','BH','BK','BN','BP','BQ','BR','CC','CE','CH','CJ','CM','CN','CP'];
+assert.deepEqual(timelineStages.map(s=>s.column),expectedColumns);
+assert.deepEqual(timelineStages.filter(s=>s.colorColumn).map(s=>[s.column,s.colorColumn]),[['X','Y'],['Z','AA'],['AE','AF'],['AH','AI'],['AJ','AK']]);
+const positional=Array(94).fill('');
+const at=column=>[...column].reduce((n,c)=>n*26+c.charCodeAt(0)-64,0)-1;
+expectedColumns.forEach(column=>positional[at(column)]=`value-${column}`);
+assert.deepEqual(timeline(positional).map(c=>c.text),expectedColumns.map(c=>`value-${c}`));
+Object.entries({X:46251,Y:'Done',AA:'Delayed',AF:'In progress',AI:'Not Started',AK:'N/A',AT:2,AZ:3,BN:5,AX:46251,CP:46251}).forEach(([c,v])=>positional[at(c)]=v);
+let mapped=timeline(positional);
+assert.equal(mapped[0].text,'2026-08-17');
+assert.equal(mapped[23].text,'2026-08-17');
+assert.deepEqual([0,1,3,4,5].map(i=>mapped[i].state),['done','delayed','progress','not-started','na']);
+assert.deepEqual(mapped.flatMap((c,i)=>c.redPositive?[i]:[]),[7,10]);
+assert.equal(mapped[10].text,'3');
+assert.equal(mapped[2].state,'unknown');
+for(const value of [0,-1,'','N/A']){
+  positional[at('AT')]=value;positional[at('AZ')]=value;
+  assert.equal(timeline(positional).some(c=>c.redPositive),false);
+}
+assert.equal(timeline([]).length,24);
+assert(timeline([]).every(c=>c.text==='—'&&c.state==='unknown'));
+// Render the actual browser script with a minimal DOM to verify data reaches cells.
+const fs=require('node:fs'),vm=require('node:vm');
+const nodes=Object.fromEntries(['timelineMessage','timelineMatrixBody','timelineSearch','timelineProject','timelineStatus','timelineMatrixHead'].map(id=>[id,{value:'',options:[{value:''}],addEventListener(){},replaceChildren(){this.innerHTML='';}}]));
+const context={document:{getElementById:id=>nodes[id],addEventListener(){}},window:{},ManufactureSource:{timelineStages},SaeSource:{dispatched:()=>false},esc:v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
+vm.runInNewContext(fs.readFileSync('timeline.js','utf8'),context);
+context.window.InhouseTimeline.update([{Project:'Test',Equipment:'<unsafe>',_sourceRow:3,_timeline:mapped}]);
+assert.equal((nodes.timelineMatrixBody.innerHTML.match(/class="matrix-cell /g)||[]).length,24);
+assert(nodes.timelineMatrixBody.innerHTML.includes('matrix-positive'));
+assert(nodes.timelineMatrixBody.innerHTML.includes('CP3'));
+assert(nodes.timelineMatrixBody.innerHTML.includes('&lt;unsafe&gt;'));
+assert(nodes.timelineMessage.textContent.includes('24 stages'));
+context.window.InhouseTimeline.update([]);
+assert(nodes.timelineMatrixBody.innerHTML.includes('colspan="27"'));
+console.log('PASS 24 timeline source coordinates, status references, dates, red quantities and rendering.');

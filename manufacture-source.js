@@ -41,6 +41,7 @@
       ['KO Date','CM NBD','ACT ETD'].forEach(k=>item[k]=date(get(k)));
       item.NBD=item['CM NBD'];
       item._production=production(values[0],r);
+      item._timeline=timeline(r);
       item.Condition=text(get('Condition'));
       item['Overall status']=/dispatched/i.test(item['MFG status'])?'Dispatched':item['MFG status']||item['Material Status']||'No Status';
       return [item];
@@ -107,6 +108,42 @@
     ];
     return stages.map((stage,i)=>{const direct=get(stage.label);return text(direct)&&i!==17?cell(status(direct),[stage.label],'Explicit stage status from the source.'):fallback[i]();});
   }
-  const api={SHEET_ID:'1VXRGCvQp37ppTEpMCmt_sSklmzbH3f2vSH7jkASehDU',mapRows,stages};
+  // Timeline coordinates are authoritative, including the duplicate OS/SM ETA label.
+  const timelineStages=[
+    ['Health Check up','X','Y','design','date'],
+    ['BOM & Drawing released','Z','AA','design','date'],
+    ['ME/EE 2D/3D verify','AB','','design','date'],
+    ['CNC NPI Routing date','AE','AF','design','date'],
+    ['STD/RM Start RFQ','AH','AI','material','date'],
+    ['CNC OS/SM RFQ date','AJ','AK','material','date'],
+    ['STD total Qty','AQ','','material'],
+    ['STD Pending qty','AT','','material','',true],
+    ['CNC OS/SM total Qty','AW','','material'],
+    ['OS/SM ETA','AX','','material','date'],
+    ['OS/SM ETA','AZ','','material','',true],
+    ['CNC Inhose qty','BH','','manufacture'],
+    ['CNC Target date','BK','','manufacture','date'],
+    ['CNC pending qty','BN','','manufacture'],
+    ['COGS','BP','','system'],
+    ['2nd process Qty','BQ','','manufacture'],
+    ['2nd process ETA','BR','','manufacture','date'],
+    ['Assembly Start plan','CC','','assembly','date'],
+    ['Assembly end plan','CE','','assembly','date'],
+    ['Debuging Start plan','CH','','quality','date'],
+    ['Debuging end plan','CJ','','quality','date'],
+    ['OQC & Dryrun /','CM','','quality','date'],
+    ['Packing','CN','','quality'],
+    ['ETD','CP','','shipment','date']
+  ].map(([label,column,colorColumn,group,format,redPositive=false])=>({label,column,colorColumn,group,format,redPositive}));
+  const columnIndex=column=>[...column].reduce((n,c)=>n*26+c.charCodeAt(0)-64,0)-1;
+  function timeline(row){
+    return timelineStages.map(stage=>{
+      const raw=row[columnIndex(stage.column)],reference=stage.colorColumn?text(row[columnIndex(stage.colorColumn)]):'';
+      const display=stage.format==='date'?date(raw)||text(raw):text(raw);
+      return {text:display||'—',state:reference?status(reference).state:'unknown',reference,
+        redPositive:stage.redPositive&&text(raw)!==''&&Number.isFinite(Number(raw))&&Number(raw)>0};
+    });
+  }
+  const api={SHEET_ID:'1VXRGCvQp37ppTEpMCmt_sSklmzbH3f2vSH7jkASehDU',mapRows,stages,timelineStages,timeline};
   if(typeof module!=='undefined')module.exports=api;else root.ManufactureSource=api;
 })(typeof window!=='undefined'?window:globalThis);
