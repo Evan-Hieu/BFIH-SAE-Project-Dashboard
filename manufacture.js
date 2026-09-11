@@ -7,8 +7,9 @@ window.loadManufactureItems=function(items){
   mfgLoaded=true;apply();
 };
 function manufacturePendingRow(x){
-  const fields=['Project','Phase','Equipment','Spec','Type','KO QTY','KO Date','CM NBD','CM Site','MFG status','Material Status','STD Status','RM Status','CNC OS STATUS','RD Drawing Status','ACT ETD','Remark'];
-  return `<tr><td><span class="priority ${x._priority.cls}">${esc(x._priority.text)}</span></td>${fields.map(k=>`<td>${esc(['KO Date','CM NBD','ACT ETD'].includes(k)?date(x[k]):x[k])}</td>`).join('')}</tr>`;
+  const fields=['Project','Phase','Equipment','Spec','Type','KO QTY','KO Date','CM NBD','CM Site','MFG status','OS/SM Status','STD Status','RM Status','CNC Status','RD Drawing Status','ACT ETD','Remark'];
+  const details=(x._details||[]).map(d=>`<div><dt>${esc(d.column)} · ${esc(d.label)}</dt><dd>${esc(d.value)}</dd></div>`).join('');
+  return `<tr><td><span class="priority ${x._priority.cls}">${esc(x._priority.text)}</span></td>${fields.map(k=>`<td>${esc(['KO Date','CM NBD','ACT ETD'].includes(k)?date(x[k]):x[k])}</td>`).join('')}<td>${details?`<details class="mfg-source-details"><summary>R:CM · ${x._details.length} fields</summary><dl>${details}</dl></details>`:'—'}</td></tr>`;
 }
 function pinManufactureColumns(section='manufactureSection'){
   const table=document.querySelector('#'+section+' .pending table');

@@ -305,3 +305,11 @@ body.signed-in .login-view{display:none}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(16){--detail-width:60px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(17){--detail-width:190px}
 :is(#importSection,#manufactureSection) .pending :is(th,td):nth-child(18){--detail-width:220px}
+/* Inhouse source summaries retain line breaks and stage-specific source notes. */
+#manufactureSection .pending td:nth-child(n+11){white-space:pre-line}
+#manufactureSection .pending :is(th,td):nth-child(19){--detail-width:320px}
+.mfg-source-details summary{cursor:pointer;color:#155eab;font-weight:600}
+.mfg-source-details dl{margin:8px 0;white-space:normal}
+.mfg-source-details dl div{padding:6px 0;border-bottom:1px solid #e2e8f0}
+.mfg-source-details dt{font-weight:600;font-size:11px;color:#475569}
+.mfg-source-details dd{margin:3px 0 0;white-space:pre-line;overflow-wrap:anywhere}

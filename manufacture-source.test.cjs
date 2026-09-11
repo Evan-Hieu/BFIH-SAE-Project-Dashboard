@@ -16,4 +16,15 @@ for(const status of ['Dispatched','dispatched','DISPATCHED','Completed - Dispatc
 const pending=first.slice();pending[9]='Assembly ongoing';
 assert.equal(mapRows([headers,pending])[0]['Overall status'],'Assembly ongoing');
 assert.throws(()=>mapRows([['Project']]),/columns missing/);
+const updated=headers.filter(h=>h!=='Material Status').concat(['Remark','STD total Qty\nDRI: Test','STD Pending qty','OS/SM Pending qty\nDRI: Test','RM Status','CNC pending qty\nDRI: Test','Remark','Debug Start\n(Plan)\nDRI: Test','Debug Start\n(Plan)\nDRI: Test']);
+const revised=updated.map(h=>({Project:'TEST',Phase:'EVT',Type:'NB',Equipment:'Test',Spec:'TEST-002','KO QTY':4,'CM NBD':46300,'MFG status':'CNC ongoing','STD total Qty\nDRI: Test':8,'STD Pending qty':0,'OS/SM Pending qty\nDRI: Test':3,'RM Status':1,'CNC pending qty\nDRI: Test':2}[h]??''));
+revised[updated.indexOf('Remark')]='General note';revised[updated.lastIndexOf('Remark')]='Stage note';revised[revised.length-2]=46290;revised[revised.length-1]=46291;
+const mapped=mapRows([updated,revised])[0];
+assert.equal(mapped.Remark,'General note');
+assert.match(mapped['STD Status'],/Pending: 0/);
+assert.match(mapped['OS/SM Status'],/Pending: 3/);
+assert.match(mapped['RM Status'],/100%/);
+assert.match(mapped['CNC Status'],/Pending: 2/);
+const debug=mapped._details.filter(d=>d.label.startsWith('Debug'));
+assert.equal(debug.length,2);assert.notEqual(debug[0].column,debug[1].column);assert.notEqual(debug[0].value,debug[1].value);
 console.log('Manufacture equipment and completion checks passed');
