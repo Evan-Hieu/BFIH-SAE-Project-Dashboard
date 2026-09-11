@@ -40,27 +40,73 @@
       });
       ['KO Date','CM NBD','ACT ETD'].forEach(k=>item[k]=date(get(k)));
       item.NBD=item['CM NBD'];
-      const milestone=(label,field,kind='plan')=>({label,[kind+'End']:date(get(field))});
-      const period=(label,start,end)=>({label,planStart:date(get(start+' (Plan)')),planEnd:date(get(end+' (Plan)')),actualStart:date(get(start+' (Act.)')),actualEnd:date(get(end+' (Act.)'))});
-      item._timeline=[
-        milestone('Kick-off','KO Date','actual'),
-        milestone('Customer drawing released','Latest CM Drawing Released Date','actual'),
-        milestone('RD drawing complete','RD Drawing Complete Date','actual'),
-        {label:'SAP upload',planEnd:date(get('SAP Upload status PLAN')),actualEnd:date(get('SAP Upload status Actual'))},
-        milestone('Routing released','Routing file Released date','actual'),
-        milestone('STD arrival','STD ETA'),milestone('OS/SM arrival','OS/SM ETA'),milestone('Raw material arrival','CNC RM ETA'),
-        period('CNC','CNC Start Status','CNC End Status'),
-        milestone('Second process','2nd process ETA'),milestone('Supplier kick-off','KO to Supplier Date','actual'),
-        milestone('Supplier dispatch','FG Supplier ETD'),
-        {label:'TN Site 2 arrival',planEnd:date(get('ETA TN Site2'))},
-        period('Assembly','Assembly Start','Assembly End'),
-        {label:'Dispatch',planEnd:date(get('ETD TN (Plan) site 2 Status')),actualEnd:date(get('ACT ETD'))},
-        milestone('Customer need-by','CM NBD')
-      ];
+      item._production=production(values[0],r);
+      item.Condition=text(get('Condition'));
       item['Overall status']=/dispatched/i.test(item['MFG status'])?'Dispatched':item['MFG status']||item['Material Status']||'No Status';
       return [item];
     });
   }
-  const api={SHEET_ID:'1VXRGCvQp37ppTEpMCmt_sSklmzbH3f2vSH7jkASehDU',mapRows};
+  const stages=[
+    ['Health Check up','design'],['STD BOM * RM release','design'],['ME/EE design docs release','design'],['ME routing file, 2D/3D drawing verification,','design'],['SOP prepare','design'],['CNC Routing','design'],
+    ['STD &RM Materials confirm avl/Procurment','material'],['CNC parts & Sheet metal Procurement','material'],['STD RFQ & Procurement','material'],
+    ['CNC CAD/CAM & manufacture','manufacture'],['2nd process & TPU / Insert mold','manufacture'],['SAP Maintain & PN & BOM status','system'],['COGS & WO','system'],
+    ['Mechanical assembly','assembly'],['Electrical assembly','assembly'],['Debugging TNES','quality'],['OQC & Dryrun / Packing','quality'],['ETD','shipment']
+  ].map(([label,group],index)=>({label,group,index}));
+  function status(value){
+    const s=text(value),k=key(s);
+    if(!s)return {state:'unknown',text:'—'};
+    if(/^(n\/?a|not required|not applicable)$/i.test(s))return {state:'na',text:'N/A'};
+    if(/^(not started|not yet started|未開始|未开始|-)$/i.test(s))return {state:'not-started',text:'–'};
+    const pct=s.match(/(?:^|\s)(\d+(?:\.\d+)?)\s*%/);
+    if(pct&&+pct[1]<=100){const delayed=/\b(delayed|overdue|late)\b/i.test(s)&&!/^not\b/i.test(s);return {state:delayed?'delayed':+pct[1]===100?'done':'progress',text:delayed?`! ${+pct[1]}%`:+pct[1]===100?'✓':`${+pct[1]}%`};}
+    if(/^(done|completed?|released|finished|passed|dispatched|✓|100%)$/i.test(s))return {state:'done',text:'✓'};
+    if(/\b(delayed|overdue|late)\b/i.test(s)&&!/^not\b/i.test(s))return {state:'delayed',text:'!'};
+    if(/ongoing|in progress|shortage|pending|confirming|out\s*source/i.test(k))return {state:'progress',text:'…'};
+    return {state:'info',text:'Info'};
+  }
+  function production(headers,row){
+    const cells=names=>headers.flatMap((h,i)=>{
+      if(!names.some(n=>key(n)===key(h))||!text(row[i]))return [];
+      const isDate=/date|eta|etd|released|assembly (start|end)|debug start|cnc (start|end) status|sap upload status|npi routing/.test(key(h));
+      const value=key(h)==='rm status'&&typeof row[i]==='number'?`${Math.round(row[i]*100)}%`:isDate?date(row[i])||text(row[i]):text(row[i]);
+      return [{column:columnName(i),label:text(h).replace(/\s+/g,' '),value}];
+    });
+    const get=name=>row[headers.findIndex(h=>key(h)===key(name))];
+    const num=v=>text(v)!==''&&Number.isFinite(Number(v))?Number(v):null;
+    const cell=(result,names,note='')=>({...result,evidence:cells(names),note});
+    const info=(names,note)=>cell({state:cells(names).length?'info':'unknown',text:cells(names).length?'Info':'—'},names,note);
+    const partial=(name,prefix,names,note)=>{const v=get(name);return text(v)?cell({state:'partial',text:prefix+' '+status(v).text},names,note):info(names,note);};
+    function quantity(totalName,arrivedName,pendingName,etaName){
+      const total=num(get(totalName)),arrived=num(get(arrivedName)),pending=num(get(pendingName));
+      const names=[totalName,arrivedName,pendingName,etaName];
+      if(total===null||total<=0||arrived===null&&pending===null)return info(names,'A percentage needs a positive total and arrived/available or pending quantity.');
+      const have=arrived===null?total-pending:arrived;
+      if(have<0||have>total||pending!==null&&(pending<0||pending>total||arrived!==null&&Math.abs(arrived+pending-total)>0.001))return cell({state:'info',text:'Check'},names,'Source quantities are inconsistent; no percentage is inferred.');
+      const pct=have===total?100:Math.min(99,Math.round(have/total*100));
+      return cell({state:pct===100?'done':'progress',text:pct===100?'✓':pct+'%'},names,`${have} / ${total} arrived or available (${pct}%). This measures material availability, not RFQ approval. ETA alone does not prove arrival.`);
+    }
+    const fallback=[
+      ()=>info([],'No Health Check up status column in the source.'),
+      ()=>info(['Quotation BOM'],'Quotation BOM alone does not confirm STD BOM and RM release.'),
+      ()=>partial('RD Drawing Status','RD',['RD Drawing Status','RD Drawing Complete Date','Customer Drawing Status','Latest CM Drawing Released Date'],'RD status only. Separate ME/EE release is not confirmed.'),
+      ()=>info(['Routing file Released date','Customer Drawing Status','CM Drawing Remark','CM Drawing Version'],'Routing release and drawing status are shown as evidence; 2D/3D verification is not separately confirmed.'),
+      ()=>info([],'No SOP preparation status column in the source.'),
+      ()=>info(['NPI Routing','Routing file Released date'],'Source routing dates are available; confirmation that they represent CNC Routing is needed.'),
+      ()=>info(['STD total Qty','STD Avl/Avd qty','STD Pending qty','RM total Qty','CNC RM Arrived qty','CNC RM Pending qty','RM Status'],'STD and RM availability are separate in the source; no combined completion is inferred.'),
+      ()=>quantity('OS/SM total Qty','OS/SM Arrived qty','OS/SM Pending qty','OS/SM ETA'),
+      ()=>quantity('STD total Qty','STD Avl/Avd qty','STD Pending qty','STD ETA'),
+      ()=>{const names=['MFG status','CNC Inhose qty','CNC complete qty','CNC pending qty','CNC Start Status (Plan)','CNC Start Status (Act.)','CNC End Status (Plan)','CNC End Status (Act.)'];const s=text(get('MFG status'));if(/cnc/i.test(s))return cell(status(s),names,'CNC progress from the source MFG status. A scheduled end date alone does not prove completion.');if(date(get('CNC End Status (Act.)')))return cell({state:'done',text:'✓'},names,'CNC actual end date is recorded.');return info(names,'CNC progress is not stated. Zero in-house quantity does not mean outsourced CNC is complete.');},
+      ()=>info(['2nd process Qty','2nd process ETA'],'Quantity and ETA only; TPU / insert mold completion is not confirmed.'),
+      ()=>{const names=['SAP PN','SAP Upload status PLAN','SAP Upload status Actual','Quotation BOM'];return date(get('SAP Upload status Actual'))?cell({state:'partial',text:'SAP ✓'},names,'SAP upload actual date is recorded; PN and BOM maintenance completion is not confirmed.'):info(names,'SAP / PN / BOM completion is not fully confirmed.');},
+      ()=>partial('COGS Status','COGS',['COGS Status','Dismantling WO'],'COGS status only. Dismantling WO is not assumed to be the production WO.'),
+      ()=>info(['Assembly Start (Plan)','Assembly Start (Act.)','Assembly End (Plan)','Assembly End (Act.)'],'The source has shared Assembly columns; Mechanical assembly is not separately identified.'),
+      ()=>info([],'The source has shared Assembly columns; Electrical assembly is not separately identified.'),
+      ()=>info(['Debug Start (Plan)'],'The four Debug headers are identical. Start/end and plan/actual are not assigned automatically.'),
+      ()=>partial('Packaging 打包裝箱','Pack',['Packaging 打包裝箱'],'Packaging status only; OQC and Dryrun are not separately confirmed.'),
+      ()=>{const names=['MFG status','Align with Customer ETD','ETD TN (Plan) site 2 Status','ACT ETD'];const actual=date(get('ACT ETD')),planned=date(get('ETD TN (Plan) site 2 Status'))||date(get('Align with Customer ETD'));if(actual||/^dispatched$|^completed\s*-\s*dispatched/i.test(text(get('MFG status'))))return cell({state:'done',text:'✓',date:actual},names,'Dispatch is confirmed by actual ETD or explicit dispatched status.');return cell({state:planned?'planned':'unknown',text:planned?planned.slice(5).replace('-','/'):'—'},names,'Planned ETD is a date, not a completion status.');}
+    ];
+    return stages.map((stage,i)=>{const direct=get(stage.label);return text(direct)&&i!==17?cell(status(direct),[stage.label],'Explicit stage status from the source.'):fallback[i]();});
+  }
+  const api={SHEET_ID:'1VXRGCvQp37ppTEpMCmt_sSklmzbH3f2vSH7jkASehDU',mapRows,stages};
   if(typeof module!=='undefined')module.exports=api;else root.ManufactureSource=api;
 })(typeof window!=='undefined'?window:globalThis);
