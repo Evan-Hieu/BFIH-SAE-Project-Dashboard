@@ -68,7 +68,7 @@
   // Capture navigation before the dashboard's existing section-scroll handler.
   document.querySelector('.nav').addEventListener('click',event=>{
     const link=event.target.closest('[data-page]');if(!link)return;
-    const page=link.dataset.page;if(!['calendar','users','dashboard','import','manufacture'].includes(page))return;
+    const page=link.dataset.page;if(!['calendar','users','dashboard','import','manufacture','timeline'].includes(page))return;
     event.preventDefault();event.stopImmediatePropagation();
     if(!window.SheetEditor.canLeave())return;
     $('saeNavTitle').setAttribute('aria-expanded','false');
@@ -78,8 +78,10 @@
     $('sheetEditorView').hidden=!sheetPage;
     $('calendarView').hidden=page!=='calendar';
     $('usersView').hidden=page!=='users';
+    $('timelineView').hidden=page!=='timeline';
     document.querySelectorAll('.nav-link').forEach(el=>el.classList.toggle('active',el===link));
     if(page==='calendar')render();
+    else if(page==='timeline')window.InhouseTimeline.render();
     else if(sheetPage)window.SheetEditor.open(page);
   },true);
 })();

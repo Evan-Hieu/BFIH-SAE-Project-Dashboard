@@ -31,6 +31,7 @@ export async function createApp({dbPath=':memory:',origin,adminPassword,adminEma
  async function body(req){if(!String(req.headers['content-type']||'').startsWith('application/json'))throw fault(415,'JSON required.');let bytes=0,chunks=[];for await(const chunk of req){bytes+=chunk.length;if(bytes>256000)throw fault(413,'Request too large.');chunks.push(chunk);}try{return JSON.parse(Buffer.concat(chunks).toString());}catch{throw fault(400,'Invalid JSON.');}}
  async function google(url,token,options={}){const r=await fetchGoogle(url,{...options,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},signal:AbortSignal.timeout(20000)});if(!r.ok)throw fault(r.status===401?401:403,'Google denied access. Check account, file sharing, API setup or protected ranges.');return r.json();}
  const safeFiles=new Set(['index.html','style.css','app.js','auth.js','i18n.js','users.js','login.js','calendar.js','sheet-editor.js','sheets-sync.js','sheet-source.js','manufacture-source.js','manufacture.js','google-config.js','assets/sae-icon.png']);
+ safeFiles.add('timeline.js');
  const server=http.createServer(async(req,res)=>{try{
   if(req.headers.host!==site.host)throw fault(400,'Invalid host.');
   const url=new URL(req.url,origin),path=url.pathname;

@@ -5,6 +5,7 @@ window.loadManufactureItems=function(items){
   times();
   ids.forEach((id,i)=>{document.getElementById(id).value=saved[i];});
   mfgLoaded=true;apply();
+  window.InhouseTimeline?.update(MFG);
 };
 function manufacturePendingRow(x){
   const fields=['Project','Phase','Equipment','Spec','Type','KO QTY','KO Date','CM NBD','CM Site','MFG status','OS/SM Status','STD Status','RM Status','CNC Status','RD Drawing Status','ACT ETD','Remark'];

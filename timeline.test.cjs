@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+const {mapRows}=require('./manufacture-source.js');
+const headers=['Project','Phase','Type','Equipment','Spec','KO QTY','KO Date','CM NBD','CM Site','MFG status','ACT ETD','CNC Start Status\n(Plan)\nDRI: Test','CNC End Status\n(Plan)\nDRI: Test','Assembly Start\n(Act.)\nDRI: Test','Assembly End\n(Act.)\nDRI: Test','STD ETA\nDRI: Test','Debug Start\n(Plan)\nDRI: Test','Debug Start\n(Plan)\nDRI: Test'];
+const row=['Example','EVT','NB','Mic','EX-001',1,46251,46300,'Site','On-going','',46261,46274,'2026-09-14','2026-09-20','N/A',46284,46290];
+const item=mapRows([headers,row])[0],stages=item._timeline;
+assert.equal(stages.find(s=>s.label==='CNC').planStart,'2026-08-27');
+assert.equal(stages.find(s=>s.label==='CNC').planEnd,'2026-09-09');
+assert.equal(stages.find(s=>s.label==='Assembly').actualStart,'2026-09-14');
+assert.equal(stages.find(s=>s.label==='STD arrival').planEnd,'');
+assert.equal(stages.find(s=>s.label==='Dispatch').actualEnd,'');
+assert(!stages.some(s=>s.label.startsWith('Debug')),'Ambiguous source headers must not create invented stages');
+assert.equal(item['Overall status'],'On-going');
+console.log('PASS timeline source mapping, missing dates, and ambiguous Debug headers.');

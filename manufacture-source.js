@@ -40,6 +40,23 @@
       });
       ['KO Date','CM NBD','ACT ETD'].forEach(k=>item[k]=date(get(k)));
       item.NBD=item['CM NBD'];
+      const milestone=(label,field,kind='plan')=>({label,[kind+'End']:date(get(field))});
+      const period=(label,start,end)=>({label,planStart:date(get(start+' (Plan)')),planEnd:date(get(end+' (Plan)')),actualStart:date(get(start+' (Act.)')),actualEnd:date(get(end+' (Act.)'))});
+      item._timeline=[
+        milestone('Kick-off','KO Date','actual'),
+        milestone('Customer drawing released','Latest CM Drawing Released Date','actual'),
+        milestone('RD drawing complete','RD Drawing Complete Date','actual'),
+        {label:'SAP upload',planEnd:date(get('SAP Upload status PLAN')),actualEnd:date(get('SAP Upload status Actual'))},
+        milestone('Routing released','Routing file Released date','actual'),
+        milestone('STD arrival','STD ETA'),milestone('OS/SM arrival','OS/SM ETA'),milestone('Raw material arrival','CNC RM ETA'),
+        period('CNC','CNC Start Status','CNC End Status'),
+        milestone('Second process','2nd process ETA'),milestone('Supplier kick-off','KO to Supplier Date','actual'),
+        milestone('Supplier dispatch','FG Supplier ETD'),
+        {label:'TN Site 2 arrival',planEnd:date(get('ETA TN Site2'))},
+        period('Assembly','Assembly Start','Assembly End'),
+        {label:'Dispatch',planEnd:date(get('ETD TN (Plan) site 2 Status')),actualEnd:date(get('ACT ETD'))},
+        milestone('Customer need-by','CM NBD')
+      ];
       item['Overall status']=/dispatched/i.test(item['MFG status'])?'Dispatched':item['MFG status']||item['Material Status']||'No Status';
       return [item];
     });
