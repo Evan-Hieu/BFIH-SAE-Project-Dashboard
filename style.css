@@ -334,7 +334,7 @@ body.signed-in .login-view{display:none}
 #timelineMatrix thead .matrix-stage{padding:0;vertical-align:bottom;overflow:visible;background:transparent!important;z-index:5;border-right:0}
 #timelineMatrix thead .matrix-stage>div{height:115px;position:relative;width:100%;text-align:center;line-height:1.4}
 #timelineMatrix thead .matrix-stage>div:before{content:'';position:absolute;inset:0;background:var(--stage-color);border-left:1px solid #aebfd0;border-right:1px solid #aebfd0;transform:skewX(-50deg);transform-origin:bottom left}
-#timelineMatrix thead .matrix-stage>div>span:last-child{position:absolute;bottom:8px;left:56px;width:max-content;transform:rotate(-40deg);transform-origin:left bottom;font-size:12px;line-height:1.15;text-align:left;white-space:nowrap}
+#timelineMatrix thead .matrix-stage>div>span:last-child{position:absolute;top:50%;left:calc(50% + 68.526px);width:max-content;transform:translate(-50%,-50%) rotate(-40deg);transform-origin:center;font-size:12px;line-height:1.15;text-align:left;white-space:nowrap}
 #timelineMatrix .matrix-stage-number{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:400;opacity:.65;letter-spacing:1px}
 #timelineMatrix thead .group-design{--stage-color:#d7e8f5}#timelineMatrix thead .group-material{--stage-color:#d8edcd}#timelineMatrix thead .group-manufacture{--stage-color:#fff0c3}#timelineMatrix thead .group-system{--stage-color:#ece4c9}#timelineMatrix thead .group-assembly{--stage-color:#fce0c8}#timelineMatrix thead .group-quality{--stage-color:#f9d4d8}#timelineMatrix thead .group-shipment{--stage-color:#e3d9ef}
 #timelineMatrix .matrix-no{position:sticky;left:0;z-index:2;background:white;text-align:center}

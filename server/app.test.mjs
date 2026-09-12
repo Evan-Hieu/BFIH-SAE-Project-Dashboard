@@ -15,7 +15,7 @@ try{
  assert.equal((await call('google/connect',{accessToken:'other'},login.cookie)).status,403);
  assert.equal((await call('google/connect',{accessToken:'alice'},login.cookie)).status,200);
  const tno='1KHBzyi9vcIiqwzKOGVtJNZXC6rqULJYyyhvO69XoDuE',mfg='1VXRGCvQp37ppTEpMCmt_sSklmzbH3f2vSH7jkASehDU';
- const write=id=>({url:`https://sheets.googleapis.com/v4/spreadsheets/${id}/values:batchUpdate`,method:'POST',body:{valueInputOption:'RAW',data:[{range:"'SAE'!D5",values:[['new']]}]}});
+ const write=id=>({url:`https://sheets.googleapis.com/v4/spreadsheets/${id}/values:batchUpdate`,method:'POST',body:{valueInputOption:'RAW',data:[{range:"'SAE TNO'!D5",values:[['new']]}]}});
  assert.equal((await call('google/request',write(mfg),login.cookie)).status,403);assert.equal(googleWrites,0);
  assert.equal((await call('google/request',write(tno),login.cookie)).status,200);assert.equal(googleWrites,1);
  canEdit=false;assert.equal((await call('google/request',write(tno),login.cookie)).status,403);canEdit=true;

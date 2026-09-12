@@ -30,7 +30,7 @@
     }}finally{if(sharedRefresh===marker)sharedRefresh=null;}
   }
   const sources=()=>[
-    {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'TNO'},
+    {id:SaeSource.SHEET_ID,range:"'SAE TNO'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'TNO'},
     {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CQ",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
   ];
   const valid=()=>session&&Date.now()<session.expiresAt;
