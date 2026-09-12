@@ -24,13 +24,14 @@
       try{
         const data=await readShared(source.id);
         source.load(source.parse(data.values));
+        if(source.name==='Inhouse')window.InhouseTimeline?.setSyncError('');
         document.getElementById(source.status).textContent=source.name+' · Synced '+new Date(data.syncedAt).toLocaleTimeString();
-      }catch(e){if(version!==epoch)return;document.getElementById(source.status).textContent=e.message+' · retrying automatically';}
+      }catch(e){if(version!==epoch)return;document.getElementById(source.status).textContent=e.message+' · retrying automatically';if(source.name==='Inhouse')window.InhouseTimeline?.setSyncError(e.message);}
     }}finally{if(sharedRefresh===marker)sharedRefresh=null;}
   }
   const sources=()=>[
     {id:SaeSource.SHEET_ID,range:"'SAE'!A2:AZ",parse:SaeSource.mapRows,load:window.loadSaeItems,status:'syncStatus',name:'TNO'},
-    {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CP",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
+    {id:ManufactureSource.SHEET_ID,range:"'SAE Summary Data'!A2:CQ",parse:ManufactureSource.mapRows,load:window.loadManufactureItems,status:'mfgSyncStatus',name:'Inhouse'}
   ];
   const valid=()=>session&&Date.now()<session.expiresAt;
   const status=message=>['syncStatus','mfgSyncStatus','googleAccessMessage'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=message;});
@@ -91,7 +92,7 @@
       try{
         const payload=await request('https://sheets.googleapis.com/v4/spreadsheets/'+source.id+'/values/'+encodeURIComponent(source.range)+'?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=SERIAL_NUMBER',s);
         source.load(source.parse(payload.values));document.getElementById(source.status).textContent=`${source.name} · Synced ${new Date().toLocaleTimeString()}`;
-      }catch(e){if(s!==session)return;document.getElementById(source.status).textContent=e.message+' · retrying automatically';}
+      }catch(e){if(s!==session)return;document.getElementById(source.status).textContent=e.message+' · retrying automatically';if(source.name==='Inhouse')window.InhouseTimeline?.setSyncError(e.message);}
     }));}finally{if(refreshBusy===s)refreshBusy=false;}
   }
   function clear(){epoch++;session=null;sharedRefresh=null;rights.clear();clearInterval(timer);timer=null;window.SheetEditor?.reset();sources().forEach(s=>s.load([]));emit();}

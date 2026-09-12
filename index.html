@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>BFIH SAE Project Dashboard</title>
-<link rel="stylesheet" href="style.css?v=20260911-column-map">
+<link rel="stylesheet" href="style.css?v=20260912-fixed-header">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -89,7 +89,6 @@
 
 </section>
 <section id="timelineView" class="timeline-view" hidden aria-label="Inhouse Timeline">
-  <div class="timeline-heading"><h1>Timeline <span>Inhouse</span></h1><p>Production progress · Equipment × process stages</p></div>
   <div class="timeline-filters"><label>Project<select id="timelineProject"><option value="">All projects</option></select></label><label>Status<select id="timelineStatus"><option value="">All items</option><option value="ongoing">On-going</option><option value="done">Dispatched</option></select></label><label class="timeline-search">Equipment / Spec<input id="timelineSearch" type="search" placeholder="Search equipment, spec, phase…"></label></div>
   <p id="timelineMessage" role="status">Waiting for Inhouse source data…</p>
   <div class="matrix-scroll" tabindex="0" role="region" aria-label="Inhouse production progress matrix"><table id="timelineMatrix"><caption class="sr-only">Inhouse equipment with 24 production milestones, dates and quantities.</caption><colgroup><col class="matrix-no-col"><col class="matrix-identity-col"><col span="24" class="matrix-stage-col"><col class="matrix-remarks-col"></colgroup><thead id="timelineMatrixHead"></thead><tbody id="timelineMatrixBody"></tbody></table></div>
@@ -140,6 +139,6 @@
 </section>
 <dialog id="sheetCellDialog" aria-labelledby="sheetCellTitle"><form id="sheetCellForm"><h2 id="sheetCellTitle">Edit cell</h2><label>Value<input id="sheetCellValue" maxlength="10000"></label><div class="user-form-actions"><button type="button" id="sheetCellCancel" class="btn secondary">Cancel</button><button class="btn primary">Apply change</button></div></form></dialog>
 <dialog id="sheetReviewDialog" aria-labelledby="sheetReviewTitle"><h2 id="sheetReviewTitle">Review changes</h2><p id="sheetReviewSource"></p><div class="editor-review-scroll"><table><thead><tr><th>Cell</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody id="sheetReviewRows"></tbody></table></div><p id="sheetSaveMessage" role="status"></p><div class="user-form-actions"><button id="sheetReviewCancel" class="btn secondary">Cancel</button><button id="sheetSave" class="btn primary">Confirm save to Google Sheet</button></div></dialog></main></div>
-<script src="sheet-source.js?v=6"></script><script src="google-config.js?v=4"></script><script src="i18n.js?v=14"></script><script src="manufacture-source.js?v=20260911-column-map"></script><script src="manufacture.js?v=20260911-timeline"></script><script src="app.js?v=20260911"></script><script src="timeline.js?v=20260911-column-map"></script><script src="calendar.js?v=20260911-timeline"></script><script src="auth-config.js?v=1"></script><script src="auth.js?v=4"></script><script src="users.js?v=8"></script><script src="login.js?v=20260911-timeline"></script><script src="sheets-sync.js?v=20260911-cp"></script><script src="sheet-editor.js?v=6"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="sheet-source.js?v=6"></script><script src="google-config.js?v=4"></script><script src="i18n.js?v=14"></script><script src="manufacture-source.js?v=20260912-remark-q"></script><script src="manufacture.js?v=20260911-timeline"></script><script src="app.js?v=20260911"></script><script src="timeline.js?v=20260912-fixed-header"></script><script src="calendar.js?v=20260911-timeline"></script><script src="auth-config.js?v=1"></script><script src="auth.js?v=4"></script><script src="users.js?v=8"></script><script src="login.js?v=20260911-timeline"></script><script src="sheets-sync.js?v=20260912-cq"></script><script src="sheet-editor.js?v=6"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
 </body></html>
 

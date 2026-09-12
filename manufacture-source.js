@@ -42,6 +42,7 @@
       item.NBD=item['CM NBD'];
       item._production=production(values[0],r);
       item._timeline=timeline(r);
+      item._timelineRemark=text(r[16]);
       item.Condition=text(get('Condition'));
       item['Overall status']=/dispatched/i.test(item['MFG status'])?'Dispatched':item['MFG status']||item['Material Status']||'No Status';
       return [item];
@@ -139,7 +140,8 @@
   function timeline(row){
     return timelineStages.map(stage=>{
       const raw=row[columnIndex(stage.column)],reference=stage.colorColumn?text(row[columnIndex(stage.colorColumn)]):'';
-      const display=stage.format==='date'?date(raw)||text(raw):text(raw);
+      const parsedDate=stage.format==='date'?date(raw):'';
+      const display=parsedDate?parsedDate.slice(5).replace('-','/'):text(raw);
       return {text:display||'—',state:reference?status(reference).state:'unknown',reference,
         redPositive:stage.redPositive&&text(raw)!==''&&Number.isFinite(Number(raw))&&Number(raw)>0};
     });
