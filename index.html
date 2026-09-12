@@ -61,8 +61,8 @@
 <section class="kpis">
 <article class="kpi blue"><div class="kpi-label">Total Items</div><div class="kpi-value" id="importTotal">0</div><div class="kpi-sub" id="importTotalPct">0%</div></article>
 <article class="kpi red"><div class="kpi-label">Overdue</div><div class="kpi-value" id="importOverdue">0</div><div class="kpi-sub" id="importOverduePct">0%</div></article>
-<article class="kpi orange"><div class="kpi-label">Due ≤ 3 Days</div><div class="kpi-value" id="importDue3">0</div><div class="kpi-sub" id="importDue3Pct">0%</div></article>
-<article class="kpi yellow"><div class="kpi-label">Due ≤ 7 Days</div><div class="kpi-value" id="importDue7">0</div><div class="kpi-sub" id="importDue7Pct">0%</div></article>
+<article class="kpi orange"><div class="kpi-label">Due ≤ 5 Days</div><div class="kpi-value" id="importDue3">0</div><div class="kpi-sub" id="importDue3Pct">0%</div></article>
+<article class="kpi yellow"><div class="kpi-label">On Track</div><div class="kpi-value" id="importDue7">0</div><div class="kpi-sub" id="importDue7Pct">0%</div></article>
 <article class="kpi green"><div class="kpi-label">Dispatched</div><div class="kpi-value" id="importDispatched">0</div><div class="kpi-sub" id="importDispatchedPct">0%</div></article>
 </section>
 <section class="workspace">
@@ -76,8 +76,8 @@
 <section class="kpis">
 <article class="kpi blue"><div class="kpi-label">Total Items</div><div class="kpi-value" id="mfgTotal">0</div><div class="kpi-sub" id="mfgTotalPct">0%</div></article>
 <article class="kpi red"><div class="kpi-label">Overdue</div><div class="kpi-value" id="mfgOverdue">0</div><div class="kpi-sub" id="mfgOverduePct">0%</div></article>
-<article class="kpi orange"><div class="kpi-label">Due ≤ 3 Days</div><div class="kpi-value" id="mfgDue3">0</div><div class="kpi-sub" id="mfgDue3Pct">0%</div></article>
-<article class="kpi yellow"><div class="kpi-label">Due ≤ 7 Days</div><div class="kpi-value" id="mfgDue7">0</div><div class="kpi-sub" id="mfgDue7Pct">0%</div></article>
+<article class="kpi orange"><div class="kpi-label">Due ≤ 5 Days</div><div class="kpi-value" id="mfgDue3">0</div><div class="kpi-sub" id="mfgDue3Pct">0%</div></article>
+<article class="kpi yellow"><div class="kpi-label">On Track</div><div class="kpi-value" id="mfgDue7">0</div><div class="kpi-sub" id="mfgDue7Pct">0%</div></article>
 <article class="kpi green"><div class="kpi-label">Dispatched</div><div class="kpi-value" id="mfgDispatched">0</div><div class="kpi-sub" id="mfgDispatchedPct">0%</div></article>
 </section>
 <section class="workspace">
@@ -139,6 +139,6 @@
 </section>
 <dialog id="sheetCellDialog" aria-labelledby="sheetCellTitle"><form id="sheetCellForm"><h2 id="sheetCellTitle">Edit cell</h2><label>Value<input id="sheetCellValue" maxlength="10000"></label><div class="user-form-actions"><button type="button" id="sheetCellCancel" class="btn secondary">Cancel</button><button class="btn primary">Apply change</button></div></form></dialog>
 <dialog id="sheetReviewDialog" aria-labelledby="sheetReviewTitle"><h2 id="sheetReviewTitle">Review changes</h2><p id="sheetReviewSource"></p><div class="editor-review-scroll"><table><thead><tr><th>Cell</th><th>Field</th><th>Before</th><th>After</th></tr></thead><tbody id="sheetReviewRows"></tbody></table></div><p id="sheetSaveMessage" role="status"></p><div class="user-form-actions"><button id="sheetReviewCancel" class="btn secondary">Cancel</button><button id="sheetSave" class="btn primary">Confirm save to Google Sheet</button></div></dialog></main></div>
-<script src="sheet-source.js?v=6"></script><script src="google-config.js?v=4"></script><script src="i18n.js?v=14"></script><script src="manufacture-source.js?v=20260912-remark-q"></script><script src="manufacture.js?v=20260911-timeline"></script><script src="app.js?v=20260911"></script><script src="timeline.js?v=20260912-fixed-header"></script><script src="calendar.js?v=20260911-timeline"></script><script src="auth-config.js?v=1"></script><script src="auth.js?v=4"></script><script src="users.js?v=8"></script><script src="login.js?v=20260911-timeline"></script><script src="sheets-sync.js?v=20260912-sae-tno"></script><script src="sheet-editor.js?v=20260912-sae-tno"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="sheet-source.js?v=6"></script><script src="google-config.js?v=4"></script><script src="i18n.js?v=20260912-due5-track"></script><script src="manufacture-source.js?v=20260912-remark-q"></script><script src="manufacture.js?v=20260911-timeline"></script><script src="app.js?v=20260912-due5-track"></script><script src="timeline.js?v=20260912-fixed-header"></script><script src="calendar.js?v=20260911-timeline"></script><script src="auth-config.js?v=1"></script><script src="auth.js?v=4"></script><script src="users.js?v=8"></script><script src="login.js?v=20260911-timeline"></script><script src="sheets-sync.js?v=20260912-sae-tno"></script><script src="sheet-editor.js?v=20260912-sae-tno"></script><script src="https://accounts.google.com/gsi/client" async defer></script>
 </body></html>
 
